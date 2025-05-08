@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Models;
 using Application.Models.Requests;
+using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,24 @@ public class AuthController : ControllerBase
         _httpClientFactory = httpClientFactory;
     }
 
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;    // Id del usuario
+        var userName = User.FindFirst(ClaimTypes.Name)?.Value;           // Nombre del usuario
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;             // Email del usuario
+        var accountStatus = User.FindFirst("accountStatus")?.Value;     // Estado de la cuenta (pendiente, activa, desactivada)
+
+        return Ok(new
+        {
+            userId,
+            userName,
+            email,
+            accountStatus
+        });
+    }
+
     [HttpGet("oauth/{app}")]
     public async Task<IActionResult> OAuth(string app, string code)
     {        
@@ -38,12 +57,30 @@ public class AuthController : ControllerBase
             var userData = await GetGithubUser(accessToken);
 
             var tokens = await _authService.LoginWithGithub(userData);
-            if(tokens is null)
+            if (tokens is null)
             {
                 await _userService.Create(userData);
-                return Ok("Creado, ahora completar perfil");
+                return Redirect("http://localhost:5173");
             }
-            return Ok(new { Token = tokens.AccessToken });
+
+            HttpContext.Response.Cookies.Append("access_token", tokens.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                SameSite = SameSiteMode.None
+            });
+
+            HttpContext.Response.Cookies.Append("refresh_token", tokens.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+                SameSite = SameSiteMode.None
+            });
+            return Redirect("http://localhost:5173");
         }
         catch (Exception ex)
         {
@@ -82,7 +119,34 @@ public class AuthController : ControllerBase
         var response = await client.GetAsync("https://api.github.com/user");
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var userData = JsonSerializer.Deserialize<GithubUserDto>(content);
+        var userData = JsonSerializer.Deserialize<GithubUserDto>(content, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        }); ;
+
+        var emailResponse = await client.GetAsync("https://api.github.com/user/emails");
+        if (!emailResponse.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Error al obtener los correos electrónicos");
+            return userData;  // Devuelve el objeto sin email si falla
+        }
+
+        var emailContent = await emailResponse.Content.ReadAsStringAsync();
+        var emails = JsonSerializer.Deserialize<List<GithubEmailDto>>(emailContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        Console.WriteLine(emailContent);
+        if (emails != null)
+        {
+            // Buscar el correo principal verificado
+            var primaryEmail = emails.FirstOrDefault(e => e.Primary && e.Verified)?.Email;
+            if (!string.IsNullOrEmpty(primaryEmail))
+            {
+                userData.Email = primaryEmail;
+            }
+        }
+
         return userData;
     }
 
@@ -114,7 +178,7 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddMinutes(15),
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None
             });
             HttpContext.Response.Cookies.Append("refresh_token", tokens.RefreshToken,
             new CookieOptions
@@ -122,7 +186,7 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddDays(7),
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None
             });
 
 
@@ -153,7 +217,7 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddMinutes(15),
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None
             });
             HttpContext.Response.Cookies.Append("refresh_token", tokens.RefreshToken,
             new CookieOptions
@@ -161,7 +225,7 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddDays(7),
-                SameSite = SameSiteMode.Strict
+                SameSite = SameSiteMode.None
             });
 
 

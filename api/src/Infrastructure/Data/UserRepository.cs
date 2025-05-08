@@ -54,7 +54,7 @@ public class UserRepository: IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == token);
     }
 
-    public async Task<User?> GetByGithubId(string id)
+    public async Task<User?> GetByGithubId(long id)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.GithubId == id);
     }
