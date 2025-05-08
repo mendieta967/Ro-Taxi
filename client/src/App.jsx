@@ -9,11 +9,13 @@ import HomePassenger from "./page/passenger/home/HomePassenger";
 import PerfilPassenger from "./page/passenger/perfil/PerfilPassenger";
 import FormProfile from "./components/common/FormProfile";
 import HistorialPassenger from "./page/passenger/historial/HistorialPassenger";
+import PagosPassenger from "./page/passenger/pagos/PagosPassenger";
+import AppRoute from "./router/AppRoute";
 
 const App = () => {
   return (
     <div>
-      <HistorialPassenger />
+      <AppRoute />
     </div>
   );
 };
