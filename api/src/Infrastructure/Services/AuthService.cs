@@ -100,6 +100,8 @@ public class AuthService: IAuthService
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("accountStatus", user.AccountStatus.ToString())
             },
             DateTime.UtcNow,
             DateTime.UtcNow.AddMinutes(15),

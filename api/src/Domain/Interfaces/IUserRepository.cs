@@ -16,7 +16,7 @@ public interface IUserRepository
     public Task<bool> IsEmailOrDniTakenAsync(string email, string dni);
     public Task<User?> GetByEmail(string email);
     public Task<User?> GetByRefreshToken(string token);
-    public Task<User?> GetByGithubId(string id);
+    public Task<User?> GetByGithubId(long id);
 
 
 }

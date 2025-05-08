@@ -21,7 +21,7 @@ public class User
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
     public AuthProvider AuthProvider { get; set; }
-    public string? GithubId { get; set; }
+    public long? GithubId { get; set; }
     public AccountStatus AccountStatus { get; set; }
 
 }

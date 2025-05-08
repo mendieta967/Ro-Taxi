@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Form from "../../../components/common/Form";
 import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
+import { linkGithubProvider } from "../../../services/auth";
 
 const Login = ({ onSwitch }) => {
   const emailRef = useRef(null);
@@ -68,6 +69,8 @@ const Login = ({ onSwitch }) => {
     setUserType(type);
   };
 
+  const githubLink = linkGithubProvider();
+
   return (
     <div className="min-h-screen w-full bg-gray-800/95 flex items-center justify-center px-4">
       <div className="w-full max-w-md p-6 sm:p-8 bg-gray-900 rounded-3xl shadow-2xl shadow-yellow-600">
@@ -117,9 +120,12 @@ const Login = ({ onSwitch }) => {
             <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold p-2 rounded-full cursor-pointer">
               <FaFacebookF />
             </button>
-            <button className="bg-gray-800 hover:bg-gray-900 text-white font-semibold p-2 rounded-full cursor-pointer">
+            <a
+              href={githubLink}
+              className="bg-gray-800 hover:bg-gray-900 text-white font-semibold p-2 rounded-full cursor-pointer"
+            >
               <FaGithub />
-            </button>
+            </a>
           </div>
         </div>
 
