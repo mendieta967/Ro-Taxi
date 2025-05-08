@@ -1,7 +1,88 @@
+import FormProfile from "../../../components/common/FormProfile";
 import MainLayout from "../../../components/layout/MainLayout";
-import { Mail, IdCard, User, Venus } from "lucide-react";
+import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
 
 const PerfilPassenger = () => {
+  const personalFields = [
+    {
+      name: "nombre",
+      label: "Nombre",
+      type: "text",
+      placeholder: "Carlos Rodríguez",
+      required: true,
+      icon: <User className="text-zinc-500" size={16} />,
+    },
+    {
+      name: "correo",
+      label: "Correo Electrónico",
+      type: "email",
+      placeholder: "carlos@ejemplo.com",
+      required: true,
+      icon: <Mail className="text-zinc-500" size={16} />,
+    },
+    {
+      name: "dni",
+      label: "DNI",
+      type: "text",
+      placeholder: "123456789",
+      required: true,
+      icon: <IdCard className="text-zinc-500" size={16} />,
+    },
+    {
+      name: "genero",
+      label: "Género",
+      type: "select",
+      options: [
+        { value: "Masculino", label: "Masculino" },
+        { value: "Femenino", label: "Femenino" },
+        { value: "Otro", label: "Otro" },
+      ],
+      required: true,
+      icon: <Venus className="text-zinc-500" size={16} />,
+    },
+  ];
+
+  const securityFields = [
+    {
+      name: "currentPassword",
+      label: "Contraseña Actual",
+      type: "password",
+      placeholder: "********",
+      required: true,
+      icon: <Lock className="text-zinc-500" size={16} />,
+    },
+    {
+      name: "newPassword",
+      label: "Nueva Contraseña",
+      type: "password",
+      placeholder: "********",
+      required: true,
+      icon: <Lock className="text-zinc-500" size={16} />,
+    },
+    {
+      name: "confirmPassword",
+      label: "Confirmar Contraseña",
+      type: "password",
+      placeholder: "********",
+      required: true,
+      icon: <Lock className="text-zinc-500" size={16} />,
+    },
+  ];
+
+  const handlePasswordSubmit = (data, resetForm) => {
+    if (data.newPassword !== data.confirmPassword) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+    console.log("Datos de seguridad:", data);
+    resetForm();
+  };
+
+  const handleFormSubmit = (data, resetForm) => {
+    console.log("Datos del formulario:", data);
+    resetForm();
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -19,125 +100,32 @@ const PerfilPassenger = () => {
 
           {/* Información */}
           <div className="flex-1 space-y-4">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-2xl font-bold text-white">
               Información Personal
             </h2>
             <p className="text-zinc-400 text-sm">
               Actualiza tu información de perfil
             </p>
-            {/* formulario */}
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div className="relative">
-                <label className="text-lg font-semibold text-white">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  placeholder="Carlos Rodríguez"
-                  value=""
-                  className="w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none text-zinc-500"
-                />
-                <User
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-5 text-zinc-500"
-                  size={16}
-                />
-              </div>
 
-              <div className="relative">
-                <label className="text-lg font-semibold text-white">
-                  Correo Electrónico
-                </label>
-                <input
-                  type="email"
-                  value="carlos@ejemplo.com"
-                  className="w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none text-zinc-500"
-                />
-                <Mail
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-5 text-zinc-500"
-                  size={16}
-                />
-              </div>
-
-              <div className="relative">
-                <label className="text-lg text-white font-semibold">Dni</label>
-                <input
-                  type="text"
-                  value="123456789"
-                  className="w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none text-zinc-500"
-                />
-                <IdCard
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-5 text-zinc-500"
-                  size={16}
-                />
-              </div>
-
-              <div className="relative">
-                <label className="text-lg text-white font-semibold">
-                  Género
-                </label>
-                <select
-                  value="Masculino"
-                  className="w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none text-zinc-500 appearance-none"
-                >
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                  <option value="Otro">Otro</option>
-                </select>
-                <Venus
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-5 text-zinc-500"
-                  size={16}
-                />
-              </div>
-            </div>
-
-            <button className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold hover:bg-yellow-400 transition cursor-pointer">
-              Guardar Cambios
-            </button>
+            <FormProfile
+              fields={personalFields}
+              submitText="Guardar Cambios"
+              onSubmit={handleFormSubmit}
+            />
           </div>
         </div>
-
         {/* SEGURIDAD */}
         <div className="bg-zinc-900 p-6 rounded-md space-y-4">
-          <h2 className="text-xl font-bold">Seguridad</h2>
+          <h2 className="text-2xl text-white font-bold">Seguridad</h2>
           <p className="text-zinc-400 text-sm">
             Gestiona la seguridad de tu cuenta
           </p>
 
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-semibold">Contraseña Actual</label>
-              <input
-                type="password"
-                className="w-full mt-1 p-2 bg-zinc-800 rounded-md outline-none text-white"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-semibold">
-                  Nueva Contraseña
-                </label>
-                <input
-                  type="password"
-                  className="w-full mt-1 p-2 bg-zinc-800 rounded-md outline-none text-white"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold">
-                  Confirmar Contraseña
-                </label>
-                <input
-                  type="password"
-                  className="w-full mt-1 p-2 bg-zinc-800 rounded-md outline-none text-white"
-                />
-              </div>
-            </div>
-
-            <button className="mt-4 bg-yellow-500 text-black px-4 py-2 rounded-md font-semibold hover:bg-yellow-400 transition">
-              Actualizar Contraseña
-            </button>
-          </div>
+          <FormProfile
+            fields={securityFields}
+            submitText="Actualizar Contraseña"
+            onSubmit={handlePasswordSubmit}
+          />
         </div>
       </div>
     </MainLayout>

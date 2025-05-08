@@ -43,3 +43,76 @@ export const user = {
   dni: "123456789",
   gender: "Masculino",
 };
+
+export const trips = [
+  {
+    id: 1,
+    date: "Hoy, 10:30 AM",
+    from: "Casa",
+    to: "Oficina",
+    price: "$12.50",
+    status: "completados",
+    driver: "Juan Pérez",
+    rating: 1,
+  },
+  {
+    id: 2,
+    date: "Ayer, 6:15 PM",
+    from: "Oficina",
+    to: "Casa",
+    price: "$13.75",
+    status: "completados",
+    driver: "María López",
+    rating: 4,
+  },
+  {
+    id: 3,
+    date: "15 Mayo, 9:00 AM",
+    from: "Casa",
+    to: "Centro Comercial",
+    price: "$8.90",
+    status: "completados",
+    driver: "Pedro Sánchez",
+    rating: 5,
+  },
+  {
+    id: 4,
+    date: "10 Mayo, 2:30 PM",
+    from: "Centro Comercial",
+    to: "Restaurante El Mirador",
+    price: "$15.20",
+    status: "completados",
+    driver: "Ana Martínez",
+    rating: 5,
+  },
+  {
+    id: 5,
+    date: "5 Mayo, 7:45 PM",
+    from: "Restaurante El Mirador",
+    to: "Casa",
+    price: "$11.30",
+    status: "completados",
+    driver: "Carlos Gómez",
+    rating: 4,
+  },
+];
+
+// Viaje programado de ejemplo
+export const scheduledTrip = [
+  {
+    id: 1,
+    date: "Mañana, 8:00 AM",
+    from: "Casa",
+    to: "Aeropuerto",
+    price: "Estimado: $25.00",
+    status: "scheduled",
+  },
+  {
+    id: 2,
+    date: "Mañana, 8:00 AM",
+    from: "Casa",
+    to: "Aeropuerto",
+    price: "Estimado: $25.00",
+    status: "scheduled",
+  },
+];
