@@ -1,11 +1,42 @@
+// src/routes/AppRoute.jsx
+
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import HomePassenger from "../page/passenger/home/HomePassenger";
+import HistorialPassenger from "../page/passenger/historial/HistorialPassenger";
+import PagosPassenger from "../page/passenger/pagos/PagosPassenger";
+import PerfilPassenger from "../page/passenger/perfil/PerfilPassenger";
+import PassengerLayout from "../page/passenger/PassangerLayout";
+import SettingsPassenger from "../page/passenger/settings/SettingsPassenger";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <PassengerLayout />,
+    children: [
+      // Redirección automática desde "/"
+      { index: true, element: <Navigate to="home" replace /> },
+
+      // Rutas del pasajero
+      { path: "home", element: <HomePassenger /> },
+      { path: "perfil", element: <PerfilPassenger /> },
+      { path: "mis-viajes", element: <HistorialPassenger /> },
+      { path: "pagos", element: <PagosPassenger /> },
+      { path: "configuracion", element: <SettingsPassenger /> },
+
+      // Ruta para errores 404 dentro del layout
+      { path: "*", element: <h1>404 - Página no encontrada</h1> },
+    ],
+  },
+  // Ruta para errores 404 globales
+  { path: "*", element: <h1>404 - Página no encontrada</h1> },
+]);
+
 const AppRoute = () => {
-  return (
-    <div>
-      <h1 class="text-center mt-7 text-3xl font-bold underline text-cyan-600">
-        Hello world!
-      </h1>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default AppRoute;

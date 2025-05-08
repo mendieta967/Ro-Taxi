@@ -1,4 +1,5 @@
 import { Home, Clock, User, CreditCard, Settings, Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
   const sidebarContent = (
     <div className="flex flex-col h-full w-64 bg-yellow-500 text-taxi-contrast">
@@ -22,20 +23,28 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
         {/* Aquí se añade mt-20 para dispositivos pequeños */}
         <ul className="space-y-2">
           {[
-            { icon: <Home />, label: "Inicio" },
-            { icon: <User />, label: "Perfil" },
-            { icon: <Clock />, label: "Mis Viajes" },
-            { icon: <CreditCard />, label: "Pagos" },
-            { icon: <Settings />, label: "Configuración" },
-          ].map(({ icon, label }, i) => (
+            { icon: <Home />, label: "Inicio", to: "/home" },
+            { icon: <User />, label: "Perfil", to: "/perfil" },
+            {
+              icon: <Clock />,
+              label: "Mis Viajes",
+              to: "/mis-viajes",
+            },
+            { icon: <CreditCard />, label: "Pagos", to: "/pagos" },
+            {
+              icon: <Settings />,
+              label: "Configuración",
+              to: "/configuracion",
+            },
+          ].map(({ icon, label, to }, i) => (
             <li key={i}>
-              <a
-                href="#"
+              <Link
+                to={to}
                 className="flex items-center px-4 py-3 rounded-lg transition-colors text-gray-900 hover:bg-gray-900/95 hover:text-yellow-500 font-bold"
               >
                 <span className="mr-3 w-5 h-5">{icon}</span>
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

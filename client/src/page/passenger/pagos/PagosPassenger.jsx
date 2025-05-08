@@ -1,0 +1,567 @@
+import { historialPagos, historialCompleto } from "../../../data/data";
+import { useState } from "react";
+import {
+  CreditCard,
+  Wallet,
+  Plus,
+  Trash2,
+  ChevronDown,
+  Calendar,
+  ArrowRight,
+  X,
+  MapPin,
+  Clock,
+  CreditCardIcon,
+} from "lucide-react";
+import MainLayout from "../../../components/layout/MainLayout";
+
+const PagosPassenger = () => {
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [selectedMethodId, setSelectedMethodId] = useState(1); // Ahora guardamos el ID del método seleccionado
+  const [showPaymentDetails, setShowPaymentDetails] = useState(false);
+  const [showFullHistory, setShowFullHistory] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+
+  // Estados para el formulario de nueva tarjeta
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCVC, setCardCVC] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardCountry, setCardCountry] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: 1, type: "card", name: "Visa terminada en 4242", expiry: "12/25" },
+    { id: 2, type: "cash", name: "Efectivo", description: "Pago al conductor" },
+  ]);
+
+  const handleDeleteMethod = (id) => {
+    const methodToDelete = paymentMethods.find((method) => method.id === id);
+    if (methodToDelete.type === "cash") {
+      return;
+    }
+
+    // Check if there will be at least one card method left after deletion
+    const cardMethods = paymentMethods.filter(
+      (method) => method.type === "card"
+    );
+    if (cardMethods.length <= 1 && methodToDelete.type === "card") {
+      alert("Debes mantener al menos un método de tarjeta");
+      return;
+    }
+
+    const updatedMethods = paymentMethods.filter((method) => method.id !== id);
+    setPaymentMethods(updatedMethods);
+
+    // If the selected method was deleted, select another method
+    if (selectedMethodId === id) {
+      // Find another card method, or use cash if no cards are available
+      const anotherCard = updatedMethods.find(
+        (method) => method.type === "card"
+      );
+      if (anotherCard) {
+        setSelectedMethodId(anotherCard.id);
+      } else {
+        // If no cards left, select cash
+        const cashMethod = updatedMethods.find(
+          (method) => method.type === "cash"
+        );
+        setSelectedMethodId(cashMethod.id);
+      }
+    }
+  };
+
+  const openPaymentDetails = (payment) => {
+    setSelectedPayment(payment);
+    setShowPaymentDetails(true);
+  };
+
+  // Función para manejar el envío del formulario de nueva tarjeta
+  const handleAddCard = (e) => {
+    e.preventDefault();
+
+    // Validación básica
+    if (!cardNumber || !cardExpiry || !cardCVC || !cardName || !cardCountry) {
+      setFormError("Por favor completa todos los campos");
+      return;
+    }
+
+    // Validar formato de número de tarjeta (simplificado)
+    if (cardNumber.replace(/\s/g, "").length < 13) {
+      setFormError("Número de tarjeta inválido");
+      return;
+    }
+
+    // Crear nueva tarjeta
+    const lastFourDigits = cardNumber.replace(/\s/g, "").slice(-4);
+    const newCard = {
+      id: Date.now(), // ID único basado en timestamp
+      type: "card",
+      name: `Tarjeta terminada en ${lastFourDigits}`,
+      expiry: cardExpiry,
+    };
+
+    // Actualizar estado
+    setPaymentMethods([...paymentMethods, newCard]);
+
+    // Limpiar formulario
+    setCardNumber("");
+    setCardExpiry("");
+    setCardCVC("");
+    setCardName("");
+    setCardCountry("");
+    setFormError("");
+
+    // Cerrar formulario
+    setShowAddCard(false);
+
+    // Mostrar confirmación
+    alert("Tarjeta agregada exitosamente");
+
+    // No seleccionamos automáticamente la nueva tarjeta
+    // El usuario debe seleccionarla manualmente si la quiere usar
+  };
+
+  return (
+    <MainLayout>
+      <div className="flex-1 p-4 sm:px-6 sm:py-6 text-white bg-zinc-900 min-h-screen rounded ">
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Métodos de Pago */}
+          <div className="border border-zinc-800 rounded-lg p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold mb-2">
+                Métodos de Pago Guardados
+              </h1>
+              <p className="text-gray-400">
+                Selecciona tu método de pago predeterminado
+              </p>
+            </div>
+
+            {/* Payment Methods List */}
+            <div className="space-y-4">
+              {paymentMethods.map((method) => (
+                <div
+                  key={method.id}
+                  className="bg-zinc-900 border border-zinc-800 rounded-lg p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-6 h-6 rounded-full border-2 ${
+                          selectedMethodId === method.id
+                            ? "border-yellow-500"
+                            : "border-zinc-600"
+                        } flex items-center justify-center cursor-pointer`}
+                        onClick={() => setSelectedMethodId(method.id)}
+                      >
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            selectedMethodId === method.id
+                              ? "bg-yellow-500"
+                              : ""
+                          }`}
+                        ></div>
+                      </div>
+                      <div
+                        className={`${
+                          method.type === "card"
+                            ? "bg-blue-500"
+                            : "bg-green-500"
+                        } p-2 rounded`}
+                      >
+                        {method.type === "card" ? (
+                          <CreditCard className="w-6 h-6 text-white" />
+                        ) : (
+                          <Wallet className="w-6 h-6 text-white" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{method.name}</p>
+                        <p className="text-sm text-gray-400">
+                          {method.type === "card"
+                            ? `Expira: ${method.expiry}`
+                            : method.description}
+                        </p>
+                      </div>
+                    </div>
+                    {method.type === "card" && (
+                      <button
+                        className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                        onClick={() => handleDeleteMethod(method.id)}
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Payment Method Button */}
+            <button
+              className="mt-6 flex items-center gap-2 text-yellow-500 hover:text-yellow-400 transition-colors"
+              onClick={() => setShowAddCard(!showAddCard)}
+            >
+              <Plus className="w-5 h-5" />
+              <span className="cursor-pointer">Agregar método de pago</span>
+            </button>
+          </div>
+
+          {/* Add New Card Form */}
+          {showAddCard && (
+            <div className="border border-zinc-800 rounded-lg p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-2">
+                  Añadir Nueva Tarjeta
+                </h2>
+                <p className="text-gray-400">
+                  Ingresa los detalles de tu tarjeta
+                </p>
+              </div>
+
+              {formError && (
+                <div className="flex justify-center items-center bg-red-500 text-black bg-opacity-20 border border-red-500  p-3 rounded-lg mb-4">
+                  {formError}
+                </div>
+              )}
+
+              <form className="space-y-4" onSubmit={handleAddCard}>
+                <div>
+                  <label htmlFor="cardNumber" className="block mb-2">
+                    Número de Tarjeta
+                  </label>
+                  <input
+                    type="text"
+                    id="cardNumber"
+                    placeholder="1234 5678 9012 3456"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-white"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="expiry" className="block mb-2">
+                      Fecha de Expiración
+                    </label>
+                    <input
+                      type="text"
+                      id="expiry"
+                      placeholder="MM/AA"
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-white"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="cvc" className="block mb-2">
+                      CVC
+                    </label>
+                    <input
+                      type="text"
+                      id="cvc"
+                      placeholder="123"
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-white"
+                      value={cardCVC}
+                      onChange={(e) => setCardCVC(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="cardName" className="block mb-2">
+                    Nombre en la Tarjeta
+                  </label>
+                  <input
+                    type="text"
+                    id="cardName"
+                    placeholder="Nombre completo"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-white"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="country" className="block mb-2">
+                    País
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="country"
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-white appearance-none"
+                      value={cardCountry}
+                      onChange={(e) => setCardCountry(e.target.value)}
+                    >
+                      <option value="">Selecciona un país</option>
+                      <option value="br">Brasil</option>
+                      <option value="co">Colombia</option>
+                      <option value="ar">Argentina</option>
+                      <option value="cl">Chile</option>
+                      <option value="pe">Perú</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-3 px-4 rounded-lg transition-colors mt-4 cursor-pointer"
+                >
+                  Guardar Tarjeta
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Historial de Pagos */}
+          <div className="border border-zinc-800 rounded-lg p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Historial de Pagos</h2>
+              <p className="text-gray-400">Revisa tus pagos recientes</p>
+            </div>
+
+            <div className="space-y-4">
+              {historialPagos.map((pago) => (
+                <div
+                  key={pago.id}
+                  className="bg-zinc-900 border border-zinc-800 rounded-lg p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-zinc-800 p-2 rounded">
+                        <Calendar className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{pago.destino}</p>
+                        <div className="flex items-center text-sm text-gray-400">
+                          <span>{pago.fecha}</span>
+                          <span className="mx-2">•</span>
+                          <span>{pago.metodo}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{pago.monto}</span>
+                      <button
+                        className="text-gray-400 hover:text-yellow-500 transition-colors"
+                        onClick={() => openPaymentDetails(pago)}
+                      >
+                        <ArrowRight className="w-5 h-5 cursor-pointer" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="mt-4 w-full border border-zinc-700 hover:border-zinc-600 rounded-lg py-3 text-center text-gray-400 hover:text-white transition-colors cursor-pointer"
+              onClick={() => setShowFullHistory(true)}
+            >
+              Ver historial completo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de Detalles de Pago */}
+      {showPaymentDetails && selectedPayment && (
+        <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-yellow-500 ">
+                  Detalles del Viaje
+                </h2>
+                <button
+                  className="text-yellow-400 hover:text-white cursor-pointer "
+                  onClick={() => setShowPaymentDetails(false)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="bg-yellow-500 text-black p-4 rounded-lg mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-lg">Total</span>
+                  <span className="font-bold text-lg">
+                    {selectedPayment.monto}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-yellow-500 text-sm mb-2">Fecha y Hora</h3>
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-yellow-500" />
+                    <span className="font-medium text-gray-400">
+                      {selectedPayment.fecha} - {selectedPayment.hora}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-yellow-500 text-sm mb-2">Ubicaciones</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <MapPin className="w-4 h-4 text-yellow-500" />
+                      </div>
+                      <div>
+                        <p className=" text-yellow-500">Origen</p>
+                        <p className="text-sm font-medium text-gray-400">
+                          {selectedPayment.origen}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <MapPin className="w-4 h-4 text-red-500" />
+                      </div>
+                      <div>
+                        <p className=" text-yellow-500">Destino</p>
+                        <p className="text-sm  font-medium text-gray-400">
+                          {selectedPayment.destinoCompleto}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-yellow-500 text-sm mb-2">Distancia</h3>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium text-gray-400">
+                        {selectedPayment.distancia}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-yellow-500 text-sm mb-2">Tiempo</h3>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium text-gray-400">
+                        {selectedPayment.tiempo}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-yellow-500 text-sm mb-2">Conductor</h3>
+                  <p className="font-medium text-gray-400">
+                    {selectedPayment.conductor}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-yellow-500 text-sm mb-2">
+                    Método de Pago
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {selectedPayment.metodo.includes("Visa") ? (
+                      <CreditCardIcon className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <Wallet className="w-4 h-4 text-gray-400" />
+                    )}
+                    <span className="font-medium text-gray-400">
+                      {selectedPayment.metodo}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-yellow-500 text-sm mb-2">Estado</h3>
+                  <div className="inline-block px-3 py-1 border border-yellow-500 font-medium text-gray-400 rounded-full text-sm">
+                    {selectedPayment.estado}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                className="mt-6 w-full bg-zinc-700 hover:bg-zinc-600 rounded-lg py-3 text-center transition-colors cursor-pointer"
+                onClick={() => setShowPaymentDetails(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Historial Completo */}
+      {showFullHistory && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl text-yellow-500 font-bold">
+                  Historial Completo de Viajes
+                </h2>
+                <button
+                  className="text-amber-400 hover:text-white"
+                  onClick={() => setShowFullHistory(false)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {historialCompleto.map((pago) => (
+                  <div
+                    key={pago.id}
+                    className="bg-zinc-800 border border-zinc-700 rounded-lg p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-zinc-700 p-2 rounded">
+                          <Calendar className="w-5 h-5 text-yellow-500" />
+                        </div>
+                        <div>
+                          <p className=" text-yellow-500">{pago.destino}</p>
+                          <div className="flex items-center font-medium text-sm text-gray-400">
+                            <span>{pago.fecha}</span>
+                            <span className="mx-2">•</span>
+                            <span>{pago.hora}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium">{pago.monto}</span>
+                        <button
+                          className="text-gray-400 hover:text-yellow-500 transition-colors"
+                          onClick={() => {
+                            setShowFullHistory(false);
+                            setTimeout(() => {
+                              openPaymentDetails(pago);
+                            }, 300);
+                          }}
+                        >
+                          <ArrowRight className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                className="mt-6 w-full bg-zinc-700 hover:bg-zinc-600 rounded-lg py-3 text-center text-white transition-colors cursor-pointer"
+                onClick={() => setShowFullHistory(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </MainLayout>
+  );
+};
+
+export default PagosPassenger;
