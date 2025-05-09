@@ -12,5 +12,3 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 export default ProtectedRoute;
-
-// {userId: '3', userName: 'Nicolás Abramovich', email: 'abranico011@gmail.com', accountStatus: 'Pending'}

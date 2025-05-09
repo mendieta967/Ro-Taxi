@@ -22,9 +22,16 @@ public class UserService: IUserService
         _userRepository = userRepository;
     }
 
-    public Task<List<User>> GetAll()
+    public async Task<List<UserDto>> GetAll()
     {
-        return _userRepository.GetAll();
+        var users = await _userRepository.GetAll();
+        return users.Select(user => new UserDto(user)).ToList();
+    }
+
+    public async Task<UserDto> GetById(int id)
+    {
+        var user = await _userRepository.GetById(id) ?? throw new NotFoundException("user not found");
+        return new UserDto(user);
     }
 
     public async Task Create(RegisterRequest registerRequest)
