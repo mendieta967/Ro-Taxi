@@ -23,7 +23,7 @@ public class UserRepository: IUserRepository
 
     public async Task<User?> GetById(int id)
     {
-        return await _context.Users.FindAsync();
+        return await _context.Users.FindAsync(id);
     }
 
     public async Task<User> Create(User user)
@@ -47,6 +47,11 @@ public class UserRepository: IUserRepository
     public async Task<User?> GetByEmail(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+    }
+
+    public async Task<User?> GetByDni(string dni)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Dni == dni);
     }
 
     public async Task<User?> GetByRefreshToken(string token)

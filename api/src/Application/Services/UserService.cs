@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Domain.Exceptions;
 using Domain.Enums;
+using Application.Models.Requests;
 
 namespace Application.Services;
 
@@ -57,5 +58,18 @@ public class UserService: IUserService
         user.UpdatedAt = DateTime.UtcNow;
         user.AccountStatus = AccountStatus.Pending;
         await _userRepository.Create(user);
+    }
+
+    public async Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId)
+    {
+        User user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        if (user.AccountStatus != AccountStatus.Pending) throw new Exception("user status is not pending");
+        var existingDni = await _userRepository.GetByDni(completeAccountRequest.Dni);
+        if (existingDni is not null) throw new AlreadyRegisteredException("DNI already registered.");
+        user.Dni = completeAccountRequest.Dni;
+        user.Genre = completeAccountRequest.Genre;
+        user.Role = completeAccountRequest.Role;
+        user.AccountStatus = AccountStatus.Active;
+        await _userRepository.Update(user);
     }
 }

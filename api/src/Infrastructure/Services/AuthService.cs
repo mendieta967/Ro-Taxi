@@ -17,6 +17,7 @@ using Application.Interfaces;
 using System.Reflection.Metadata;
 using Domain.Enums;
 using Application.Models.Requests;
+using Infrastructure.Migrations;
 
 namespace Infrastructure.Services;
 
@@ -52,7 +53,11 @@ public class AuthService: IAuthService
             RefreshToken = await GenerateRefreshToken(user)
         };
     }
-
+    public async Task<string> UpdateAccessTokenById(int userId)
+    {
+        var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        return GenerateAccessToken(user);
+    }
     public async Task Logout(int userId)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("Session not found");
