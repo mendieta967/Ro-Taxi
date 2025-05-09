@@ -1,14 +1,36 @@
+import { useEffect, useState } from "react";
 import FormProfile from "../../../components/common/FormProfile";
 import MainLayout from "../../../components/layout/MainLayout";
 import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
+import { getUser } from "../../../services/user";
+import { useAuth } from "../../../context/auth";
 
 const PerfilPassenger = () => {
+  const {
+    user: { userId },
+  } = useAuth();
+  const [user, setUser] = useState();
+
+  const fetchUser = async () => {
+    try {
+      const data = await getUser(userId);
+      console.log({ data });
+      setUser(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   const personalFields = [
     {
       name: "nombre",
       label: "Nombre",
       type: "text",
-      placeholder: "Carlos Rodríguez",
+      placeholder: user.name,
       required: true,
       icon: <User className="text-zinc-500" size={16} />,
     },
@@ -16,7 +38,7 @@ const PerfilPassenger = () => {
       name: "correo",
       label: "Correo Electrónico",
       type: "email",
-      placeholder: "carlos@ejemplo.com",
+      placeholder: user.email,
       required: true,
       icon: <Mail className="text-zinc-500" size={16} />,
     },
@@ -24,7 +46,7 @@ const PerfilPassenger = () => {
       name: "dni",
       label: "DNI",
       type: "text",
-      placeholder: "123456789",
+      placeholder: user.dni,
       required: true,
       icon: <IdCard className="text-zinc-500" size={16} />,
     },
@@ -94,7 +116,7 @@ const PerfilPassenger = () => {
               <User className="w-20 h-20 text-yellow-500" />
             </div>
             <h2 className="mt-4 font-semibold text-white text-lg">
-              Carlos Rodríguez
+              {user.name}
             </h2>
           </div>
 

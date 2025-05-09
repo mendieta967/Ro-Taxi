@@ -3,6 +3,7 @@ using Application.Models;
 using Application.Models.Requests;
 using Domain.Enums;
 using Domain.Exceptions;
+using Infrastructure.Migrations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -263,4 +264,32 @@ public class AuthController : ControllerBase
         }
     }
 
+
+    [Authorize]
+    [HttpPut("complete-account")]
+    public async Task<IActionResult> CompleteAccount([FromBody] CompleteAccountRequest completeAccountRequest)
+    {
+        try
+        {
+            string userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new NotFoundException("user not found");
+            int userId = int.Parse(userIdClaim);
+            await _userService.CompleteAccount(completeAccountRequest, userId);
+            string accessToken = await _authService.UpdateAccessTokenById(userId);
+
+            HttpContext.Response.Cookies.Append("access_token", accessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                SameSite = SameSiteMode.None
+            });
+
+            return NoContent();
+        }
+        catch(Exception ex) 
+        {
+            return BadRequest(new { Error = ex.Message});
+        }
+    }
 }

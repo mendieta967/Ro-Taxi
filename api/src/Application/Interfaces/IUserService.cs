@@ -1,4 +1,5 @@
 ﻿using Application.Models;
+using Application.Models.Requests;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,9 @@ namespace Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<List<User>> GetAll();
+    public Task<List<UserDto>> GetAll();
+    public Task<UserDto> GetById(int id);
     public Task Create(RegisterRequest registerRequest);
     public Task Create(GithubUserDto userData);
+    public Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId);
 }

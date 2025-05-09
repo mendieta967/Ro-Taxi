@@ -10,6 +10,14 @@ const apiClient = {
       },
       body: JSON.stringify(body),
     }),
+  put: (url, body) =>
+    request(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }),
 };
 
 const request = async (url, options) => {

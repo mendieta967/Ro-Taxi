@@ -12,6 +12,7 @@ public interface IAuthService
 {
     public Task<AuthDto> Login(LoginRequest loginRequest);
     public Task<AuthDto> RefreshToken(string refreshToken);
+    public Task<string> UpdateAccessTokenById(int userId);
     public Task Logout(int userId);
     public Task<AuthDto?> LoginWithGithub(GithubUserDto userData);
 }

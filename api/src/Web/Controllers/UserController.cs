@@ -1,12 +1,17 @@
 ﻿using Application.Interfaces;
+using Application.Models;
 using Domain.Entities;
+using Domain.Enums;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using System.Security.Claims;
 
 namespace Web.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/user")]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -17,15 +22,35 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<User>> GetAll()
+    public async Task<ActionResult<UserDto>> GetAll()
     {
         return Ok(await _userService.GetAll());
     }
 
     [Authorize]
-    [HttpGet("test")]
-    public IActionResult TestAuth()
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserDto>> GetById(int id)
     {
-        return Ok("Nice test!");
+        string userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+        int idFromToken = int.Parse(userIdClaim!);
+        bool isAdmin = User.IsInRole(UserRole.Admin.ToString());
+        if (idFromToken != id && !isAdmin)
+        {
+            return Unauthorized("You are not authorized to view this user's data");
+        }
+
+        try
+        {
+            var user = await _userService.GetById(id);
+            return Ok(user);
+        }
+        catch (NotFoundException ex) 
+        { 
+            return NotFound(new {Error = ex.Message});
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
     }
 }
