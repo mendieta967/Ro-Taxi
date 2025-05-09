@@ -2,6 +2,9 @@ import apiClient from "../utils/api-client";
 
 export const getCurrentUser = () => apiClient.get("me");
 
+export const completeAccount = (data) =>
+  apiClient.put("complete-account", data);
+
 export const linkGithubProvider = () => {
   const authUrl = "https://github.com/login/oauth/authorize";
 

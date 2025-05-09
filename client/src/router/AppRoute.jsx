@@ -11,11 +11,18 @@ import PagosPassenger from "../page/passenger/pagos/PagosPassenger";
 import PerfilPassenger from "../page/passenger/perfil/PerfilPassenger";
 import PassengerLayout from "../page/passenger/PassangerLayout";
 import SettingsPassenger from "../page/passenger/settings/SettingsPassenger";
+import ProtectedRoute from "../utils/ProtectedRoute";
+import AuthPage from "../page/auth/AuthPage";
+import CompleteAccount from "../page/auth/completeAccount/CompleteAccount";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <PassengerLayout />,
+    element: (
+      <ProtectedRoute>
+        <PassengerLayout />
+      </ProtectedRoute>
+    ),
     children: [
       // Redirección automática desde "/"
       { index: true, element: <Navigate to="home" replace /> },
@@ -32,6 +39,8 @@ const router = createBrowserRouter([
     ],
   },
   // Ruta para errores 404 globales
+  { path: "login", element: <AuthPage /> },
+  { path: "complete-account", element: <CompleteAccount /> },
   { path: "*", element: <h1>404 - Página no encontrada</h1> },
 ]);
 
