@@ -1,5 +1,6 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/auth";
+{
+  /* import { Navigate } from "react-router-dom";
+//import { useAuth } from "../context/auth";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -11,4 +12,5 @@ const ProtectedRoute = ({ children }) => {
 
   return children;
 };
-export default ProtectedRoute;
+export default ProtectedRoute;*/
+}

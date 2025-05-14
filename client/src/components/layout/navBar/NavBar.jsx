@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { User } from "lucide-react";
-import { useAuth } from "../../../context/auth";
+//import { useAuth } from "../../../context/auth";
 
 const Navbar = ({ isMobile }) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -32,7 +32,7 @@ const Navbar = ({ isMobile }) => {
           </div>
           {!isMobile && (
             <span className="text-sm font-medium text-yellow-500">
-              {user.userName}
+              Carlos Sánchez
             </span>
           )}
         </button>

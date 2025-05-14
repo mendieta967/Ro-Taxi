@@ -1,8 +1,32 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { historailViajes, cardViajes } from "../../../data/data";
 import { MapPin, Clock, Star } from "lucide-react";
+import Modal from "../../../components/ui/Modal";
+import { modalOrderTaxi } from "../../../data/data";
+import { useState } from "react";
 
 const HomePassenger = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("efectivo");
+  const [selectedCar, setSelectedCar] = useState("estandar");
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  const handleOrderTaxi = () => {
+    setShowModal(true);
+  };
+
+  const handlePedirAhora = () => {
+    setShowModal(false); // Cerrar el modal de selección de vehículo
+    setShowRequestModal(true); // Mostrar el modal de búsqueda de taxi
+
+    // Después de unos segundos (simulación de carga), mostrar el modal de confirmación
+    setTimeout(() => {
+      setShowRequestModal(false); // Ocultar el modal de búsqueda
+      setShowConfirmationModal(true); // Mostrar el modal de confirmación
+    }, 2000); // Simula 2 segundos de carga
+  };
+
   return (
     <MainLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
@@ -44,7 +68,10 @@ const HomePassenger = () => {
 
             {/* Botón */}
             <div className="flex items-center justify-center ">
-              <button className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-3 rounded-lg transition-colors cursor-pointer">
+              <button
+                onClick={handleOrderTaxi}
+                className="w-full  bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-3 rounded-lg transition-colors cursor-pointer"
+              >
                 Solicitar Taxi
               </button>
             </div>
@@ -113,6 +140,142 @@ const HomePassenger = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Pedir taxi */}
+      {showModal && (
+        <Modal onClose={() => setShowModal(false)}>
+          <h2 className="text-xl font-bold">Seleccione su vehículo</h2>
+          <p className="text-sm text-zinc-400 mb-4">
+            Elige el tipo de coche para tu viaje
+          </p>
+          {/* Opciones de vehículos */}
+          <div className="space-y-3">
+            {modalOrderTaxi.map((car) => (
+              <div
+                key={car.type}
+                onClick={() => setSelectedCar(car.type)}
+                className={`border rounded-lg p-4 cursor-pointer ${
+                  selectedCar === car.type
+                    ? "border-yellow-500"
+                    : "border-zinc-800"
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold">{car.name}</p>
+                    <p className="text-sm text-zinc-400">{car.desc}</p>
+                    <span className="inline-block mt-1 text-xs bg-zinc-700 rounded-full px-2 py-0.5">
+                      {car.seats} pasajeros
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-md font-semibold">{car.price}</p>
+                    <p className="text-sm text-zinc-400">Llegada: {car.time}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Método de pago */}
+          <div className="mt-4 flex space-x-2">
+            <button
+              onClick={() => setPaymentMethod("efectivo")}
+              className={`flex-1 py-2 rounded-lg cursor-pointer ${
+                paymentMethod === "efectivo"
+                  ? "bg-zinc-700 text-yellow-500"
+                  : "bg-zinc-800 text-white "
+              }`}
+            >
+              Efectivo
+            </button>
+            <button
+              onClick={() => setPaymentMethod("tarjeta")}
+              className={`flex-1 py-2 rounded-lg cursor-pointer ${
+                paymentMethod === "tarjeta"
+                  ? "bg-zinc-700 text-yellow-500"
+                  : "bg-zinc-800 text-white"
+              }`}
+            >
+              Tarjeta
+            </button>
+          </div>
+
+          <p className="text-sm mt-2 text-zinc-400">
+            Pagarás{" "}
+            {paymentMethod === "efectivo" ? "en efectivo" : "con tarjeta"} al
+            final del viaje
+          </p>
+
+          {/* Confirmar */}
+          <button
+            className="w-full cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-4 rounded"
+            onClick={handlePedirAhora}
+          >
+            Pedir Ahora
+          </button>
+        </Modal>
+      )}
+
+      {/* Modal de solicitud */}
+      {showRequestModal && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
+            <div className="text-4xl mb-4 animate-spin">🚕</div>
+            <h2 className="text-xl font-bold">Buscando un taxi cercano...</h2>
+            <p className="text-zinc-400 mt-2">Esto tomará unos segundos</p>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-zinc-900 w-[90%] max-w-md rounded-2xl p-6 space-y-4 text-white shadow-xl relative">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-green-800 rounded-full flex items-center justify-center text-3xl">
+                ⏱️
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-center">
+              ¡Tu taxi está en camino!
+            </h2>
+            <p className="text-center text-zinc-400">
+              Llegada estimada: 3 minutos
+            </p>
+
+            <div className="flex items-center gap-4 bg-zinc-800 p-4 rounded-lg">
+              <div className="w-12 h-12 bg-zinc-700 rounded-full" />
+              <div>
+                <p className="font-semibold">
+                  Juan Rodríguez <span className="text-yellow-500">★ 4.8</span>
+                </p>
+                <p className="text-sm text-zinc-400">
+                  Toyota Corolla • XYZ-123 • Azul
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="flex-1 py-2 border cursor-pointer hover:text-yellow-500 border-zinc-700 rounded-lg hover:bg-zinc-800">
+                Contactar
+              </button>
+              <button
+                onClick={() => setShowConfirmationModal(false)}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+
+            <div className="bg-zinc-800 p-3 rounded-lg text-sm">
+              <strong>¡Taxi en camino!</strong>
+              <p>Tu conductor llegará en aproximadamente 3 minutos</p>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 };

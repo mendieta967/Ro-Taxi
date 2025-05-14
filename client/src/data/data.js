@@ -16,6 +16,42 @@ export const cardViajes = [
   },
 ];
 
+//Historial de viajes DRIVER
+export const tripsDriver = [
+  {
+    id: 1,
+    date: "2025-05-14",
+    route: "Av. Corrientes 1234 → Puerto Madero",
+    duration: "25 minutos (8.5 km)",
+    earnings: 850,
+    status: "completed",
+  },
+  {
+    id: 2,
+    date: "2025-05-13",
+    route: "Palermo → Recoleta",
+    duration: "Cancelado",
+    earnings: 0,
+    status: "canceled",
+  },
+  {
+    id: 3,
+    date: "2025-05-12",
+    route: "San Telmo → Microcentro",
+    duration: "20 minutos (6 km)",
+    earnings: 700,
+    status: "completed",
+  },
+  {
+    id: 4,
+    date: "2025-05-11",
+    route: "San Telmo → Microcentro",
+    duration: "20 minutos (6 km)",
+    earnings: 700,
+    status: "canceled",
+  },
+];
+
 export const historailViajes = [
   {
     id: 1,
@@ -207,5 +243,34 @@ export const scheduledTrip = [
     to: "Aeropuerto",
     price: "Estimado: $25.00",
     status: "programados",
+  },
+];
+
+//Datos de ejemplo modal order taxi
+
+export const modalOrderTaxi = [
+  {
+    type: "economico",
+    name: "Económico",
+    desc: "Vehículo compacto, económico",
+    price: "€8-10",
+    time: "5 min",
+    seats: 3,
+  },
+  {
+    type: "estandar",
+    name: "Estándar",
+    desc: "Vehículo cómodo para uso diario",
+    price: "€10-14",
+    time: "3 min",
+    seats: 4,
+  },
+  {
+    type: "premium",
+    name: "Premium",
+    desc: "Vehículo de alta gama",
+    price: "€18-22",
+    time: "7 min",
+    seats: 4,
   },
 ];
