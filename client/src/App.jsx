@@ -11,11 +11,15 @@ import FormProfile from "./components/common/FormProfile";
 import HistorialPassenger from "./page/passenger/historial/HistorialPassenger";
 import PagosPassenger from "./page/passenger/pagos/PagosPassenger";
 import AppRoute from "./router/AppRoute";
+import HomeDriver from "./page/driver/home/HomeDriver";
+import { SearchProvider } from "./context/SearchContext";
 
 const App = () => {
   return (
     <div>
-      <AppRoute />
+      <SearchProvider>
+        <AppRoute />
+      </SearchProvider>
     </div>
   );
 };

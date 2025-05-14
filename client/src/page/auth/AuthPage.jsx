@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Login from "./login/Login";
 import Register from "./register/Register";
-import { useAuth } from "../../context/auth";
 import { Navigate } from "react-router-dom";
 
 const AuthPage = () => {
@@ -11,9 +10,9 @@ const AuthPage = () => {
     ? "url('/rosario.jpg')"
     : "url('/rosario2.jpg')";
 
-  const { user } = useAuth();
+  //const { user } = useAuth();
 
-  if (user) return <Navigate to="/" replace />;
+  // if (user) return <Navigate to="/" replace />;
 
   return (
     <div

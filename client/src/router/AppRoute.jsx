@@ -11,36 +11,36 @@ import PagosPassenger from "../page/passenger/pagos/PagosPassenger";
 import PerfilPassenger from "../page/passenger/perfil/PerfilPassenger";
 import PassengerLayout from "../page/passenger/PassangerLayout";
 import SettingsPassenger from "../page/passenger/settings/SettingsPassenger";
-import ProtectedRoute from "../utils/ProtectedRoute";
+
 import AuthPage from "../page/auth/AuthPage";
 import CompleteAccount from "../page/auth/completeAccount/CompleteAccount";
+
+import HomeDriver from "../page/driver/home/HomeDriver";
+import HistorialDrivers from "../page/driver/historial/HistorialDriver";
+import ChatDriver from "../page/driver/chat/ChatDriver";
+import VehiculosDriver from "../page/driver/misVehiculos/VehiculosDriver";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <PassengerLayout />
-      </ProtectedRoute>
-    ),
+    element: <PassengerLayout />,
     children: [
       // Redirección automática desde "/"
       { index: true, element: <Navigate to="home" replace /> },
 
       // Rutas del pasajero
-      { path: "home", element: <HomePassenger /> },
-      { path: "perfil", element: <PerfilPassenger /> },
-      { path: "mis-viajes", element: <HistorialPassenger /> },
-      { path: "pagos", element: <PagosPassenger /> },
-      { path: "configuracion", element: <SettingsPassenger /> },
+      { path: "home", element: <HomeDriver /> },
+      { path: "perfil", element: <HomePassenger /> },
+      { path: "mis-viajes", element: <HistorialDrivers /> },
+      { path: "pagos", element: <HistorialPassenger /> },
+      { path: "configuracion", element: <VehiculosDriver /> },
 
       // Ruta para errores 404 dentro del layout
       { path: "*", element: <h1>404 - Página no encontrada</h1> },
     ],
   },
   // Ruta para errores 404 globales
-  { path: "login", element: <AuthPage /> },
-  { path: "complete-account", element: <CompleteAccount /> },
+  // { path: "complete-account", element: <CompleteAccount /> },
   { path: "*", element: <h1>404 - Página no encontrada</h1> },
 ]);
 

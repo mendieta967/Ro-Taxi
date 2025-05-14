@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import Form from "../../../components/common/Form";
 import { completeAccount } from "../../../services/auth";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../../../context/auth";
+//import { useAuth } from "../../../context/auth";
 
 const CompleteAccount = () => {
-  const { user } = useAuth();
+  //const { user } = useAuth();
 
   const dniRef = useRef(null);
   const genreRef = useRef(null);
@@ -18,7 +18,7 @@ const CompleteAccount = () => {
 
   const navigate = useNavigate();
 
-  if (user.accountStatus !== "Pending") return <Navigate to="/" replace />;
+  // if (user.accountStatus !== "Pending") return <Navigate to="/" replace />;
 
   const completeFields = [
     {
