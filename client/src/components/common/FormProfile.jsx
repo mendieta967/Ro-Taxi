@@ -52,7 +52,7 @@ const FormProfile = ({
           name: field.name,
           required: field.required,
           ref: refs[field.name] || null,
-          value: formData[field.name] || "",
+          value: formData[field.value] || "",
           onChange: handleChange,
           className: `w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none appearance-none ${
             isError ? "border-red-500" : "border-gray-600"
@@ -92,7 +92,7 @@ const FormProfile = ({
               <input
                 type="hidden"
                 name={field.name}
-                value={extraValues[field.name] || ""}
+                value={extraValues[field.value] || ""}
               />
             ) : (
               <div className="relative">
@@ -111,6 +111,7 @@ const FormProfile = ({
                   placeholder={field.placeholder}
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
+                  value={field.value}
                   className={`pl-10 pr-10 text-gray-300 ${commonProps.className}`}
                 />
                 {field.type === "password" && (

@@ -4,6 +4,7 @@ import { MapPin, Clock, Star } from "lucide-react";
 import Modal from "../../../components/ui/Modal";
 import { modalOrderTaxi } from "../../../data/data";
 import { useState } from "react";
+import { useAuth } from "../../../context/auth";
 
 const HomePassenger = () => {
   const [showModal, setShowModal] = useState(false);
@@ -11,6 +12,7 @@ const HomePassenger = () => {
   const [selectedCar, setSelectedCar] = useState("estandar");
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const { user } = useAuth();
 
   const handleOrderTaxi = () => {
     setShowModal(true);
@@ -34,7 +36,7 @@ const HomePassenger = () => {
         <div className="lg:col-span-2 space-y-4">
           <div>
             <h1 className="text-3xl font-bold text-yellow-500">
-              ¡Hola, Carlos!
+              ¡Hola, {user.userName.split(" ")[0]}!
             </h1>
             <p className="text-white">¿A dónde quieres ir hoy?</p>
           </div>

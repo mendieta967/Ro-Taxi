@@ -1,6 +1,65 @@
 import { Home, Clock, User, CreditCard, Settings, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../context/auth";
 const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
+  const {
+    user: { role },
+  } = useAuth();
+  const passengerLinks = [
+    { icon: <Home />, label: "Inicio", to: "/home" },
+    { icon: <User />, label: "Perfil", to: "/perfil" },
+    {
+      icon: <Clock />,
+      label: "Mis Viajes",
+      to: "/mis-viajes",
+    },
+    { icon: <CreditCard />, label: "Pagos", to: "/pagos" },
+    {
+      icon: <Settings />,
+      label: "Configuración",
+      to: "/configuracion",
+    },
+  ];
+  const driverLinks = [
+    { icon: <Home />, label: "Inicio", to: "/home" },
+    { icon: <User />, label: "Perfil", to: "/perfil" },
+    {
+      icon: <Clock />,
+      label: "Mis Viajes",
+      to: "/mis-viajes",
+    },
+    { icon: <CreditCard />, label: "Chat", to: "/chat" },
+    { icon: <CreditCard />, label: "Vehiculos", to: "/vehiculos" },
+    {
+      icon: <Settings />,
+      label: "Configuración",
+      to: "/configuracion",
+    },
+  ];
+  const adminLinks = [
+    { icon: <Home />, label: "Inicio admin", to: "/home" },
+    { icon: <User />, label: "Perfil", to: "/perfil" },
+    {
+      icon: <Clock />,
+      label: "Mis Viajes",
+      to: "/mis-viajes",
+    },
+    { icon: <CreditCard />, label: "Chat", to: "/chat" },
+    { icon: <CreditCard />, label: "Vehiculos", to: "/vehiculos" },
+    {
+      icon: <Settings />,
+      label: "Configuración",
+      to: "/configuracion",
+    },
+  ];
+
+  const links =
+    role === "Client"
+      ? passengerLinks
+      : role === "Driver"
+      ? driverLinks
+      : adminLinks;
+
   const sidebarContent = (
     <div className="flex flex-col h-full w-64 bg-yellow-500 text-taxi-contrast">
       {!(isMobile && isOpen) && (
@@ -22,21 +81,7 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
         {" "}
         {/* Aquí se añade mt-20 para dispositivos pequeños */}
         <ul className="space-y-2">
-          {[
-            { icon: <Home />, label: "Inicio", to: "/home" },
-            { icon: <User />, label: "Perfil", to: "/perfil" },
-            {
-              icon: <Clock />,
-              label: "Mis Viajes",
-              to: "/mis-viajes",
-            },
-            { icon: <CreditCard />, label: "Pagos", to: "/pagos" },
-            {
-              icon: <Settings />,
-              label: "Configuración",
-              to: "/configuracion",
-            },
-          ].map(({ icon, label, to }, i) => (
+          {links.map(({ icon, label, to }, i) => (
             <li key={i}>
               <Link
                 to={to}
