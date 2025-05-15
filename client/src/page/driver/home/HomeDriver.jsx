@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export default function Home() {
+export default function HomeDriver() {
   const [isOnline, setIsOnline] = useState(true);
   const [showRequest, setShowRequest] = useState(true);
   const [drivingMode, setDrivingMode] = useState(false);

@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import FormProfile from "../../../components/common/FormProfile";
 import MainLayout from "../../../components/layout/MainLayout";
 import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
+import { useAuth } from "../../../context/auth";
+import { getUser } from "../../../services/user";
 
 const PerfilPassenger = () => {
-  {
-    /* const {
+  const {
     user: { userId },
   } = useAuth();
   const [user, setUser] = useState();
@@ -21,14 +23,14 @@ const PerfilPassenger = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []);/*/
-  }
+  }, []);
 
   const personalFields = [
     {
       name: "nombre",
       label: "Nombre",
       type: "text",
+      value: user?.name,
       placeholder: "Nombre",
       required: true,
       icon: <User className="text-zinc-500" size={16} />,
@@ -37,6 +39,7 @@ const PerfilPassenger = () => {
       name: "correo",
       label: "Correo Electrónico",
       type: "email",
+      value: user?.email,
       placeholder: "Correo Electrónico",
       required: true,
       icon: <Mail className="text-zinc-500" size={16} />,
@@ -45,6 +48,7 @@ const PerfilPassenger = () => {
       name: "dni",
       label: "DNI",
       type: "text",
+      value: user?.dni,
       placeholder: "N° de DNI",
       required: true,
       icon: <IdCard className="text-zinc-500" size={16} />,
@@ -54,9 +58,9 @@ const PerfilPassenger = () => {
       label: "Género",
       type: "select",
       options: [
-        { value: "Masculino", label: "Masculino" },
-        { value: "Femenino", label: "Femenino" },
-        { value: "Otro", label: "Otro" },
+        { value: "female", label: "Femenino" },
+        { value: "Male", label: "Masculino" },
+        { value: "other", label: "Otro" },
       ],
       required: true,
       icon: <Venus className="text-zinc-500" size={16} />,
@@ -115,7 +119,7 @@ const PerfilPassenger = () => {
               <User className="w-20 h-20 text-yellow-500" />
             </div>
             <h2 className="mt-4 font-semibold text-white text-lg">
-              Carlos Gonzales
+              {user?.name}
             </h2>
           </div>
 
@@ -130,6 +134,7 @@ const PerfilPassenger = () => {
 
             <FormProfile
               fields={personalFields}
+              extraValues={{ genero: "other" }}
               submitText="Guardar Cambios"
               onSubmit={handleFormSubmit}
             />

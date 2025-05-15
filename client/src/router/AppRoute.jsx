@@ -19,6 +19,8 @@ import HomeDriver from "../page/driver/home/HomeDriver";
 import HistorialDrivers from "../page/driver/historial/HistorialDriver";
 import ChatDriver from "../page/driver/chat/ChatDriver";
 import VehiculosDriver from "../page/driver/misVehiculos/VehiculosDriver";
+import ProtectedRoute from "../utils/ProtectedRoute";
+import { Historial, Home, Perfil } from "./CommonRoute";
 
 const router = createBrowserRouter([
   {
@@ -29,18 +31,70 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="home" replace /> },
 
       // Rutas del pasajero
-      { path: "home", element: <HomeDriver /> },
-      { path: "perfil", element: <HomePassenger /> },
-      { path: "mis-viajes", element: <HistorialDrivers /> },
-      { path: "pagos", element: <HistorialPassenger /> },
-      { path: "configuracion", element: <VehiculosDriver /> },
+      {
+        path: "home",
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "perfil",
+        element: (
+          <ProtectedRoute>
+            <PerfilPassenger />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "mis-viajes",
+        element: (
+          <ProtectedRoute>
+            <Historial />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "configuracion",
+        element: (
+          <ProtectedRoute>
+            <SettingsPassenger />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "pagos",
+        element: (
+          <ProtectedRoute role={["Client"]}>
+            <PagosPassenger />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "chat",
+        element: (
+          <ProtectedRoute role={["Driver"]}>
+            <ChatDriver />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "vehiculos",
+        element: (
+          <ProtectedRoute role={["Driver"]}>
+            <VehiculosDriver />
+          </ProtectedRoute>
+        ),
+      },
 
       // Ruta para errores 404 dentro del layout
       { path: "*", element: <h1>404 - Página no encontrada</h1> },
     ],
   },
-  // Ruta para errores 404 globales
-  // { path: "complete-account", element: <CompleteAccount /> },
+
+  { path: "complete-account", element: <CompleteAccount /> },
+  { path: "login", element: <AuthPage /> },
   { path: "*", element: <h1>404 - Página no encontrada</h1> },
 ]);
 
