@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Models;
+using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions;
@@ -53,4 +54,27 @@ public class UserController : ControllerBase
             return BadRequest(new { Error = ex.Message });
         }
     }
+
+    [Authorize]
+    [HttpPatch("/change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePasswordRequest) 
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _userService.ChangePassword(changePasswordRequest, userId);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (Exception ex) 
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+
+        
+    }
+
 }

@@ -38,12 +38,13 @@ public class AuthController : ControllerBase
         var userName = User.FindFirst(ClaimTypes.Name)?.Value;           // Nombre del usuario
         var email = User.FindFirst(ClaimTypes.Email)?.Value;             // Email del usuario
         var accountStatus = User.FindFirst("accountStatus")?.Value;     // Estado de la cuenta (pendiente, activa, desactivada)
-
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
         return Ok(new
         {
             userId,
             userName,
             email,
+            role,
             accountStatus
         });
     }
@@ -206,7 +207,7 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken()
     {
-        string refreshToken = HttpContext.Request.Cookies["refresh_token"] ?? "";
+        string refreshToken = HttpContext.Request.Cookies["refresh_token"] ?? throw new SecurityTokenException("refresh token not found");
         try
         {
             var tokens = await _authService.RefreshToken(refreshToken);

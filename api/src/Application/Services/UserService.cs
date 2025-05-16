@@ -79,4 +79,15 @@ public class UserService: IUserService
         user.AccountStatus = AccountStatus.Active;
         await _userRepository.Update(user);
     }
+
+    public async Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId)
+    {
+        User user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+
+        var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, changePasswordRequest.OldPassword);
+        if (result != PasswordVerificationResult.Success) throw new NotFoundException("Old password is invalid");
+
+        user.Password = new PasswordHasher<User>().HashPassword(user, changePasswordRequest.NewPassword);
+        await _userRepository.Update(user);
+    }
 }
