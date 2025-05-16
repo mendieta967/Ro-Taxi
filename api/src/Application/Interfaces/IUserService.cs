@@ -16,4 +16,5 @@ public interface IUserService
     public Task Create(RegisterRequest registerRequest);
     public Task Create(GithubUserDto userData);
     public Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId);
+    public Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId);
 }
