@@ -2,12 +2,16 @@ import { useState, useRef } from "react";
 import Form from "../../../components/common/Form";
 import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { linkGithubProvider } from "../../../services/auth";
+import { useAuth } from "../../../context/auth";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ onSwitch }) => {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const [userType, setUserType] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [errors, setErrors] = useState({
     email: false,
     password: false,
@@ -31,14 +35,9 @@ const Login = ({ onSwitch }) => {
       required: true,
       autoComplete: "current-password",
     },
-    {
-      name: "userType",
-      type: "hidden",
-      required: true,
-    },
   ];
 
-  const handleLogin = (formData) => {
+  const handleLogin = async (formData) => {
     setErrors({ email: false, password: false });
 
     const isValidEmail = (email) =>
@@ -56,17 +55,13 @@ const Login = ({ onSwitch }) => {
       return;
     }
 
-    if (!formData.userType) {
-      alert("Debes seleccionar si eres Pasajero o Taxista.");
-      return;
-    }
-
     console.log("Login del usuario:", formData);
-    // Autenticación con API aquí
-  };
-
-  const handleUserTypeSelect = (type) => {
-    setUserType(type);
+    try {
+      await login(formData);
+      navigate("/home", { replace: true });
+    } catch (error) {
+      console.error("Error al intentar iniciar sesión:", error);
+    }
   };
 
   const githubLink = linkGithubProvider();
@@ -74,7 +69,10 @@ const Login = ({ onSwitch }) => {
   return (
     <div className="min-h-screen w-full bg-gray-800/95 flex items-center justify-center px-4">
       <div className="w-full max-w-md p-6 sm:p-8 bg-gray-900 rounded-3xl shadow-2xl shadow-yellow-600">
-        <h1 className="text-center text-4xl font-bold text-yellow-500 mb-6 tracking-tight">
+        <h1
+          onClick={handleLogin}
+          className="text-center text-4xl font-bold text-yellow-500 mb-6 tracking-tight"
+        >
           Iniciar sesión
         </h1>
         <Form
@@ -83,32 +81,6 @@ const Login = ({ onSwitch }) => {
           errors={errors}
           refs={{ email: emailRef, password: passwordRef }}
           submitText="Iniciar sesión"
-          extraValues={{ userType }}
-          extraContent={
-            <div className="flex justify-center gap-4 mb-6 flex-wrap">
-              {["pasajero", "taxista"].map((type) => (
-                <label
-                  key={type}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm cursor-pointer transition-all shadow-sm
-                    ${
-                      userType === type
-                        ? "bg-cyan-50 border-yellow-600 text-yellow-700 font-semibold"
-                        : "bg-yellow-50 border-gray-300 hover:border-yellow-400 hover:bg-cyan-50"
-                    }`}
-                >
-                  <input
-                    type="radio"
-                    name="userType"
-                    value={type}
-                    checked={userType === type}
-                    onChange={(e) => handleUserTypeSelect(e.target.value)}
-                    className="accent-yellow-600"
-                  />
-                  <span className="capitalize">{type}</span>
-                </label>
-              ))}
-            </div>
-          }
         />
 
         <div className="text-center my-6">
@@ -135,7 +107,7 @@ const Login = ({ onSwitch }) => {
           <p className="text-gray-400">¿No tienes una cuenta?</p>
           <button
             onClick={onSwitch}
-            className=" text-yellow-500 font-semibold hover:underline hover:text-yellow-700 transition-colors"
+            className=" text-yellow-500 font-semibold hover:underline hover:text-yellow-700 transition-colors cursor-pointer"
           >
             Crear una cuenta
           </button>

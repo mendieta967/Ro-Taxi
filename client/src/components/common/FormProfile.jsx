@@ -52,7 +52,7 @@ const FormProfile = ({
           name: field.name,
           required: field.required,
           ref: refs[field.name] || null,
-          value: formData[field.value] || "",
+          value: formData[field.name] || "",
           onChange: handleChange,
           className: `w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none appearance-none ${
             isError ? "border-red-500" : "border-gray-600"

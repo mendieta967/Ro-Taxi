@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getCurrentUser } from "../services/auth";
+import { loginUser } from "../services/auth";
+import { logoutUser } from "../services/auth";
 const AuthContext = createContext();
 
 export default function AuthContextProvider({ children }) {
@@ -13,8 +15,27 @@ export default function AuthContextProvider({ children }) {
       setUser(data);
     } catch (error) {
       console.log(error);
+      setUser(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const login = async (formData) => {
+    try {
+      await loginUser(formData);
+      fetchUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await logoutUser();
+      setUser(null);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -26,7 +47,9 @@ export default function AuthContextProvider({ children }) {
 
   console.log(user);
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import Form from "../../../components/common/Form";
+import { registerUser } from "../../../services/auth";
+import { useNavigate } from "react-router-dom";
 
 const Register = ({ onSwitch }) => {
   const nameRef = useRef(null);
@@ -9,6 +11,8 @@ const Register = ({ onSwitch }) => {
   const generoRef = useRef(null);
 
   const [userType, setUserType] = useState("");
+
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({
     name: false,
     email: false,
@@ -63,14 +67,9 @@ const Register = ({ onSwitch }) => {
         { label: "Otro", value: "otro" },
       ],
     },
-    {
-      name: "userType",
-      type: "hidden",
-      required: true,
-    },
   ];
 
-  const handleRegister = (formData, resetForm) => {
+  const handleRegister = async (formData, resetForm) => {
     setErrors({
       name: false,
       email: false,
@@ -111,18 +110,27 @@ const Register = ({ onSwitch }) => {
       return;
     }
 
-    if (!formData.userType) {
+    if (!userType || (userType !== "taxista" && userType !== "pasajero")) {
       alert("Debes seleccionar si eres Pasajero o Taxista.");
       return;
     }
 
     console.log("Registro del usuario:", formData);
+
     resetForm();
     setUserType("");
-  };
 
-  const handleUserTypeSelect = (type) => {
-    setUserType(type);
+    try {
+      const res = await registerUser(formData);
+      if (res.status === 201) {
+        alert("Usuario registrado con éxito");
+        resetForm();
+        navigate("/login");
+      }
+    } catch (error) {
+      alert("Error al registrar usuario");
+      console.error(error);
+    }
   };
 
   return (
@@ -143,30 +151,33 @@ const Register = ({ onSwitch }) => {
             genero: generoRef,
           }}
           errors={errors}
-          extraValues={{ userType }}
+          extraValues={{ role: userType === "taxista" ? "Driver" : "Client" }}
           extraContent={
-            <div className="flex justify-center gap-4 mb-6">
-              {["pasajero", "taxista"].map((type) => (
-                <label
-                  key={type}
-                  className={`flex bg-yellow-50 items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
-                    userType === type
-                      ? "bg-cyan-50 border-yellow-600 text-yellow-700 font-semibold"
-                      : "border-gray-300 hover:border-yellow-400 hover:bg-cyan-50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="userType"
-                    value={type}
-                    checked={userType === type}
-                    onChange={(e) => handleUserTypeSelect(e.target.value)}
-                    className="accent-yellow-600"
-                  />
-                  <span className="capitalize">{type}</span>
-                </label>
-              ))}
-            </div>
+            <>
+              <div className="flex justify-center gap-4 mb-6">
+                {["pasajero", "taxista"].map((type) => (
+                  <label
+                    key={type}
+                    className={`flex bg-yellow-50 items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
+                      userType === type
+                        ? "bg-cyan-50 border-yellow-600 text-yellow-700 font-semibold"
+                        : "border-gray-300 hover:border-yellow-400 hover:bg-cyan-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="userType"
+                      value={type}
+                      checked={userType === type}
+                      onChange={(e) => setUserType(e.target.value)}
+                      className="accent-yellow-600"
+                    />
+
+                    <span className="capitalize">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </>
           }
         />
         <div className="text-center mt-4 text-sm">
