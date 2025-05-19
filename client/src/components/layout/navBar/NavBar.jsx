@@ -1,13 +1,24 @@
 import { useState } from "react";
 import { User } from "lucide-react";
 import { useAuth } from "../../../context/auth";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ isMobile }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
+  };
+
+  const handleLogaut = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -57,7 +68,10 @@ const Navbar = ({ isMobile }) => {
               Mis Viajes
             </a>
             <hr className="border-gray-800" />
-            <button className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-800 cursor-pointer">
+            <button
+              onClick={handleLogaut}
+              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-800 cursor-pointer"
+            >
               Cerrar Sesión
             </button>
           </div>

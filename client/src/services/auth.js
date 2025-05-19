@@ -1,6 +1,9 @@
 import apiClient from "../utils/api-client";
 
 export const getCurrentUser = () => apiClient.get("me");
+export const loginUser = (data) => apiClient.post("login", data);
+export const registerUser = (data) => apiClient.post("register", data);
+export const logoutUser = () => apiClient.post("logout");
 
 export const completeAccount = (data) =>
   apiClient.put("complete-account", data);

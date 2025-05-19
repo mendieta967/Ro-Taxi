@@ -54,7 +54,7 @@ const Form = ({
               <input
                 type="hidden"
                 name={field.name}
-                value={extraValues[field.name] || ""}
+                defaultValue={extraValues[field.name] || ""}
               />
             ) : (
               <input

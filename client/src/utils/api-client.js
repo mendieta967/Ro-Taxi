@@ -2,7 +2,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const apiClient = {
   get: (url) => request(url, { method: "GET" }),
-  post: (url, body) =>
+  post: (url, body = {}) =>
     request(url, {
       method: "POST",
       headers: {
