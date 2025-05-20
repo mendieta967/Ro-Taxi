@@ -18,7 +18,7 @@ const Register = ({ onSwitch }) => {
     email: false,
     password: false,
     dni: false,
-    genero: false,
+    genre: false,
   });
 
   const registerFields = [
@@ -56,15 +56,15 @@ const Register = ({ onSwitch }) => {
       autoComplete: "current-password",
     },
     {
-      name: "genero",
+      name: "genre",
       label: "Género",
       type: "select",
       required: true,
       options: [
         { label: "Selecciona tu género", value: "" },
-        { label: "Masculino", value: "masculino" },
-        { label: "Femenino", value: "femenino" },
-        { label: "Otro", value: "otro" },
+        { label: "Masculino", value: "Male" },
+        { label: "Femenino", value: "Female" },
+        { label: "Otro", value: "Other" },
       ],
     },
   ];
@@ -104,8 +104,8 @@ const Register = ({ onSwitch }) => {
       return;
     }
 
-    if (!formData.genero) {
-      setErrors((prev) => ({ ...prev, genero: true }));
+    if (!formData.genre) {
+      setErrors((prev) => ({ ...prev, genre: true }));
       generoRef.current.focus();
       return;
     }
@@ -148,7 +148,7 @@ const Register = ({ onSwitch }) => {
             email: emailRef,
             password: passwordRef,
             dni: dniRef,
-            genero: generoRef,
+            genre: generoRef,
           }}
           errors={errors}
           extraValues={{ role: userType === "taxista" ? "Driver" : "Client" }}

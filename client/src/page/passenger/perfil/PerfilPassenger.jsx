@@ -57,6 +57,7 @@ const PerfilPassenger = () => {
       name: "genero",
       label: "Género",
       type: "select",
+      value: user?.genre,
       options: [
         { value: "female", label: "Femenino" },
         { value: "Male", label: "Masculino" },
@@ -134,7 +135,6 @@ const PerfilPassenger = () => {
 
             <FormProfile
               fields={personalFields}
-              extraValues={{ genero: "other" }}
               submitText="Guardar Cambios"
               onSubmit={handleFormSubmit}
             />

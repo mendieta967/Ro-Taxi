@@ -52,6 +52,63 @@ export const tripsDriver = [
   },
 ];
 
+//chats de ejemplo
+
+export const initialChats = [
+  {
+    id: 1,
+    name: "María González",
+    online: true,
+    messages: [
+      {
+        from: "other",
+        text: "Hola, ¿a qué hora llegas? Estoy esperando en la entrada principal.",
+        time: "12:30",
+      },
+      {
+        from: "me",
+        text: "Estoy a 5 minutos de distancia. Llego enseguida.",
+        time: "12:32",
+      },
+      {
+        from: "other",
+        text: "Perfecto, te espero. Estoy usando una chaqueta roja.",
+        time: "12:33",
+      },
+      {
+        from: "me",
+        text: "Ya te veo. Estoy estacionando el auto.",
+        time: "12:35",
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Juan Pérez",
+    online: false,
+    messages: [
+      {
+        from: "other",
+        text: "Gracias por el viaje, excelente servicio.",
+        time: "Ayer",
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "Carlos Rodríguez",
+    online: false,
+    unread: 2,
+    messages: [
+      {
+        from: "other",
+        text: "Hola, ¿puedes recogerme en otra dirección?",
+        time: "10:15",
+      },
+    ],
+  },
+];
+
 export const historailViajes = [
   {
     id: 1,

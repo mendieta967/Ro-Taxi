@@ -34,7 +34,7 @@ const VehiculosDriver = () => {
     e.preventDefault();
 
     // Validaciones
-    if (!marca || !modelo || !patente || !año || !color) {
+    if (!marca || !modelo || !patente || !año || !color || !estado) {
       alert("Por favor completá todos los campos.");
       return;
     }
@@ -58,7 +58,7 @@ const VehiculosDriver = () => {
       patente,
       año: parseInt(año),
       color,
-      estado: "activo", // Por defecto
+      estado,
     };
 
     setVehiculos([...vehiculos, nuevoVehiculo]);
@@ -70,6 +70,7 @@ const VehiculosDriver = () => {
     setPatente("");
     setAño("");
     setColor("");
+    setEstado("activo");
   };
   const handleEditar = (vehiculo) => {
     setVehiculoEditando(vehiculo);
@@ -81,6 +82,10 @@ const VehiculosDriver = () => {
     );
     setVehiculos(nuevosVehiculos);
     setMostrarModal(false);
+  };
+
+  const handleDelite = (patente) => {
+    setVehiculos(vehiculos.filter((v) => v.patente !== patente));
   };
 
   return (
@@ -133,21 +138,38 @@ const VehiculosDriver = () => {
                         </p>
                       </div>
                       <div className="mt-3 flex items-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-500/30">
-                          <Check size={12} className="mr-1" />
-                          Activo
-                        </span>
+                        {vehiculo.estado === "activo" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-500/30">
+                            <Check size={12} className="mr-1" />
+                            Activo
+                          </span>
+                        )}
+                        {vehiculo.estado === "revision" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-900/30 text-yellow-400 border border-yellow-500/30">
+                            <AlertCircle size={12} className="mr-1" />
+                            Revisión
+                          </span>
+                        )}
+                        {vehiculo.estado === "inactivo" && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-500/30">
+                            <AlertCircle size={12} className="mr-1" />
+                            Inactivo
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEditar(vehiculo)}
-                      className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all duration-200"
+                      className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all duration-200 cursor-pointer"
                     >
                       <Edit size={18} className="text-yellow-500" />
                     </button>
-                    <button className="p-2 bg-zinc-800 hover:bg-red-900/50 rounded-lg transition-all duration-200">
+                    <button
+                      onClick={() => handleDelite(vehiculo.patente)}
+                      className="p-2 bg-zinc-800 hover:bg-red-900/50 rounded-lg transition-all duration-200 cursor-pointer"
+                    >
                       <Trash2 size={18} className="text-red-500" />
                     </button>
                   </div>
@@ -227,22 +249,23 @@ const VehiculosDriver = () => {
                   />
                 </div>
 
-                <label className="text-sm text-yellow-500">Estado:</label>
-                <select
-                  className="block w-full px-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
-                  value={vehiculoEditando.estado}
-                  onChange={(e) =>
-                    setVehiculoEditando({
-                      ...vehiculoEditando,
-                      estado: e.target.value,
-                    })
-                  }
-                >
-                  <option value="activo">Activo</option>
-                  <option value="revision">Revisión</option>
-                  <option value="inactivo">Inactivo</option>
-                </select>
-
+                <div className="space-y-3">
+                  <label className="text-sm text-yellow-500">Estado</label>
+                  <select
+                    value={vehiculoEditando.estado}
+                    onChange={(e) =>
+                      setVehiculoEditando({
+                        ...vehiculoEditando,
+                        estado: e.target.value,
+                      })
+                    }
+                    className="block w-full cursor-pointer px-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
+                  >
+                    <option value="activo">Activo</option>
+                    <option value="revision">Revisión</option>
+                    <option value="inactivo">Inactivo</option>
+                  </select>
+                </div>
                 <div className="flex justify-center space-x-3 mt-5">
                   <button
                     className="flex cursor-pointer items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-yellow-500/20"
@@ -338,26 +361,18 @@ const VehiculosDriver = () => {
                     placeholder="Ej: Blanco"
                   />
                 </div>
-                <div>
-                  <select className="block w-full px-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200">
-                    <option
-                      value={estado}
-                      onChange={(e) => setEstado(e.target.value)}
-                    >
-                      Activo
-                    </option>
-                    <option
-                      value={estado}
-                      onChange={(e) => setEstado(e.target.value)}
-                    >
-                      Revisión
-                    </option>
-                    <option
-                      value={estado}
-                      onChange={(e) => setEstado(e.target.value)}
-                    >
-                      Inactivo
-                    </option>
+                <div className="group">
+                  <label className="block text-sm font-medium text-yellow-500 mb-1">
+                    Estado
+                  </label>
+                  <select
+                    value={estado}
+                    onChange={(e) => setEstado(e.target.value)}
+                    className="block w-full px-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
+                  >
+                    <option value="activo">Activo</option>
+                    <option value="revision">Revisión</option>
+                    <option value="inactivo">Inactivo</option>
                   </select>
                 </div>
               </div>
