@@ -111,7 +111,7 @@ const FormProfile = ({
                   placeholder={field.placeholder}
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
-                  value={field.value}
+                  value={field.value || ""}
                   className={`pl-10 pr-10 text-gray-300 ${commonProps.className}`}
                 />
                 {field.type === "password" && (
