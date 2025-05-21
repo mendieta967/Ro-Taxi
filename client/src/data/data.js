@@ -99,7 +99,7 @@ export const dataAdmin = {
       destino: "Calle Falsa 456",
       pasajero: "Pedro Ramírez",
       conductor: "Juan Pérez",
-      estado: "cancelado",
+      estado: "Cancelado",
       importe: "$1500",
     },
     {

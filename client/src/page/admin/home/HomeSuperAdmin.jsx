@@ -1,41 +1,35 @@
 import MainLayout from "../../../components/layout/MainLayout";
+import Modal from "../../../components/ui/Modal";
+import FormProfile from "../../../components/common/FormProfile";
+import RegisterVehicle from "../../auth/registerVehicle/RegisterVehicle";
 import { dataAdmin } from "../../../data/data";
-import { Pencil, Trash2, Plus, Search } from "lucide-react";
+import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
+import Form from "../../../components/common/Form";
 
 const HomeSuperAdmin = () => {
   const [activeTab, setActiveTab] = useState("usuarios");
   const [search, setSearch] = useState("");
-  const [deleteConductores, setDeleteConductores] = useState(
-    dataAdmin.conductores
-  );
-  const [deletePasajeros, setDeletePasajeros] = useState(dataAdmin.pasajeros);
-  const [deleteVehiculos, setDeleteVehiculos] = useState(dataAdmin.vehiculos);
-  const [deleteViajes, setDeleteViajes] = useState(dataAdmin.viajes);
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [showModalConductor, setShowModalConductor] = useState(false);
+  const [showModalVehiculo, setShowModalVehiculo] = useState(false);
+  const [conductores, setConductores] = useState(dataAdmin.conductores);
+  const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
+
   const usersPerPage = 10;
 
-  const totalUsuarios = deleteConductores.length + deletePasajeros.length;
-  const totalPages = Math.ceil(totalUsuarios / usersPerPage);
-
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
   useEffect(() => {
     setSearch("");
+    setCurrentPage(1);
   }, [activeTab]);
 
   let displayedData = [];
   let headers = [];
 
   if (activeTab === "usuarios") {
-    displayedData = [...deleteConductores, ...deletePasajeros];
+    displayedData = [...conductores, ...dataAdmin.pasajeros];
+
     headers = [
       "id",
       "Nombre",
@@ -46,10 +40,10 @@ const HomeSuperAdmin = () => {
       "Fecha registro",
     ];
   } else if (activeTab === "conductores") {
-    displayedData = deleteConductores.filter((u) => u.rol === "Conductor");
+    displayedData = conductores.filter((u) => u.rol === "Conductor");
     headers = ["id", "Nombre", "DNI", "Email", "Estado", "Acciones"];
   } else if (activeTab === "pasajeros") {
-    displayedData = deletePasajeros.filter((u) => u.rol === "Pasajero");
+    displayedData = dataAdmin.pasajeros.filter((u) => u.rol === "Pasajero");
     headers = [
       "id",
       "Nombre",
@@ -60,7 +54,7 @@ const HomeSuperAdmin = () => {
       "Acciones",
     ];
   } else if (activeTab === "vehiculos") {
-    displayedData = deleteVehiculos; // Usar data real de vehículos
+    displayedData = vehiculos;
     headers = [
       "id",
       "Patente",
@@ -73,7 +67,7 @@ const HomeSuperAdmin = () => {
       "Acciones",
     ];
   } else if (activeTab === "viajes") {
-    displayedData = deleteViajes; // Usar data real de viajes
+    displayedData = dataAdmin.viajes;
     headers = [
       "id",
       "Fecha",
@@ -83,17 +77,13 @@ const HomeSuperAdmin = () => {
       "Conductor",
       "Estado",
       "Importe",
-      "Acciones",
+      "Resumen",
     ];
   }
+
   const filteredData = displayedData.filter((item) => {
     const searchTerm = search.toLowerCase();
-
-    if (
-      activeTab === "usuarios" ||
-      activeTab === "conductores" ||
-      activeTab === "pasajeros"
-    ) {
+    if (["usuarios", "conductores", "pasajeros"].includes(activeTab)) {
       return (
         item.dni?.toLowerCase().includes(searchTerm) ||
         item.nombre?.toLowerCase().includes(searchTerm)
@@ -109,103 +99,197 @@ const HomeSuperAdmin = () => {
         item.origen?.toLowerCase().includes(searchTerm)
       );
     }
-
     return false;
   });
 
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const totalPages = Math.ceil(filteredData.length / usersPerPage);
   const currentData = filteredData.slice(indexOfFirstUser, indexOfLastUser);
-  const handleDeleteConductores = (id) => {
-    const updatedConductores = deleteConductores.filter((u) => u.id !== id);
-    setDeleteConductores(updatedConductores);
-    console.log(`Conductor con ID ${id} eliminado exitosamente`);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
   };
 
-  const handleDeletePasajeros = (id) => {
-    const updatedPasajeros = deletePasajeros.filter((u) => u.id !== id);
-    setDeletePasajeros(updatedPasajeros);
-    console.log(`Pasajero con ID ${id} eliminado exitosamente`);
+  const handleClick = () => {
+    setShowModal(true);
   };
 
-  const handleDeleteVehiculos = (id) => {
-    const updatedVehiculos = deleteVehiculos.filter((u) => u.id !== id);
-    setDeleteVehiculos(updatedVehiculos);
-    console.log(`Vehículo con ID ${id} eliminado exitosamente`);
+  const handleClickConductor = () => {
+    setShowModalConductor(true);
   };
 
-  const handleDeleteViajes = (id) => {
-    const updatedViajes = deleteViajes.filter((u) => u.id !== id);
-    setDeleteViajes(updatedViajes);
-    console.log(`Viaje con ID ${id} eliminado exitosamente`);
+  const handleClickVehiculo = () => {
+    setShowModalVehiculo(true);
+  };
+  const conductorFields = [
+    {
+      name: "name",
+      label: "Nombre",
+      type: "text",
+      placeholder: "Ingrese su nombre",
+      required: true,
+      autoComplete: "name",
+      autoFocus: true,
+    },
+    {
+      name: "dni",
+      label: "DNI",
+      type: "text",
+      placeholder: "Ingrese su DNI",
+      required: true,
+      autoComplete: "dni",
+    },
+    {
+      name: "email",
+      label: "Correo electrónico",
+      type: "email",
+      placeholder: "Correo electrónico",
+      required: true,
+      autoComplete: "email",
+    },
+    {
+      name: "password",
+      label: "Contraseña",
+      type: "password",
+      placeholder: "Contraseña",
+      required: true,
+      autoComplete: "current-password",
+    },
+    {
+      name: "genre",
+      label: "Género",
+      type: "select",
+      required: true,
+      options: [
+        { label: "Selecciona tu género", value: "" },
+        { label: "Masculino", value: "Male" },
+        { label: "Femenino", value: "Female" },
+        { label: "Otro", value: "Other" },
+      ],
+    },
+  ];
+  const vehiculoFields = [
+    {
+      name: "marca",
+      label: "Marca",
+      type: "text",
+      placeholder: "Ingrese la marca",
+      required: true,
+      autoComplete: "off",
+    },
+    {
+      name: "modelo",
+      label: "Modelo",
+      type: "text",
+      placeholder: "Ingrese el modelo",
+      required: true,
+      autoComplete: "off",
+    },
+    {
+      name: "patente",
+      label: "Patente",
+      type: "text",
+      placeholder: "Ingrese la patente",
+      required: true,
+      autoComplete: "off",
+    },
+    {
+      name: "color",
+      label: "Color",
+      type: "text",
+      placeholder: "Ingrese el color",
+      required: true,
+      autoComplete: "off",
+    },
+    {
+      name: "anio",
+      label: "Año",
+      type: "number",
+      placeholder: "Ingrese el año",
+      required: true,
+      autoComplete: "off",
+    },
+    {
+      name: "conductor",
+      label: "Conductor",
+      type: "text",
+      placeholder: "Ingrese el conductor",
+      required: true,
+      autoComplete: "off",
+    },
+  ];
+
+  const handleSubmitConductor = (data, resetForm) => {
+    const newConductor = {
+      ...data,
+      nombre: data.name,
+      id: conductores.length + 1, // or better: use uuid
+      rol: "Conductor",
+      estado: "Activo",
+      fecha: new Date().toLocaleDateString("es-AR"), // format example: "21/5/2025"
+    };
+
+    setConductores((prev) => [...prev, newConductor]);
+
+    resetForm(); // Clear the form
+    setShowModalConductor(false); // Close modal
+    setShowModal(false);
+  };
+  const handleSubmitVehiculo = (data, resetForm) => {
+    const newVehiculo = {
+      ...data,
+      id: vehiculos.length + 1, // or better: use uuid
+      estado: "Activo",
+      patente: data.patente,
+      marca: data.marca,
+      modelo: data.modelo,
+      color: data.color,
+      anio: data.anio,
+      conductor: data.conductor,
+    };
+    setVehiculos((prev) => [...prev, newVehiculo]);
+    resetForm(); // Clear the form
+    setShowModalVehiculo(false); // Close modal
+    setShowModal(false);
   };
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-zinc-900  p-6 text-white">
+      <div className="min-h-screen bg-zinc-900 p-6 text-white">
         <div className="flex flex-col items-center mb-8 text-center border border-zinc-700 p-8 rounded-md">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
               Gestión de la Plataforma
             </h1>
           </div>
-          {/* Tabs */}
           <div className="flex justify-center space-x-4 mb-6">
-            <button
-              className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
-                activeTab === "usuarios"
-                  ? "bg-yellow-500 text-black"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-              onClick={() => setActiveTab("usuarios")}
-            >
-              Usuarios
-            </button>
-            <button
-              className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
-                activeTab === "conductores"
-                  ? "bg-yellow-500 text-black"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-              onClick={() => setActiveTab("conductores")}
-            >
-              Conductores
-            </button>
-            <button
-              className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
-                activeTab === "pasajeros"
-                  ? "bg-yellow-500 text-black"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-              onClick={() => setActiveTab("pasajeros")}
-            >
-              Pasajeros
-            </button>
-            <button
-              className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
-                activeTab === "vehiculos"
-                  ? "bg-yellow-500 text-black"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-              onClick={() => setActiveTab("vehiculos")}
-            >
-              Vehículos
-            </button>
-            <button
-              className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
-                activeTab === "viajes"
-                  ? "bg-yellow-500 text-black"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }`}
-              onClick={() => setActiveTab("viajes")}
-            >
-              Viajes
-            </button>
+            {[
+              "usuarios",
+              "conductores",
+              "pasajeros",
+              "vehiculos",
+              "viajes",
+            ].map((tab) => (
+              <button
+                key={tab}
+                className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
+                  activeTab === tab
+                    ? "bg-yellow-500 text-black"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
-        {/* Panel */}
 
         <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            {/* Input con ícono de búsqueda */}
             <div className="relative w-full max-w-md">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <Search className="w-4 h-4 text-zinc-500" />
@@ -217,42 +301,85 @@ const HomeSuperAdmin = () => {
                 className="w-full p-2.5 pl-10 bg-zinc-700/50 border border-zinc-600 rounded-lg placeholder-zinc-400 text-white focus:ring-yellow-500 focus:border-yellow-500"
                 placeholder={
                   activeTab === "vehiculos"
-                    ? "Buscar vehiculo por patente o marca..."
+                    ? "Buscar vehículo por patente o marca..."
                     : activeTab === "viajes"
                     ? "Buscar viaje por fecha u origen..."
-                    : "Buscar usuario por N°documento o nombre..."
+                    : "Buscar usuario por N° documento o nombre..."
                 }
               />
             </div>
-
-            {/* Botón a la derecha */}
-
-            <button className="ml-4 flex items-center bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-md transition cursor-pointer">
+            <button
+              onClick={handleClick}
+              className="ml-4 flex items-center bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-md transition cursor-pointer"
+            >
               <Plus className="mr-2 w-4 h-4" />
               Agregar
             </button>
           </div>
+          {showModal && (
+            <Modal onClose={() => setShowModal(false)}>
+              <div className="flex flex-col gap-4">
+                <h1 className="text-3xl font-extrabold text-center  mb-8 tracking-wide">
+                  Agregar Usuario
+                </h1>
 
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={handleClickConductor}
+                    className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition cursor-pointer"
+                  >
+                    Agregar Conductor
+                  </button>
+                  <button
+                    onClick={handleClickVehiculo}
+                    className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition cursor-pointer"
+                  >
+                    Agregar Vehiculo
+                  </button>
+                </div>
+              </div>
+            </Modal>
+          )}
+          {showModalConductor && (
+            <Modal onClose={() => setShowModalConductor(false)}>
+              <FormProfile
+                fields={conductorFields}
+                onSubmit={handleSubmitConductor}
+                submitText="Guardar"
+              />
+            </Modal>
+          )}
+
+          {showModalVehiculo && (
+            <Modal onClose={() => setShowModalVehiculo(false)}>
+              <Form
+                fields={vehiculoFields}
+                onSubmit={handleSubmitVehiculo}
+                submitText="Guardar"
+              />
+            </Modal>
+          )}
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left text-white">
               <thead>
                 <tr>
-                  {headers.map((header, id) => (
-                    <th
-                      key={id}
-                      className="px-6 py-3 text-yellow-500 uppercase"
-                    >
+                  {headers.map((header, i) => (
+                    <th key={i} className="px-6 py-3 text-yellow-500 uppercase">
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="bg-[#121212] divide-y divide-zinc-800">
-                {currentData.map((item) => (
-                  <tr key={item.id} className="hover:bg-zinc-800 transition">
+                {currentData.map((item, index) => (
+                  <tr
+                    key={`${activeTab}-${item.id}-${index}`}
+                    className="hover:bg-zinc-800 transition"
+                  >
+                    {/* Usuario */}
                     {activeTab === "usuarios" && (
                       <>
-                        <td className="px-6 py-4">{item.id}</td>
+                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
                         <td className="px-6 py-4">{item.nombre}</td>
                         <td className="px-6 py-4">{item.email}</td>
                         <td className="px-6 py-4">{item.rol}</td>
@@ -260,52 +387,56 @@ const HomeSuperAdmin = () => {
                         <td className="px-6 py-4">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item.estado === "Activo"
+                              item?.estado === "Activo"
                                 ? "bg-green-600"
-                                : "bg-red-600"
+                                : item?.estado === "Inactivo"
+                                ? "bg-yellow-600"
+                                : item?.estado === "Cancelado"
+                                ? "bg-red-600"
+                                : "bg-gray-600"
                             }`}
                           >
-                            {item.estado}
+                            {item?.estado ?? "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4">{item.fecha}</td>
                       </>
                     )}
 
+                    {/* Conductores */}
                     {activeTab === "conductores" && (
                       <>
-                        <td className="px-6 py-4">{item.id}</td>
+                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
                         <td className="px-6 py-4">{item.nombre}</td>
                         <td className="px-6 py-4">{item.dni}</td>
                         <td className="px-6 py-4">{item.email}</td>
                         <td className="px-6 py-4">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item.estado === "Activo"
+                              item?.estado === "Activo"
                                 ? "bg-green-600"
-                                : "bg-red-600"
+                                : item?.estado === "Inactivo"
+                                ? "bg-yellow-600"
+                                : item?.estado === "Cancelado"
+                                ? "bg-red-600"
+                                : "bg-gray-600"
                             }`}
                           >
-                            {item.estado}
+                            {item?.estado ?? "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md">
+                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
                             <Pencil size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteConductores(item.id)}
-                            className="p-2 bg-red-600 rounded-md"
-                          >
-                            <Trash2 size={16} />
                           </button>
                         </td>
                       </>
                     )}
 
+                    {/* Pasajeros */}
                     {activeTab === "pasajeros" && (
                       <>
-                        <td className="px-6 py-4">{item.id}</td>
+                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
                         <td className="px-6 py-4">{item.nombre}</td>
                         <td className="px-6 py-4">{item.dni}</td>
                         <td className="px-6 py-4">{item.email}</td>
@@ -313,30 +444,30 @@ const HomeSuperAdmin = () => {
                         <td className="px-6 py-4">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item.estado === "Activo"
+                              item?.estado === "Activo"
                                 ? "bg-green-600"
-                                : "bg-red-600"
+                                : item?.estado === "Inactivo"
+                                ? "bg-yellow-600"
+                                : item?.estado === "Cancelado"
+                                ? "bg-red-600"
+                                : "bg-gray-600"
                             }`}
                           >
-                            {item.estado}
+                            {item?.estado ?? "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md">
+                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
                             <Pencil size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeletePasajeros(item.id)}
-                            className="p-2 bg-red-600 rounded-md"
-                          >
-                            <Trash2 size={16} />
                           </button>
                         </td>
                       </>
                     )}
+
+                    {/* Vehículos */}
                     {activeTab === "vehiculos" && (
                       <>
-                        <td className="px-6 py-4">{item.id}</td>
+                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
                         <td className="px-6 py-4">{item?.patente ?? "N/A"}</td>
                         <td className="px-6 py-4">{item?.marca ?? "N/A"}</td>
                         <td className="px-6 py-4">{item?.modelo ?? "N/A"}</td>
@@ -350,29 +481,28 @@ const HomeSuperAdmin = () => {
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item?.estado === "Activo"
                                 ? "bg-green-600"
-                                : "bg-red-600"
+                                : item?.estado === "Inactivo"
+                                ? "bg-yellow-600"
+                                : item?.estado === "Cancelado"
+                                ? "bg-red-600"
+                                : "bg-gray-600"
                             }`}
                           >
                             {item?.estado ?? "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md">
+                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
                             <Pencil size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteVehiculos(item.id)}
-                            className="p-2 bg-red-600 rounded-md"
-                          >
-                            <Trash2 size={16} />
                           </button>
                         </td>
                       </>
                     )}
 
+                    {/* Viajes */}
                     {activeTab === "viajes" && (
                       <>
-                        <td className="px-6 py-4">{item.id}</td>
+                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
                         <td className="px-6 py-4">{item.fecha}</td>
                         <td className="px-6 py-4">{item.origen}</td>
                         <td className="px-6 py-4">{item.destino}</td>
@@ -385,24 +515,18 @@ const HomeSuperAdmin = () => {
                                 ? "bg-green-600"
                                 : item.estado === "En curso"
                                 ? "bg-yellow-500"
-                                : "bg-red-600"
+                                : item.estado === "Cancelado"
+                                ? "bg-red-600"
+                                : "bg-gray-600"
                             }`}
                           >
-                            {item.estado}
+                            {item?.estado ?? "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4">{item.importe}</td>
-                        <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md">
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteViajes(item.id)}
-                            className="p-2 bg-red-600 rounded-md"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
+                        <button className="px-6 py-4 cursor-pointer text-yellow-500">
+                          <FileText className="w-5 h-5" />
+                        </button>
                       </>
                     )}
                   </tr>
@@ -411,7 +535,7 @@ const HomeSuperAdmin = () => {
             </table>
           </div>
         </div>
-        {/* Pagination */}
+
         <div className="flex justify-center mt-6 space-x-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}

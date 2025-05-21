@@ -73,7 +73,7 @@ const RegisterVehicle = ({ userHasVehicle = false }) => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-800/95 flex items-center justify-center px-4">
+    <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="w-full max-w-md p-6 sm:p-8 bg-gray-900 rounded-3xl shadow-2xl shadow-yellow-600">
         {!userHasVehicle ? (
           <>
