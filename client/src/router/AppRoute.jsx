@@ -5,22 +5,18 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import HomePassenger from "../page/passenger/home/HomePassenger";
-import HistorialPassenger from "../page/passenger/historial/HistorialPassenger";
 import PagosPassenger from "../page/passenger/pagos/PagosPassenger";
-import PerfilPassenger from "../page/passenger/perfil/PerfilPassenger";
+import PerfilApp from "../page/perfil/PerfilApp";
 import PassengerLayout from "../page/passenger/PassangerLayout";
-import SettingsPassenger from "../page/passenger/settings/SettingsPassenger";
-
+import SettingsApp from "../page/settings/SettingsApp";
 import AuthPage from "../page/auth/AuthPage";
 import CompleteAccount from "../page/auth/completeAccount/CompleteAccount";
-
-import HomeDriver from "../page/driver/home/HomeDriver";
-import HistorialDrivers from "../page/driver/historial/HistorialDriver";
+import HomeSuperAdmin from "../page/admin/home/HomeSuperAdmin";
 import ChatDriver from "../page/driver/chat/ChatDriver";
 import VehiculosDriver from "../page/driver/misVehiculos/VehiculosDriver";
 import ProtectedRoute from "../utils/ProtectedRoute";
-import { Historial, Home, Perfil } from "./CommonRoute";
+import Ubicaciones from "../page/admin/ubicacion/Ubicaciones";
+import { Historial, Home } from "./CommonRoute";
 
 const router = createBrowserRouter([
   {
@@ -43,7 +39,7 @@ const router = createBrowserRouter([
         path: "perfil",
         element: (
           <ProtectedRoute>
-            <PerfilPassenger />
+            <PerfilApp />
           </ProtectedRoute>
         ),
       },
@@ -59,10 +55,11 @@ const router = createBrowserRouter([
         path: "configuracion",
         element: (
           <ProtectedRoute>
-            <SettingsPassenger />
+            <SettingsApp />
           </ProtectedRoute>
         ),
       },
+
       {
         path: "pagos",
         element: (
@@ -71,6 +68,8 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
+      // Rutas del conductor
       {
         path: "chat",
         element: (
@@ -87,7 +86,23 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-
+      // Rutas del admin
+      {
+        path: "home-admin",
+        element: (
+          <ProtectedRoute role={["Admin"]}>
+            <HomeSuperAdmin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "ubicaciónes",
+        element: (
+          <ProtectedRoute role={["Admin"]}>
+            <Ubicaciones />
+          </ProtectedRoute>
+        ),
+      },
       // Ruta para errores 404 dentro del layout
       { path: "*", element: <h1>404 - Página no encontrada</h1> },
     ],

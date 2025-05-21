@@ -1,4 +1,4 @@
-import MainLayout from "../../../components/layout/MainLayout";
+import MainLayout from "../../components/layout/MainLayout";
 import {
   Globe,
   Bell,
@@ -13,7 +13,7 @@ import {
   UserX,
 } from "lucide-react";
 
-const SettingsPassenger = () => {
+const SettingsApp = () => {
   return (
     <MainLayout>
       <div className="min-h-screen bg-zinc-900 text-white p-6 md:p-8">
@@ -271,4 +271,4 @@ const SettingsPassenger = () => {
   );
 };
 
-export default SettingsPassenger;
+export default SettingsApp;

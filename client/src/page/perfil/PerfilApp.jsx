@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import FormProfile from "../../../components/common/FormProfile";
-import MainLayout from "../../../components/layout/MainLayout";
+import FormProfile from "../../components/common/FormProfile";
+import MainLayout from "../../components/layout/MainLayout";
 import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
-import { useAuth } from "../../../context/auth";
-import { getUser } from "../../../services/user";
+import { useAuth } from "../../context/auth";
+import { getUser } from "../../services/user";
 
-const PerfilPassenger = () => {
+const PerfilApp = () => {
   const {
     user: { userId },
   } = useAuth();
@@ -59,9 +59,9 @@ const PerfilPassenger = () => {
       type: "select",
       value: user?.genre,
       options: [
-        { value: "female", label: "Femenino" },
+        { value: "Female", label: "Femenino" },
         { value: "Male", label: "Masculino" },
-        { value: "other", label: "Otro" },
+        { value: "Other", label: "Otro" },
       ],
       required: true,
       icon: <Venus className="text-zinc-500" size={16} />,
@@ -158,4 +158,4 @@ const PerfilPassenger = () => {
   );
 };
 
-export default PerfilPassenger;
+export default PerfilApp;

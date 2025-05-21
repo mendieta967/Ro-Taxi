@@ -1,4 +1,12 @@
-import { Home, Clock, User, CreditCard, Settings, Menu } from "lucide-react";
+import {
+  Home,
+  Clock,
+  User,
+  CreditCard,
+  Settings,
+  Menu,
+  Locate,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/auth";
 const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
@@ -37,15 +45,14 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
     },
   ];
   const adminLinks = [
-    { icon: <Home />, label: "Inicio admin", to: "/home" },
+    { icon: <Home />, label: "Inicio", to: "/home" },
     { icon: <User />, label: "Perfil", to: "/perfil" },
     {
-      icon: <Clock />,
-      label: "Mis Viajes",
-      to: "/mis-viajes",
+      icon: <Locate />,
+      label: "Ubicaciones",
+      to: "/ubicaciónes",
     },
-    { icon: <CreditCard />, label: "Chat", to: "/chat" },
-    { icon: <CreditCard />, label: "Vehiculos", to: "/vehiculos" },
+
     {
       icon: <Settings />,
       label: "Configuración",

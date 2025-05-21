@@ -15,6 +15,105 @@ export const cardViajes = [
     description: "Gestiona tus métodos de pago",
   },
 ];
+//lista de usuarios
+export const dataAdmin = {
+  conductores: [
+    {
+      id: 1,
+      nombre: "María López",
+      email: "maria.lopez@example.com",
+      rol: "Conductor",
+      dni: "87654321B",
+      estado: "Activo",
+      fecha: "2023-02-20",
+    },
+    {
+      id: 2,
+      nombre: "María López",
+      email: "maria.lopez@example.com",
+      rol: "Conductor",
+      dni: "87654321B",
+      estado: "Inactivo",
+      fecha: "2023-02-20",
+    },
+  ],
+  pasajeros: [
+    {
+      id: 1,
+      nombre: "Carlos Rodríguez",
+      email: "carlos.rodriguez@example.com",
+      rol: "Pasajero",
+      dni: "45678912C",
+      estado: "Activo",
+      fecha: "2023-03-10",
+      direccion: "Calle Principal 123, Ciudad",
+    },
+    {
+      id: 2,
+      nombre: "pepo Rodríguez",
+      email: "carlos.rodriguez@example.com",
+      rol: "Pasajero",
+      dni: "123456789",
+      estado: "Inactivo",
+      fecha: "2023-03-10",
+      direccion: "Calle Principal 123, Ciudad",
+    },
+  ],
+  vehiculos: [
+    {
+      id: 1,
+      patente: "AB123CD",
+      marca: "Toyota",
+      modelo: "Corolla",
+      anio: 2020,
+      color: "Negro",
+      conductor: "Carlos Gómez",
+      estado: "Activo",
+    },
+    {
+      id: 2,
+      patente: "EF456GH",
+      marca: "Ford",
+      modelo: "Focus",
+      anio: 2018,
+      color: "Gris",
+      conductor: "Juan Torres",
+      estado: "Inactivo",
+    },
+  ],
+  viajes: [
+    {
+      id: 1,
+      fecha: "2024-05-10",
+      origen: "Av. Siempre Viva 123",
+      destino: "Calle Falsa 456",
+      pasajero: "Pedro Ramírez",
+      conductor: "Juan Pérez",
+      estado: "Completado",
+      importe: "$1500",
+    },
+    {
+      id: 2,
+      fecha: "2024-05-11",
+      origen: "Av. Siempre Viva 123",
+      destino: "Calle Falsa 456",
+      pasajero: "Pedro Ramírez",
+      conductor: "Juan Pérez",
+      estado: "cancelado",
+      importe: "$1500",
+    },
+    {
+      id: 3,
+      fecha: "2024-05-12",
+      origen: "Av. Siempre Viva 123",
+      destino: "Calle Falsa 456",
+      pasajero: "Pedro Ramírez",
+      conductor: "Juan Pérez",
+      estado: "En curso",
+      importe: "$1500",
+    },
+  ],
+};
 
 //Historial de viajes DRIVER
 export const tripsDriver = [
