@@ -27,7 +27,7 @@ const Form = ({
           className: `w-full px-4 py-2 rounded-xl bg-gray-800 text-yellow-700 border ${
             isError ? "border-red-500" : "border-gray-600"
           } focus:outline-none focus:ring-2 focus:ring-yellow-500`,
-          ref: refs[field.name] || null,
+          ...(refs[field.name] ? { ref: refs[field.name] } : {}),
           defaultValue: field.defaultValue || "",
         };
 
@@ -59,6 +59,7 @@ const Form = ({
             ) : (
               <input
                 {...commonProps}
+                {...(refs[field.name] ? { ref: refs[field.name] } : {})}
                 type={field.type}
                 placeholder={field.placeholder}
                 autoComplete={field.autoComplete}

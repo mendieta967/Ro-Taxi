@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import useFormValidation from "../../hooks/useFormValidation";
 
@@ -13,6 +13,14 @@ const FormProfile = ({
   const { errors, validate } = useFormValidation(fields);
   const [formData, setFormData] = useState({});
   const [showPassword, setShowPassword] = useState({});
+
+  useEffect(() => {
+    const initialData = {};
+    fields.forEach((f) => {
+      if (f.value) initialData[f.name] = f.value;
+    });
+    setFormData(initialData);
+  }, [fields]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,7 +100,7 @@ const FormProfile = ({
               <input
                 type="hidden"
                 name={field.name}
-                value={extraValues[field.value] || ""}
+                value={formData[field.name] || extraValues[field.name] || ""}
               />
             ) : (
               <div className="relative">
@@ -111,7 +119,6 @@ const FormProfile = ({
                   placeholder={field.placeholder}
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
-                  value={field.value || ""}
                   className={`pl-10 pr-10 text-gray-300 ${commonProps.className}`}
                 />
                 {field.type === "password" && (
