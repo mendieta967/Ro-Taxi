@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getCurrentUser } from "../services/auth";
 import { loginUser } from "../services/auth";
 import { logoutUser } from "../services/auth";
+import Loader from "../components/common/Loader";
 const AuthContext = createContext();
 
 export default function AuthContextProvider({ children }) {
@@ -23,19 +24,25 @@ export default function AuthContextProvider({ children }) {
 
   const login = async (formData) => {
     try {
+      setLoading(true);
       await loginUser(formData);
       fetchUser();
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
+      setLoading(true);
       await logoutUser();
       setUser(null);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,9 +50,8 @@ export default function AuthContextProvider({ children }) {
     fetchUser();
   }, []);
 
-  if (loading) return <h1>Cargando...</h1>;
+  if (loading) return <Loader />;
 
-  console.log(user);
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
