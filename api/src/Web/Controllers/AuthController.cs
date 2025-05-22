@@ -247,8 +247,22 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        Response.Cookies.Delete("access_token");
-        Response.Cookies.Delete("refresh_token");
+        HttpContext.Response.Cookies.Append("access_token", "",
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(-1),
+                SameSite = SameSiteMode.None
+            });
+        HttpContext.Response.Cookies.Append("refresh_token", "",
+        new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            Expires = DateTime.UtcNow.AddDays(-1),
+            SameSite = SameSiteMode.None
+        });
         try
         {
             await _authService.Logout(userId);
