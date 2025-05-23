@@ -114,7 +114,33 @@ export const dataAdmin = {
     },
   ],
 };
-
+//ubicaciones vehiculos
+export const vehiclesUbications = [
+  {
+    plate: "ABC123",
+    driver: "Juan Pérez",
+    status: "Activo",
+    updated: "Hace 5 min",
+    selected: false,
+    location: "Puerto Madero, Buenos Aires",
+  },
+  {
+    plate: "XYZ789",
+    driver: "María López",
+    status: "Activo",
+    updated: "Hace 2 min",
+    selected: true,
+    location: "san telmo, Buenos Aires",
+  },
+  {
+    plate: "DEF456",
+    driver: "Carlos Rodríguez",
+    status: "Inactivo",
+    updated: "Hace 30 min",
+    selected: false,
+    location: "rosario",
+  },
+];
 //Historial de viajes DRIVER
 export const tripsDriver = [
   {

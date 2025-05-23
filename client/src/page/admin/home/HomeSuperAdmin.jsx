@@ -1,7 +1,6 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Modal from "../../../components/ui/Modal";
 import FormProfile from "../../../components/common/FormProfile";
-import RegisterVehicle from "../../auth/registerVehicle/RegisterVehicle";
 import { dataAdmin } from "../../../data/data";
 import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -298,7 +297,7 @@ const HomeSuperAdmin = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 type="search"
-                className="w-full p-2.5 pl-10 bg-zinc-700/50 border border-zinc-600 rounded-lg placeholder-zinc-400 text-white focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full p-2.5 pl-10 border border-yellow-500 rounded-lg placeholder-zinc-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder={
                   activeTab === "vehiculos"
                     ? "Buscar vehículo por patente o marca..."
