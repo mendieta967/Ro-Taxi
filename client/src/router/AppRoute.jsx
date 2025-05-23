@@ -16,6 +16,7 @@ import ChatDriver from "../page/driver/chat/ChatDriver";
 import VehiculosDriver from "../page/driver/misVehiculos/VehiculosDriver";
 import ProtectedRoute from "../utils/ProtectedRoute";
 import Ubicaciones from "../page/admin/ubicacion/Ubicaciones";
+import NotFound from "../page/notFound/NotFound";
 import { Historial, Home } from "./CommonRoute";
 
 const router = createBrowserRouter([
@@ -103,14 +104,12 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // Ruta para errores 404 dentro del layout
-      { path: "*", element: <h1>404 - Página no encontrada</h1> },
     ],
   },
 
   { path: "complete-account", element: <CompleteAccount /> },
   { path: "login", element: <AuthPage /> },
-  { path: "*", element: <h1>404 - Página no encontrada</h1> },
+  { path: "*", element: <NotFound /> },
 ]);
 
 const AppRoute = () => {
