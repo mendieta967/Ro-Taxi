@@ -13,6 +13,7 @@ const FormProfile = ({
   const { errors, validate } = useFormValidation(fields);
   const [formData, setFormData] = useState({});
   const [showPassword, setShowPassword] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const initialData = {};
@@ -43,6 +44,7 @@ const FormProfile = ({
 
     if (isValid) {
       onSubmit({ ...formData, ...extraValues }, () => e.target.reset());
+      setIsEditing(false);
     } else {
       console.log("Errores en el formulario", errors);
     }
@@ -62,6 +64,7 @@ const FormProfile = ({
           ref: refs[field.name] || null,
           value: formData[field.name] || "",
           onChange: handleChange,
+
           className: `w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none appearance-none ${
             isError ? "border-red-500" : "border-gray-600"
           } focus:outline-none focus:ring-2 focus:ring-yellow-500`,
@@ -87,7 +90,8 @@ const FormProfile = ({
                 )}
                 <select
                   {...commonProps}
-                  className={`pl-10 text-gray-300 ${commonProps.className}`}
+                  disabled={!isEditing}
+                  className={`pl-10 text-gray-300 cursor-pointer ${commonProps.className}`}
                 >
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -119,6 +123,7 @@ const FormProfile = ({
                   placeholder={field.placeholder}
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
+                  readOnly={!isEditing}
                   className={`pl-10 pr-10 text-gray-300 ${commonProps.className}`}
                 />
                 {field.type === "password" && (
@@ -147,13 +152,24 @@ const FormProfile = ({
 
       {extraContent}
 
-      <div className="flex justify-center md:justify-end w-full md:col-span-2">
-        <button
-          type="submit"
-          className="w-full sm:w-1/2 md:w-1/4 mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer"
-        >
-          {submitText}
-        </button>
+      <div className="flex justify-center md:justify-end gap-4 w-full md:col-span-2">
+        {!isEditing && (
+          <button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            className="w-full sm:w-1/2 md:w-1/4 mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer"
+          >
+            Editar
+          </button>
+        )}
+        {isEditing && (
+          <button
+            type="submit"
+            className="w-full sm:w-1/2 md:w-1/4 mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer"
+          >
+            {submitText}
+          </button>
+        )}
       </div>
     </form>
   );

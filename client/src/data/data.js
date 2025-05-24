@@ -85,9 +85,9 @@ export const dataAdmin = {
     {
       id: 1,
       fecha: "2024-05-10",
-      origen: "Av. Siempre Viva 123",
+      origen: "Av. rosario 123",
       destino: "Calle Falsa 456",
-      pasajero: "Pedro Ramírez",
+      pasajero: "nico Ramírez",
       conductor: "Juan Pérez",
       estado: "Completado",
       importe: "$1500",

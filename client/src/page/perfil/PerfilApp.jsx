@@ -73,6 +73,7 @@ const PerfilApp = () => {
       name: "currentPassword",
       label: "Contraseña Actual",
       type: "password",
+      value: user?.password,
       placeholder: "********",
       required: true,
       icon: <Lock className="text-zinc-500" size={16} />,
