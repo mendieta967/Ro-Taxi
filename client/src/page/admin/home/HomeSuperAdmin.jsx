@@ -1,6 +1,10 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Modal from "../../../components/ui/Modal";
 import FormProfile from "../../../components/common/FormProfile";
+import {
+  generarResumenViaje,
+  imprimirResumen,
+} from "../../../components/ui/printUtils";
 import { dataAdmin } from "../../../data/data";
 import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -523,7 +527,12 @@ const HomeSuperAdmin = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4">{item.importe}</td>
-                        <button className="px-6 py-4 cursor-pointer text-yellow-500">
+                        <button
+                          onClick={() =>
+                            imprimirResumen(generarResumenViaje(item))
+                          }
+                          className="px-6 py-4 cursor-pointer text-yellow-500"
+                        >
                           <FileText className="w-5 h-5" />
                         </button>
                       </>

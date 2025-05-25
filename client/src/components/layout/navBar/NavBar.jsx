@@ -55,19 +55,7 @@ const Navbar = ({ isMobile }) => {
               <div className="text-xs text-gray-400">{user.email}</div>
             </div>
             <hr className="border-gray-800" />
-            <a
-              href="#"
-              className="block px-4 py-2 hover:bg-gray-800 text-sm text-yellow-500"
-            >
-              Mi Perfil
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 hover:bg-gray-800 text-sm text-yellow-500"
-            >
-              Mis Viajes
-            </a>
-            <hr className="border-gray-800" />
+
             <button
               onClick={handleLogaut}
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-800 cursor-pointer"

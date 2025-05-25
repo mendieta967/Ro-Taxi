@@ -1,4 +1,6 @@
 import MainLayout from "../../components/layout/MainLayout";
+import { useAuth } from "../../context/auth";
+import { useNavigate } from "react-router-dom";
 import {
   Globe,
   Bell,
@@ -14,6 +16,17 @@ import {
 } from "lucide-react";
 
 const SettingsApp = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogaut = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <MainLayout>
       <div className="min-h-screen bg-zinc-900 text-white p-6 md:p-8">
@@ -250,7 +263,10 @@ const SettingsApp = () => {
 
           {/* Botones de Sesión y Cuenta */}
           <div className="flex flex-col sm:flex-row gap-4 justify-between mb-10">
-            <button className="group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer  bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white font-medium transition-all duration-300 border border-zinc-700 hover:border-yellow-500/50 w-full sm:w-auto">
+            <button
+              onClick={handleLogaut}
+              className="group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer  bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white font-medium transition-all duration-300 border border-zinc-700 hover:border-yellow-500/50 w-full sm:w-auto"
+            >
               <LogOut
                 size={18}
                 className="group-hover:translate-x-1 transition-transform duration-300 "
