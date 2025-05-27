@@ -1,6 +1,7 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { tripsDriver } from "../../../data/data";
 import { useSearch } from "../../../context/SearchContext";
+import {ThemeContext} from "../../../context/ThemeContext";
 import {
   Calendar,
   Search,
@@ -11,8 +12,9 @@ import {
   Download,
   Filter,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 const HistorialDriver = () => {
+  const { theme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -40,18 +42,18 @@ const HistorialDriver = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-zinc-900 border-zinc-800 rounded-2xl text-white p-6 md:p-8">
+      <div className={`min-h-screen  rounded-2xl  p-6 md:p-8 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-white text-gray-900 border border-yellow-500 '}`}>
         <div className="max-w-4xl mx-auto">
           {/* Filtros y búsqueda */}
-          <div className="backdrop-blur-md bg-zinc-900/70 rounded-2xl p-6 border border-yellow-500/50 shadow-xl mb-8">
+          <div className={`backdrop-blur-md rounded-2xl p-6 border  shadow-xl mb-8 ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50' : 'bg-white/70 border-yellow-500'}`}>
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-yellow-500" />
+                  <Search className={`h-5 w-5  ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} />
                 </div>
                 <input
                   type="text"
-                  className="block w-full pl-10 pr-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
+                  className={`block w-full pl-10 pr-3 py-3  transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500' : 'border border-yellow-500 rounded-lg bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500'}`}
                   placeholder="Buscar por dirección o fecha"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -60,11 +62,11 @@ const HistorialDriver = () => {
 
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-yellow-500" />
+                  <Calendar className={`h-5 w-5  ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} />
                 </div>
                 <input
                   type="date"
-                  className="block w-full cursor-pointer pl-10 pr-3 py-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
+                  className={`block w-full cursor-pointer pl-10 pr-3 py-3  transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500  ' : 'border border-yellow-500 rounded-lg bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500'}`}
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                 />
@@ -72,13 +74,13 @@ const HistorialDriver = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-zinc-800 mb-6">
+            <div className={`flex  mb-6 ${theme === 'dark' ? 'border-b border-zinc-800' : 'border-b border-yellow-500'}`}>
               <button
                 onClick={() => setActiveTab("all")}
                 className={`py-2 px-4 font-medium text-sm cursor-pointer ${
                   activeTab === "all"
                     ? "border-b-2 border-yellow-500 text-yellow-500"
-                    : "text-gray-400 hover:text-white"
+                    : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
                 Todos
@@ -88,7 +90,7 @@ const HistorialDriver = () => {
                 className={`py-2 px-4 font-medium text-sm cursor-pointer ${
                   activeTab === "completed"
                     ? "border-b-2 border-yellow-500 text-yellow-500"
-                    : "text-gray-400 hover:text-white"
+                    : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
                 Completados
@@ -98,7 +100,7 @@ const HistorialDriver = () => {
                 className={`py-2 px-4 font-medium text-sm cursor-pointer ${
                   activeTab === "canceled"
                     ? "border-b-2 border-yellow-500 text-yellow-500"
-                    : "text-gray-400 hover:text-white"
+                    : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
                 Cancelados
@@ -107,21 +109,21 @@ const HistorialDriver = () => {
 
             {/* Resumen */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="backdrop-blur-md bg-zinc-800/50 rounded-xl p-4 border border-zinc-700/50">
+              <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
                   Total de viajes
                 </h3>
                 <p className="text-2xl font-bold">342</p>
               </div>
 
-              <div className="backdrop-blur-md bg-zinc-800/50 rounded-xl p-4 border border-zinc-700/50">
+              <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
                   Ingresos totales
                 </h3>
                 <p className="text-2xl font-bold">$45,320</p>
               </div>
 
-              <div className="backdrop-blur-md bg-zinc-800/50 rounded-xl p-4 border border-zinc-700/50">
+              <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
                   Distancia total
                 </h3>
@@ -144,7 +146,7 @@ const HistorialDriver = () => {
             .map((trip) => (
               <div
                 key={trip.id}
-                className="backdrop-blur-md bg-zinc-900/70 rounded-2xl p-6 border border-yellow-500/50 shadow-xl hover:shadow-yellow-500/10 transition-all duration-300"
+                className={`backdrop-blur-md rounded-2xl p-6 border  shadow-xl hover:shadow-yellow-500/10 transition-all duration-300 mb-4 ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50' : 'bg-white/70 border-yellow-500'}`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -154,8 +156,8 @@ const HistorialDriver = () => {
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                       trip.status === "completed"
-                        ? "bg-green-900/30 text-green-400 border-green-500/30"
-                        : "bg-red-900/30 text-red-400 border-red-500/30"
+                        ? "bg-green-400/30 text-green-500 border-green-500/30"
+                        : "bg-red-400/30 text-red-500 border-red-500/30"
                     }`}
                   >
                     {trip.status === "completed" ? "Completado" : "Cancelado"}
@@ -209,10 +211,10 @@ const HistorialDriver = () => {
 
           {showModal && selectedTrip && (
             <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
-              <div className="bg-zinc-900 border border-yellow-500/50 rounded-2xl p-6 w-full max-w-lg shadow-lg text-white relative">
+              <div className={` rounded-2xl p-6 w-full max-w-lg shadow-lg relative ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800/50 text-white ' : 'bg-white border-yellow-500 text-gray-900'}`}>
                 {/* Cierre del modal */}
                 <button
-                  className="absolute top-3 right-3 cursor-pointer text-yellow-500 hover:text-white text-xl"
+                  className={`absolute top-3 right-3 cursor-pointer text-xl ${theme === 'dark' ? 'text-yellow-500 hover:text-white' : 'text-gray-900 hover:text-yellow-500'}`}
                   onClick={() => setShowModal(false)}
                 >
                   ×
@@ -222,38 +224,46 @@ const HistorialDriver = () => {
                   N° de Viaje: {selectedTrip.id}
                 </h2>
 
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm text-yellow-500">Fecha</p>
-                    <p>{selectedTrip.date}</p>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Fecha</p>
+                    <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.date}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-yellow-500">Ruta</p>
-                    <p>{selectedTrip.route}</p>
+                  <div className="space-y-2">
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Ruta</p>
+                    <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.route}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-yellow-500">Duración</p>
-                    <p>{selectedTrip.duration}</p>
+                  <div className="space-y-2">
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Duración</p>
+                    <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.duration}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-yellow-500">Ganancia</p>
-                    <p className="font-bold">
+                  <div className="space-y-2">
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Ganancia</p>
+                    <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
                       ${selectedTrip.earnings.toFixed(2)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-yellow-500">Estado</p>
-                    <p
-                      className={`font-semibold ${
+                  <div className="col-span-2 space-y-2">
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Estado</p>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
                         selectedTrip.status === "completed"
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {selectedTrip.status === "completed"
-                        ? "Completado"
-                        : "Cancelado"}
-                    </p>
+                          ? "bg-green-400"
+                          : "bg-red-400"
+                      }`}>
+                      </div>
+                      <p
+                        className={`text-lg font-semibold ${
+                          selectedTrip.status === "completed"
+                            ? "text-green-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {selectedTrip.status === "completed"
+                          ? "Completado"
+                          : "Cancelado"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

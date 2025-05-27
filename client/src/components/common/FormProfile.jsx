@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Pencil, Save } from "lucide-react";
 import useFormValidation from "../../hooks/useFormValidation";
 import { ThemeContext } from "../../context/ThemeContext";
 
@@ -77,7 +77,7 @@ const FormProfile = ({
             {field.label && field.type !== "hidden" && (
               <label
                 htmlFor={field.name}
-                className={`text-sm ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} mb-1 block`}
+                className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} mb-1 block`}
               >
                 {field.label}
               </label>
@@ -159,17 +159,23 @@ const FormProfile = ({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className={`w-full sm:w-1/2 md:w-1/4 mt-4  text-white font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${theme === 'dark' ? 'bg-yellow-500 text-zinc-900 hover:bg-yellow-600' : 'bg-yellow-500 text-zinc-900 hover:bg-yellow-600'}`}
           >
-            Editar
+            <span className="flex justify-center items-center gap-2 font-semibold">
+              <Pencil className="h-5 w-5" />
+              Editar
+            </span>
           </button>
         )}
         {isEditing && (
           <button
             type="submit"
-            className={`w-full sm:w-1/2 md:w-1/4 mt-4  text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${theme === 'dark' ? 'bg-zinc-700 text-yellow-500 hover:bg-zinc-600' : 'bg-zinc-700 text-yellow-500 hover:bg-zinc-600'}`}
           >
-            {submitText}
+            <span className="flex justify-center items-center gap-2 font-semibold">
+              <Save className="h-5 w-5" />
+              {submitText}
+            </span>
           </button>
         )}
       </div>
