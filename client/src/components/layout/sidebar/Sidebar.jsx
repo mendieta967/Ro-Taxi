@@ -124,13 +124,13 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
             theme === "dark" ? "bg-gray-900" : "bg-yellow-500"
           } rounded-lg p-4`}
         >
-          <p className="font-medium text-gray-900 text-center">
+          <p className={`font-medium  text-center ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
             ¿Necesitas ayuda?
           </p>
-          <p className="text-sm text-center text-gray-800 opacity-90 mt-1">
+          <p className={`text-sm text-center opacity-90 mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-800'}`}>
             Contáctanos al soporte
           </p>
-          <button className="mt-3 w-full bg-gray-900 hover:bg-gray-800 text-yellow-500 font-medium px-3 py-2 rounded-lg text-sm transition-colors">
+          <button className={`mt-3 w-full  font-medium px-3 py-2 rounded-lg text-sm transition-colors ${theme === 'dark' ? 'bg-yellow-500 hover:bg-yellow-400' : ' bg-gray-900 hover:bg-gray-800 text-yellow-500'}`}>
             Contactar
           </button>
         </div>

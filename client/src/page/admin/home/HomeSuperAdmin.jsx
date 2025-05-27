@@ -1,13 +1,14 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Modal from "../../../components/ui/Modal";
 import FormProfile from "../../../components/common/FormProfile";
+import {ThemeContext} from "../../../context/ThemeContext";
 import {
   generarResumenViaje,
   imprimirResumen,
 } from "../../../components/ui/printUtils";
 import { dataAdmin } from "../../../data/data";
 import { Pencil, Plus, Search, FileText } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Form from "../../../components/common/Form";
 
 const HomeSuperAdmin = () => {
@@ -19,6 +20,7 @@ const HomeSuperAdmin = () => {
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
   const [conductores, setConductores] = useState(dataAdmin.conductores);
   const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
+  const {theme} = useContext(ThemeContext);
 
   const usersPerPage = 10;
 
@@ -261,8 +263,8 @@ const HomeSuperAdmin = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-zinc-900 p-6 text-white">
-        <div className="flex flex-col items-center mb-8 text-center border border-zinc-700 p-8 rounded-md">
+      <div className={theme === 'dark' ? "min-h-screen bg-zinc-900 p-6 text-white" : "min-h-screen bg-white p-6 text-gray-900 border rounded-lg border-yellow-500"}>
+        <div className={theme === 'dark' ? "flex flex-col items-center mb-8 text-center border border-zinc-700 p-8 rounded-md" : "flex flex-col items-center mb-8 text-center border border-yellow-500 p-8 rounded-md"}>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
               Gestión de la Plataforma
@@ -280,8 +282,8 @@ const HomeSuperAdmin = () => {
                 key={tab}
                 className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
                   activeTab === tab
-                    ? "bg-yellow-500 text-black"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                    ? theme === 'dark' ? "bg-yellow-500 text-gray-900" : "bg-yellow-500 text-gray-900"
+                    : theme === 'dark' ? "bg-white/10 text-white hover:bg-white/20" : " text-gray-900 border border-yellow-500"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -291,17 +293,17 @@ const HomeSuperAdmin = () => {
           </div>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4">
+        <div className={theme === 'dark' ? "bg-zinc-900 border border-zinc-700 rounded-lg p-4" : "bg-white border border-yellow-500 rounded-lg p-4 "}>
           <div className="flex justify-between items-center mb-4">
             <div className="relative w-full max-w-md">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="w-4 h-4 text-zinc-500" />
+                <Search className={theme === 'dark' ? "w-4 h-4 text-zinc-500" : "w-4 h-4 text-gray-900"} />
               </div>
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 type="search"
-                className="w-full p-2.5 pl-10 border border-yellow-500 rounded-lg placeholder-zinc-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className={theme === 'dark' ? "w-full p-2.5 pl-10 border border-zinc-700 rounded-lg placeholder-zinc-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" : "w-full p-2.5 pl-10 border border-yellow-500 rounded-lg placeholder-zinc-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"}
                 placeholder={
                   activeTab === "vehiculos"
                     ? "Buscar vehículo por patente o marca..."
@@ -322,7 +324,7 @@ const HomeSuperAdmin = () => {
           {showModal && (
             <Modal onClose={() => setShowModal(false)}>
               <div className="flex flex-col gap-4">
-                <h1 className="text-3xl font-extrabold text-center  mb-8 tracking-wide">
+                <h1 className={theme === 'dark' ? "text-3xl font-extrabold text-center  mb-8 tracking-wide text-white" : "text-3xl font-extrabold text-center  mb-8 tracking-wide text-gray-900"}>
                   Agregar Usuario
                 </h1>
 
@@ -363,7 +365,7 @@ const HomeSuperAdmin = () => {
             </Modal>
           )}
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm text-left text-white">
+            <table className={theme === 'dark' ? "min-w-full text-sm text-left text-white" : "min-w-full text-sm text-left text-gray-900"}>
               <thead>
                 <tr>
                   {headers.map((header, i) => (
@@ -373,27 +375,27 @@ const HomeSuperAdmin = () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-[#121212] divide-y divide-zinc-800">
+              <tbody className={theme === 'dark' ? "bg-[#121212] divide-y divide-zinc-800" : "bg-white divide-y divide-yellow-500"}>
                 {currentData.map((item, index) => (
                   <tr
                     key={`${activeTab}-${item.id}-${index}`}
-                    className="hover:bg-zinc-800 transition"
+                    className={theme === 'dark' ? "hover:bg-zinc-800 transition" : "hover:bg-yellow-200 transition"}
                   >
                     {/* Usuario */}
                     {activeTab === "usuarios" && (
                       <>
-                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4">{item.nombre}</td>
-                        <td className="px-6 py-4">{item.email}</td>
-                        <td className="px-6 py-4">{item.rol}</td>
-                        <td className="px-6 py-4">{item.dni}</td>
-                        <td className="px-6 py-4">
+                        <td className= "px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
+                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
+                        <td className="px-6 py-4 font-semibold">{item.email}</td>
+                        <td className="px-6 py-4 font-semibold">{item.rol}</td>
+                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
+                        <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item?.estado === "Activo"
                                 ? "bg-green-600"
                                 : item?.estado === "Inactivo"
-                                ? "bg-yellow-600"
+                                ? "bg-yellow-500"
                                 : item?.estado === "Cancelado"
                                 ? "bg-red-600"
                                 : "bg-gray-600"
@@ -402,18 +404,18 @@ const HomeSuperAdmin = () => {
                             {item?.estado ?? "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-4">{item.fecha}</td>
+                        <td className="px-6 py-4 font-semibold">{item.fecha}</td>
                       </>
                     )}
 
                     {/* Conductores */}
                     {activeTab === "conductores" && (
                       <>
-                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4">{item.nombre}</td>
-                        <td className="px-6 py-4">{item.dni}</td>
-                        <td className="px-6 py-4">{item.email}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
+                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
+                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
+                        <td className="px-6 py-4 font-semibold">{item.email}</td>
+                        <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item?.estado === "Activo"
@@ -439,12 +441,12 @@ const HomeSuperAdmin = () => {
                     {/* Pasajeros */}
                     {activeTab === "pasajeros" && (
                       <>
-                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4">{item.nombre}</td>
-                        <td className="px-6 py-4">{item.dni}</td>
-                        <td className="px-6 py-4">{item.email}</td>
-                        <td className="px-6 py-4">{item.direccion}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
+                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
+                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
+                        <td className="px-6 py-4 font-semibold">{item.email}</td>
+                        <td className="px-6 py-4 font-semibold">{item.direccion}</td>
+                        <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item?.estado === "Activo"
@@ -470,16 +472,16 @@ const HomeSuperAdmin = () => {
                     {/* Vehículos */}
                     {activeTab === "vehiculos" && (
                       <>
-                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4">{item?.patente ?? "N/A"}</td>
-                        <td className="px-6 py-4">{item?.marca ?? "N/A"}</td>
-                        <td className="px-6 py-4">{item?.modelo ?? "N/A"}</td>
-                        <td className="px-6 py-4">{item?.anio ?? "N/A"}</td>
-                        <td className="px-6 py-4">{item?.color ?? "N/A"}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
+                        <td className="px-6 py-4 font-semibold">{item?.patente ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold">{item?.marca ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold">{item?.modelo ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold">{item?.anio ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold">{item?.color ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold">
                           {item?.conductor ?? "N/A"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item?.estado === "Activo"
@@ -505,13 +507,13 @@ const HomeSuperAdmin = () => {
                     {/* Viajes */}
                     {activeTab === "viajes" && (
                       <>
-                        <td className="px-6 py-4 text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4">{item.fecha}</td>
-                        <td className="px-6 py-4">{item.origen}</td>
-                        <td className="px-6 py-4">{item.destino}</td>
-                        <td className="px-6 py-4">{item.pasajero}</td>
-                        <td className="px-6 py-4">{item.conductor}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
+                        <td className="px-6 py-4 font-semibold">{item.fecha}</td>
+                        <td className="px-6 py-4 font-semibold">{item.origen}</td>
+                        <td className="px-6 py-4 font-semibold">{item.destino}</td>
+                        <td className="px-6 py-4 font-semibold">{item.pasajero}</td>
+                        <td className="px-6 py-4 font-semibold">{item.conductor}</td>
+                        <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
                               item.estado === "Completado"
@@ -526,7 +528,7 @@ const HomeSuperAdmin = () => {
                             {item?.estado ?? "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-4">{item.importe}</td>
+                        <td className="px-6 py-4 font-semibold">{item.importe}</td>
                         <button
                           onClick={() =>
                             imprimirResumen(generarResumenViaje(item))
@@ -548,7 +550,7 @@ const HomeSuperAdmin = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
+            className={theme === 'dark' ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"}
           >
             «
           </button>
@@ -558,8 +560,8 @@ const HomeSuperAdmin = () => {
               onClick={() => handlePageChange(i + 1)}
               className={`px-3 py-1 rounded cursor-pointer ${
                 currentPage === i + 1
-                  ? "bg-yellow-500 text-black font-semibold"
-                  : "bg-white/10 hover:bg-white/20 text-white"
+                  ? theme === 'dark' ? "bg-zinc-800 text-white font-semibold" : "bg-yellow-500 text-black font-semibold"
+                  : theme === 'dark' ? "bg-zinc-800/10 hover:bg-zinc-800/20 text-white" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900"
               }`}
             >
               {i + 1}
@@ -568,7 +570,7 @@ const HomeSuperAdmin = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
+            className={theme === 'dark' ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"}
           >
             »
           </button>
