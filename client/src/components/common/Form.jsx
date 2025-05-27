@@ -13,7 +13,7 @@ const Form = ({
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target).entries());
     onSubmit({ ...formData, ...extraValues }, () => e.target.reset());
-    console.log(formData);
+    // console.log(formData);
   };
 
   return (

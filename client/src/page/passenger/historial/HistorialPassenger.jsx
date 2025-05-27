@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Clock, MapPin, Navigation, Search } from "lucide-react";
 import MainLayout from "../../../components/layout/MainLayout";
+import { ThemeContext } from "../../../context/ThemeContext";
 import {
   trips as initialTrips,
   scheduledTrip as initialScheduledTrips,
@@ -8,6 +9,7 @@ import {
 
 const HistorialPassenger = () => {
   const [activeTab, setActiveTab] = useState("todos");
+  const { theme } = useContext(ThemeContext);
   const [ratings, setRatings] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(null);
@@ -91,18 +93,18 @@ const HistorialPassenger = () => {
 
   return (
     <MainLayout>
-      <div className="flex-1 p-4 sm:px-6 sm:py-6 text-white bg-zinc-900 border-zinc-800 min-h-screen rounded">
+      <div className={`flex-1 p-4 sm:px-6 sm:py-6 text-white min-h-screen rounded ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 ' : 'bg-white border border-yellow-500'}`}>
         <div className="space-y-6">
           {/* Search & Program Button */}
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full sm:w-72">
+            <div className={`relative w-full sm:w-72 rounded ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white '}`}>
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="search"
                 placeholder="Buscar viajes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-4 py-2 rounded bg-zinc-900 border border-zinc-700 text-white placeholder-gray-400"
+                className={`w-full pl-8 pr-4 py-2 rounded placeholder-gray-400 ${theme === 'dark' ? ' bg-zinc-900 border border-zinc-700 text-white' : 'bg-white border border-yellow-500 text-gray-900'}`}
               />
             </div>
             <button
@@ -114,7 +116,7 @@ const HistorialPassenger = () => {
           </div>
 
           {/* Tabs */}
-          <div className="grid grid-cols-3 bg-zinc-900 rounded overflow-hidden text-center font-medium text-sm">
+          <div className={`grid grid-cols-3 rounded overflow-hidden text-center font-medium text-sm ${theme === 'dark' ? 'bg-zinc-800' : 'bg-yellow-500 '}`}>
             {["todos", "completados", "programados"].map((tab) => (
               <div
                 key={tab}
@@ -122,7 +124,7 @@ const HistorialPassenger = () => {
                 className={`py-2 cursor-pointer transition-colors duration-200 ${
                   activeTab === tab
                     ? "bg-zinc-800 text-white"
-                    : "text-gray-400 hover:text-gray-300"
+                    : theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-900 hover:text-gray-300'
                 }`}
               >
                 {tab === "todos"
@@ -139,7 +141,7 @@ const HistorialPassenger = () => {
             filteredScheduledTrips.map((trip) => (
               <div
                 key={trip.id}
-                className="border border-yellow-500 rounded-md p-4 bg-zinc-900 space-y-2 hover:bg-zinc-800 transition-colors duration-200"
+                className={` rounded-md p-4  space-y-2 transition-colors duration-200 ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 border border-yellow-500' : 'bg-white border border-yellow-500'}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -186,14 +188,14 @@ const HistorialPassenger = () => {
             filteredTrips.map((trip) => (
               <div
                 key={trip.id}
-                className="border border-zinc-800 rounded-md p-4 bg-zinc-900 space-y-2 hover:bg-zinc-800 transition-colors duration-200"
+                className={` rounded-md p-4  transition-colors duration-200 ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700 border border-yellow-500' : 'bg-white border border-yellow-500'}`}
               >
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>{trip.date}</span>
-                  <span className="text-white font-semibold">{trip.price}</span>
+                <div className={`flex justify-between text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-900'}`}>
+                  <span className={`font-semibold ${theme === 'dark' ? 'text-gray-400' : 'text-gray-900'}`}>{trip.date}</span>
+                  <span className={`font-semibold ${theme === 'dark' ? 'text-gray-400' : 'text-gray-900'}`}>{trip.price}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <MapPin size={16} className="text-gray-400" />
+                  <MapPin size={16} className="text-gray-400" />          
                   <span className="font-semibold">Origen:</span> {trip.from}
                 </div>
                 <div className="flex items-center gap-2 text-sm">
@@ -202,7 +204,7 @@ const HistorialPassenger = () => {
                 </div>
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <div className="flex items-center gap-4">
-                    <p className="text-white">{trip.driver}</p>
+                    <p className={`text-white ${theme === 'dark' ? 'text-gray-400' : 'text-gray-900'}`}>{trip.driver}</p>
                     {trip.status === "completado" ? (
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import useFormValidation from "../../hooks/useFormValidation";
+import { ThemeContext } from "../../context/ThemeContext";
 
 const FormProfile = ({
   fields,
@@ -14,6 +15,7 @@ const FormProfile = ({
   const [formData, setFormData] = useState({});
   const [showPassword, setShowPassword] = useState({});
   const [isEditing, setIsEditing] = useState(false);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     const initialData = {};
@@ -65,7 +67,7 @@ const FormProfile = ({
           value: formData[field.name] || "",
           onChange: handleChange,
 
-          className: `w-full mt-1 p-2 pr-10 bg-zinc-800 rounded-md outline-none appearance-none ${
+          className: `w-full mt-1 p-2 pr-10 ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'} rounded-md outline-none appearance-none ${
             isError ? "border-red-500" : "border-gray-600"
           } focus:outline-none focus:ring-2 focus:ring-yellow-500`,
         };
@@ -75,7 +77,7 @@ const FormProfile = ({
             {field.label && field.type !== "hidden" && (
               <label
                 htmlFor={field.name}
-                className="text-sm text-yellow-500 mb-1 block"
+                className={`text-sm ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} mb-1 block`}
               >
                 {field.label}
               </label>
@@ -91,7 +93,7 @@ const FormProfile = ({
                 <select
                   {...commonProps}
                   disabled={!isEditing}
-                  className={`pl-10 text-gray-300 cursor-pointer ${commonProps.className}`}
+                  className={`pl-10 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'} cursor-pointer ${commonProps.className}`}
                 >
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -124,7 +126,7 @@ const FormProfile = ({
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
                   readOnly={!isEditing}
-                  className={`pl-10 pr-10 text-gray-300 ${commonProps.className}`}
+                  className={`pl-10 pr-10 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'} ${commonProps.className}`}
                 />
                 {field.type === "password" && (
                   <div
@@ -157,7 +159,7 @@ const FormProfile = ({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="w-full sm:w-1/2 md:w-1/4 mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer"
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4  text-white font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
           >
             Editar
           </button>
@@ -165,7 +167,7 @@ const FormProfile = ({
         {isEditing && (
           <button
             type="submit"
-            className="w-full sm:w-1/2 md:w-1/4 mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer"
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4  text-gray-900 font-semibold py-2 px-4 rounded-xl transition-all cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-yellow-500 hover:bg-yellow-600'}`}
           >
             {submitText}
           </button>

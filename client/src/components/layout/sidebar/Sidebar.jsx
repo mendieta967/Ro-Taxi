@@ -9,10 +9,13 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/auth";
+import { useContext } from "react";
+import { ThemeContext } from "../../../context/ThemeContext";
 const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
   const {
     user: { role },
   } = useAuth();
+  const { theme } = useContext(ThemeContext);
   const passengerLinks = [
     { icon: <Home />, label: "Inicio", to: "/home" },
     { icon: <User />, label: "Perfil", to: "/perfil" },
@@ -68,7 +71,13 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
       : adminLinks;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full w-64 bg-yellow-500 text-taxi-contrast">
+    <div
+      className={`flex flex-col h-full w-64 ${
+        theme === "dark"
+          ? "bg-yellow-500"
+          : "bg-gray-900 border-r border-yellow-500"
+      } text-taxi-contrast`}
+    >
       {!(isMobile && isOpen) && (
         <div className="flex justify-center items-center gap-2 px-6 py-8">
           <img
@@ -77,7 +86,11 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
             className="w-12 h-12 rounded-full border-2 border-gray-800"
           />
           <h1 className="text-2xl font-bold">
-            <span className="bg-taxi-contrast text-gray-900 p-1 rounded-md">
+            <span
+              className={`bg-taxi-contrast p-1 rounded-md ${
+                theme === "dark" ? "text-gray-900 " : "text-yellow-500"
+              }`}
+            >
               Ro-Taxi
             </span>
           </h1>
@@ -92,7 +105,11 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
             <li key={i}>
               <Link
                 to={to}
-                className="flex items-center px-4 py-3 rounded-lg transition-colors text-gray-900 hover:bg-gray-900/95 hover:text-yellow-500 font-bold"
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                  theme === "dark"
+                    ? "text-gray-900 hover:bg-gray-900/95 hover:text-yellow-500"
+                    : "text-yellow-500 hover:bg-yellow-500 hover:text-gray-900"
+                } font-bold`}
               >
                 <span className="mr-3 w-5 h-5">{icon}</span>
                 {label}
@@ -102,7 +119,11 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
         </ul>
       </nav>
       <div className="p-4 mt-auto">
-        <div className="border-2 border-gray-800 rounded-lg p-4">
+        <div
+          className={`border-2 border-gray-800 ${
+            theme === "dark" ? "bg-gray-900" : "bg-yellow-500"
+          } rounded-lg p-4`}
+        >
           <p className="font-medium text-gray-900 text-center">
             ¿Necesitas ayuda?
           </p>
@@ -130,7 +151,7 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
           <div className="fixed inset-0 z-40 flex">
             <div className="w-64 h-full shadow-lg z-50">{sidebarContent}</div>
             <div
-              className="flex-1 bg-black bg-opacity-50"
+              className="flex-1 bg-transparent bg-opacity-30"
               onClick={toggleSidebar}
             />
           </div>

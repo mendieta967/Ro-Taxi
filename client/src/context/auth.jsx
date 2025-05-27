@@ -40,7 +40,7 @@ export default function AuthContextProvider({ children }) {
       await loginUser(formData);
       fetchUser();
     } catch (error) {
-      console.log(error);
+      alert(error.response.data.message);
     } finally {
       setLoading(false);
     }
