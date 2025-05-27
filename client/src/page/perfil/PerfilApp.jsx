@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import FormProfile from "../../components/common/FormProfile";
 import MainLayout from "../../components/layout/MainLayout";
 import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
 import { useAuth } from "../../context/auth";
 import { getUser } from "../../services/user";
+import { ThemeContext } from "../../context/ThemeContext";
 
 const PerfilApp = () => {
   const {
     user: { userId },
   } = useAuth();
   const [user, setUser] = useState();
+  const { theme } = useContext(ThemeContext);
 
   const fetchUser = async () => {
     try {
@@ -114,23 +116,23 @@ const PerfilApp = () => {
     <MainLayout>
       <div className="space-y-6">
         {/* INFORMACIÓN PERSONAL */}
-        <div className="bg-zinc-900 p-6 rounded-md flex flex-col md:flex-row gap-6">
+        <div className={`p-6 rounded-md flex flex-col md:flex-row gap-6 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
           {/* Avatar */}
-          <div className="flex flex-col items-center text-center border border-zinc-700 p-8 rounded-md">
-            <div className="w-32 h-32 bg-zinc-800 rounded-full flex items-center justify-center relative">
-              <User className="w-20 h-20 text-yellow-500" />
+          <div className={`flex flex-col items-center text-center  ${theme === 'dark' ? 'border border-zinc-700' : 'border border-yellow-500'} p-8 rounded-md`}>
+            <div className={`w-32 h-32  rounded-full flex items-center justify-center relative ${theme === 'dark' ? 'bg-zinc-800' : 'bg-yellow-500'} `}>
+              <User className={`w-20 h-20 ${theme === 'dark' ? 'text-yellow-500' : 'text-white'}`} />
             </div>
-            <h2 className="mt-4 font-semibold text-white text-lg">
+            <h2 className={`mt-4 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} text-2xl`}>
               {user?.name}
             </h2>
           </div>
 
           {/* Información */}
           <div className="flex-1 space-y-4">
-            <h2 className="text-2xl font-bold text-white">
+            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
               Información Personal
             </h2>
-            <p className="text-zinc-400 text-sm">
+            <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
               Actualiza tu información de perfil
             </p>
 
@@ -142,9 +144,9 @@ const PerfilApp = () => {
           </div>
         </div>
         {/* SEGURIDAD */}
-        <div className="bg-zinc-900 p-6 rounded-md space-y-4">
-          <h2 className="text-2xl text-white font-bold">Seguridad</h2>
-          <p className="text-zinc-400 text-sm">
+        <div className={`p-6 rounded-md space-y-4 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
+          <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Seguridad</h2>
+          <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
             Gestiona la seguridad de tu cuenta
           </p>
 

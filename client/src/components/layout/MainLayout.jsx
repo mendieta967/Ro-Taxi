@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navBar/NavBar";
+import { ThemeContext } from "../../context/ThemeContext";
 
 const MainLayout = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+const { theme } = useContext(ThemeContext);
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -21,7 +22,7 @@ const MainLayout = ({ children }) => {
   };
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden relative bg-gradient-to-b from-gray-900 to-gray-800">
+    <div className={`h-screen flex bg-background overflow-hidden relative bg-gradient-to-b ${theme === 'dark' ? 'from-gray-900 to-gray-800' : 'bg-white'} `}>
       <Sidebar
         isMobile={isMobile}
         isOpen={isSidebarOpen}

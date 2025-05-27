@@ -3,8 +3,9 @@ import { historailViajes, cardViajes } from "../../../data/data";
 import { MapPin, Clock, Star } from "lucide-react";
 import Modal from "../../../components/ui/Modal";
 import { modalOrderTaxi } from "../../../data/data";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useAuth } from "../../../context/auth";
+import { ThemeContext } from "../../../context/ThemeContext";
 
 const HomePassenger = () => {
   const [showModal, setShowModal] = useState(false);
@@ -13,6 +14,7 @@ const HomePassenger = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const { user } = useAuth();
+  const {theme} = useContext(ThemeContext);
 
   const handleOrderTaxi = () => {
     setShowModal(true);
@@ -35,30 +37,29 @@ const HomePassenger = () => {
         {/* Columna izquierda (Formulario + Mapa) */}
         <div className="lg:col-span-2 space-y-4">
           <div>
-            <h1 className="text-3xl font-bold text-yellow-500">
+            <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
               ¡Hola, {user.userName.split(" ")[0]}!
             </h1>
-            <p className="text-white">¿A dónde quieres ir hoy?</p>
+            <p className={`  ${theme === 'dark' ? 'text-white' : 'text-gray-800'}` }>¿A dónde quieres ir hoy?</p>
           </div>
-
           {/* Formulario */}
-          <div className="border border-zinc-800 p-6 rounded-xl space-y-6 bg-zinc-900">
+          <div className={`p-6 rounded-xl space-y-6  ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
             {/* Inputs */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3 bg-zinc-800 px-4 py-3 rounded-lg">
-                <MapPin className="text-yellow-500" size={20} />
+              <div className={`flex items-center gap-3  px-4 py-3 rounded-lg ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
+                <MapPin className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} size={20} />
                 <input
                   type="text"
                   placeholder="Mi ubicación actual"
-                  className="bg-transparent outline-none w-full text-white placeholder:text-zinc-400"
+                  className={`bg-transparent outline-none w-full ${theme === 'dark' ? 'text-white' : 'text-gray-900'} placeholder:text-zinc-400`}
                 />
               </div>
-              <div className="flex items-center gap-3 bg-zinc-800 px-4 py-3 rounded-lg">
-                <MapPin className="text-yellow-500" size={20} />
+              <div className={`flex items-center gap-3  px-4 py-3 rounded-lg ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
+                <MapPin className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} size={20} />
                 <input
                   type="text"
                   placeholder="¿A dónde vas?"
-                  className="bg-transparent outline-none w-full text-white placeholder:text-zinc-400"
+                  className={`bg-transparent outline-none w-full ${theme === 'dark' ? 'text-white' : 'text-gray-900'} placeholder:text-zinc-400`}
                 />
               </div>
             </div>
@@ -81,9 +82,9 @@ const HomePassenger = () => {
         </div>
 
         {/* Columna derecha (Viajes recientes) */}
-        <div className="bg-zinc-900 p-4 rounded-xl space-y-6">
+        <div className={`p-4 rounded-xl space-y-6 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
           {/* Título */}
-          <h2 className="text-2xl font-bold text-white text-center">
+          <h2 className={`text-2xl font-bold  ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
             Viajes Recientes
           </h2>
 
@@ -92,18 +93,18 @@ const HomePassenger = () => {
             {historailViajes.map((viajes, id) => (
               <div
                 key={id}
-                className="bg-zinc-800 p-4 rounded-lg flex justify-between items-start shadow-sm hover:bg-zinc-700 transition"
+                className={` p-4 rounded-lg flex justify-between items-start shadow-sm  transition ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white border border-yellow-500 hover:bg-yellow-50'}`}
               >
                 <div className="space-y-1">
-                  <p className="text-white font-medium">{viajes.title}</p>
+                  <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-medium`}>{viajes.title}</p>
                   <p className="text-sm text-zinc-400 flex items-center gap-1">
                     <Clock size={14} /> {viajes.date}
                   </p>
-                  <p className="text-yellow-400 font-semibold">
+                  <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>
                     {viajes.price}
                   </p>
                 </div>
-                <div className="flex items-center text-yellow-500 text-sm">
+                <div className={`flex items-center ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} text-sm`}>
                   <Star size={16} className="mr-1" />
                   5.0
                 </div>
@@ -112,7 +113,7 @@ const HomePassenger = () => {
           </div>
 
           {/* Ver todos */}
-          <button className="text-yellow-500 hover:underline w-full text-sm font-medium text-center">
+          <button className={` hover:underline w-full text-sm font-medium text-center cursor-pointer ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
             Ver todos los viajes
           </button>
         </div>
@@ -123,20 +124,20 @@ const HomePassenger = () => {
           {cardViajes.map((item, id) => (
             <div
               key={id}
-              className="bg-zinc-900 hover:bg-zinc-800 transition p-5 rounded-lg space-y-1 shadow-sm"
+              className={`transition p-5 rounded-lg space-y-1 shadow-sm ${theme === 'dark' ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white border border-yellow-500 hover:bg-yellow-50'}`}
             >
-              <h3 className="text-white font-semibold text-lg">{item.title}</h3>
-              <p className="text-sm text-zinc-400">{item.description}</p>
+              <h3 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold text-lg`}>{item.title}</h3>
+              <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm `}>{item.description}</p>
             </div>
           ))}
 
           {/* Tarjeta especial para agregar */}
-          <div className="bg-zinc-900 hover:bg-zinc-800 transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm">
-            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-black text-xl font-bold rounded-full">
+          <div className={`transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm ${theme === 'dark' ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-white border border-yellow-500 hover:bg-yellow-50'}`}>
+            <div className={`w-10 h-10 flex items-center justify-center  text-black text-xl font-bold rounded-full ${theme === 'dark' ? 'bg-yellow-500' : 'bg-yellow-500'}`}>
               +
             </div>
-            <h3 className="text-white font-semibold">Agregar</h3>
-            <p className="text-sm text-zinc-400">
+            <h3 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>Agregar</h3>
+            <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>
               Añadir nuevo destino o preferencia
             </p>
           </div>
@@ -146,8 +147,8 @@ const HomePassenger = () => {
       {/* Modal Pedir taxi */}
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
-          <h2 className="text-xl font-bold">Seleccione su vehículo</h2>
-          <p className="text-sm text-zinc-400 mb-4">
+          <h2 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-xl font-bold`}>Seleccione su vehículo</h2>
+          <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm mb-4`}>
             Elige el tipo de coche para tu viaje
           </p>
           {/* Opciones de vehículos */}
@@ -164,15 +165,15 @@ const HomePassenger = () => {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{car.name}</p>
-                    <p className="text-sm text-zinc-400">{car.desc}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>{car.name}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>{car.desc}</p>
                     <span className="inline-block mt-1 text-xs bg-zinc-700 rounded-full px-2 py-0.5">
                       {car.seats} pasajeros
                     </span>
                   </div>
                   <div className="text-right">
-                    <p className="text-md font-semibold">{car.price}</p>
-                    <p className="text-sm text-zinc-400">Llegada: {car.time}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-md font-semibold`}>{car.price}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>Llegada: {car.time}</p>
                   </div>
                 </div>
               </div>
@@ -203,7 +204,7 @@ const HomePassenger = () => {
             </button>
           </div>
 
-          <p className="text-sm mt-2 text-zinc-400">
+          <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm mt-2`}>
             Pagarás{" "}
             {paymentMethod === "efectivo" ? "en efectivo" : "con tarjeta"} al
             final del viaje
@@ -233,34 +234,34 @@ const HomePassenger = () => {
       {/* Modal de confirmación */}
       {showConfirmationModal && (
         <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-zinc-900 w-[90%] max-w-md rounded-2xl p-6 space-y-4 text-white shadow-xl relative">
+          <div className={  ` w-[90%] max-w-md rounded-2xl p-6 space-y-4 text-white shadow-xl relative ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
             <div className="flex justify-center">
-              <div className="w-16 h-16 bg-green-800 rounded-full flex items-center justify-center text-3xl">
+              <div className={`w-16 h-16  rounded-full flex items-center justify-center text-3xl ${theme === 'dark' ? 'bg-green-800' : 'bg-green-800'}`}>
                 ⏱️
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-center">
+            <h2 className={`text-2xl font-bold text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
               ¡Tu taxi está en camino!
             </h2>
-            <p className="text-center text-zinc-400">
+            <p className={`text-center text-zinc-400 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
               Llegada estimada: 3 minutos
             </p>
 
-            <div className="flex items-center gap-4 bg-zinc-800 p-4 rounded-lg">
-              <div className="w-12 h-12 bg-zinc-700 rounded-full" />
+            <div className={`flex items-center gap-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
+     
               <div>
-                <p className="font-semibold">
+                <p className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Juan Rodríguez <span className="text-yellow-500">★ 4.8</span>
                 </p>
-                <p className="text-sm text-zinc-400">
+                <p className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Toyota Corolla • XYZ-123 • Azul
                 </p>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <button className="flex-1 py-2 border cursor-pointer hover:text-yellow-500 border-zinc-700 rounded-lg hover:bg-zinc-800">
+              <button className={`flex-1 py-2 border rounded-lg cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 border-zinc-700  hover:bg-zinc-800 ' : 'bg-yellow-500 border border-yellow-600 hover:bg-yellow-400 '}`}>
                 Contactar
               </button>
               <button
@@ -271,9 +272,9 @@ const HomePassenger = () => {
               </button>
             </div>
 
-            <div className="bg-zinc-800 p-3 rounded-lg text-sm">
-              <strong>¡Taxi en camino!</strong>
-              <p>Tu conductor llegará en aproximadamente 3 minutos</p>
+            <div className={`p-3 rounded-lg text-sm ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
+              <strong className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>¡Taxi en camino!</strong>
+              <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tu conductor llegará en aproximadamente 3 minutos</p>
             </div>
           </div>
         </div>

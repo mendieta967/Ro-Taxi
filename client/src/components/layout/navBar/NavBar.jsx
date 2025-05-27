@@ -2,11 +2,14 @@ import { useState } from "react";
 import { User } from "lucide-react";
 import { useAuth } from "../../../context/auth";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { ThemeContext } from "../../../context/ThemeContext";
 
 const Navbar = ({ isMobile }) => {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -22,7 +25,7 @@ const Navbar = ({ isMobile }) => {
   };
 
   return (
-    <div className="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-800 bg-gray-900 relative">
+    <div className={`flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-800 ${theme === 'dark' ? 'bg-gray-900' : 'bg-yellow-500'} relative`}>
       {isMobile ? (
         <>
           <div className="flex-1 flex justify-center items-center gap-3">
@@ -36,23 +39,23 @@ const Navbar = ({ isMobile }) => {
       <div className="relative">
         <button
           onClick={toggleDropdown}
-          className="flex items-center space-x-2 border border-gray-800 rounded-full p-1 pr-3 hover:bg-gray-800 transition cursor-pointer"
+          className={`flex items-center space-x-2 border border-gray-800 rounded-full p-1 pr-3 hover:bg-gray-800 transition cursor-pointer ${theme === 'dark' ? 'bg-gray-900' : 'bg-yellow-500 hover:bg-yellow-500'}`}
         >
-          <div className="bg-yellow-400 rounded-full h-8 w-8 flex items-center justify-center text-black">
-            <User className="h-5 w-5" />
+          <div className={`rounded-full h-8 w-8 flex items-center justify-center text-black ${theme === 'dark' ? 'bg-yellow-500' : 'bg-gray-900'}`}>
+            <User className={`h-5 w-5 ${theme === 'dark' ? 'text-gray-900' : 'text-yellow-500'}`} />
           </div>
           {!isMobile && (
-            <span className="text-sm font-medium text-yellow-500">
+            <span className={`text-sm font-medium  ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
               {user.userName}
             </span>
           )}
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute top-12 right-0 w-56 bg-gray-900 rounded-lg shadow-lg border border-gray-800 z-50">
+          <div className={`absolute top-12 right-0 w-56 bg-gray-900 rounded-lg shadow-lg border border-gray-800 z-50 ${theme === 'dark' ? 'bg-gray-900' : 'bg-yellow-500'}`}>
             <div className="px-4 py-3 text-sm">
-              <div className="font-medium text-yellow-500">{user.userName}</div>
-              <div className="text-xs text-gray-400">{user.email}</div>
+              <div className={`font-medium  ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{user.userName}</div>
+              <div className={`text-xs  ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{user.email}</div>
             </div>
             <hr className="border-gray-800" />
 
