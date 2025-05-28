@@ -2,12 +2,12 @@ import { MapPin } from "lucide-react";
 
 const MapSearchResult = ({ searchResults, handleSelect }) => {
   return (
-    <div className="bg-[#23262F] w-full rounded shadow-2xl mt-4 ">
+    <div className="bg-[#23262F] w-full h-full rounded shadow-2xl overflow-y-auto scrollbar-custom ">
       {/* Ubicación actual */}
 
       {/* Sugerencias */}
       {searchResults.length > 0 && (
-        <ul className="bg-transparent border-0 rounded-none max-h-[180px] overflow-y-auto  shadow-none w-full scrollbar-custom">
+        <ul className="bg-transparent border-0 rounded-none shadow-none w-full ">
           {searchResults.map((sug, idx) => {
             return (
               <li
