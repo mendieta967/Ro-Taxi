@@ -5,6 +5,7 @@ import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
 import { useAuth } from "../../context/auth";
 import { getUser } from "../../services/user";
 import { ThemeContext } from "../../context/ThemeContext";
+import {useTranslate} from '../../hooks/useTranslate'
 
 const PerfilApp = () => {
   const {
@@ -12,6 +13,7 @@ const PerfilApp = () => {
   } = useAuth();
   const [user, setUser] = useState();
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
 
   const fetchUser = async () => {
     try {
@@ -30,40 +32,40 @@ const PerfilApp = () => {
   const personalFields = [
     {
       name: "nombre",
-      label: "Nombre",
+      label: translate("Nombre"),
       type: "text",
       value: user?.name,
-      placeholder: "Nombre",
+      placeholder: translate("Nombre"),
       required: true,
       icon: <User className="text-zinc-500" size={16} />,
     },
     {
       name: "correo",
-      label: "Correo Electrónico",
+      label: translate("Correo Electrónico"),
       type: "email",
       value: user?.email,
-      placeholder: "Correo Electrónico",
+      placeholder: translate("Ingrese su correo electrónico"),
       required: true,
       icon: <Mail className="text-zinc-500" size={16} />,
     },
     {
       name: "dni",
-      label: "DNI",
+      label: translate("DNI"),
       type: "text",
       value: user?.dni,
-      placeholder: "N° de DNI",
+      placeholder: translate("N° de DNI"),
       required: true,
       icon: <IdCard className="text-zinc-500" size={16} />,
     },
     {
       name: "genero",
-      label: "Género",
+      label: translate("Selecciona tu género"),
       type: "select",
       value: user?.genre,
       options: [
-        { value: "Female", label: "Femenino" },
-        { value: "Male", label: "Masculino" },
-        { value: "Other", label: "Otro" },
+        { value: "Female", label: translate("Femenino") },
+        { value: "Male", label: translate("Masculino") },
+        { value: "Other", label: translate("Otro") },
       ],
       required: true,
       icon: <Venus className="text-zinc-500" size={16} />,
@@ -73,7 +75,7 @@ const PerfilApp = () => {
   const securityFields = [
     {
       name: "currentPassword",
-      label: "Contraseña Actual",
+      label: translate("Contraseña Actual"),
       type: "password",
       value: user?.password,
       placeholder: "********",
@@ -82,7 +84,7 @@ const PerfilApp = () => {
     },
     {
       name: "newPassword",
-      label: "Nueva Contraseña",
+      label: translate("Nueva Contraseña"),
       type: "password",
       placeholder: "********",
       required: true,
@@ -90,7 +92,7 @@ const PerfilApp = () => {
     },
     {
       name: "confirmPassword",
-      label: "Confirmar Contraseña",
+      label: translate("Confirmar Contraseña"),
       type: "password",
       placeholder: "********",
       required: true,
@@ -130,29 +132,29 @@ const PerfilApp = () => {
           {/* Información */}
           <div className="flex-1 space-y-4">
             <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-              Información Personal
+              {translate("Información Personal")}
             </h2>
             <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
-              Actualiza tu información de perfil
+              {translate("Actualiza tu información de perfil")}
             </p>
 
             <FormProfile
               fields={personalFields}
-              submitText="Guardar Cambios"
+              submitText={translate("Guardar Cambios")}
               onSubmit={handleFormSubmit}
             />
           </div>
         </div>
         {/* SEGURIDAD */}
         <div className={`p-6 rounded-md space-y-4 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
-          <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Seguridad</h2>
+          <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Seguridad")}</h2>
           <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
-            Gestiona la seguridad de tu cuenta
+            {translate("Gestiona la seguridad de tu cuenta")}
           </p>
 
           <FormProfile
             fields={securityFields}
-            submitText="Actualizar Contraseña"
+            submitText={translate("Actualizar Contraseña")}
             onSubmit={handlePasswordSubmit}
           />
         </div>
