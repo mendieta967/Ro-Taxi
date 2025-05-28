@@ -14,3 +14,21 @@
 body {
     background-color: var(--gray-900);
 }
+
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: #facc15 #1f2937; /* thumb track */
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: #1f2937; /* gray-800 */
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: #facc15; /* yellow-400 */
+    border-radius: 10px;
+  }

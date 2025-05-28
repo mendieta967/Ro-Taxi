@@ -94,10 +94,12 @@ builder.Services.Configure<AuthServiceOptions>(
     builder.Configuration.GetSection(AuthServiceOptions.AuthService)
 );
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRideService, RideService>();
 #endregion
 
 #region Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRideRepository, RideRepository>();
 #endregion
 
 var app = builder.Build();
