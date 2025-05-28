@@ -3,8 +3,10 @@ import { Search } from "lucide-react";
 import { useState, useContext } from "react";
 import { vehiclesUbications } from "../../../data/data";
 import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 
 const Ubicaciones = () => {
+  const translate = useTranslate();
   const [search, setSearch] = useState("");
   const [selectedPlate, setSelectedPlate] = useState(
     vehiclesUbications.find((v) => v.selected)?.plate || ""
@@ -24,14 +26,14 @@ const Ubicaciones = () => {
       <div className={theme === "dark" ? "flex flex-col md:flex-row gap-6 p-6 bg-zinc-900 min-h-screen text-white" : "flex flex-col md:flex-row gap-6 p-6 bg-white min-h-screen text-gray-900 border border-yellow-500 rounded-lg"}>
         {/* Sidebar: Lista de vehículos + búsqueda */}
         <aside className={theme === "dark" ? "w-full md:w-1/3 bg-zinc-900 border border-zinc-700 rounded-2xl p-5 shadow-md" : "w-full md:w-1/3 bg-white border border-yellow-500 rounded-2xl p-5 shadow-md"}>
-          <h2 className="text-2xl font-bold mb-4">Vehículos</h2>
+          <h2 className="text-2xl font-bold mb-4">{translate("vehiculos")}</h2>
           <div className="relative max-w-md mb-5 gap-2">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Search className={theme === "dark" ? "w-4 h-4 text-zinc-500" : "w-4 h-4 text-gray-900"} />
             </div>
             <input
               type="text"
-              placeholder="Buscar por placa o conductor"
+              placeholder={translate("Buscar por patente o conductor")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={theme === "dark" ? "w-full pl-10 pr-4 py-2 rounded-lg bg-zinc-900 border border-yellow-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400" : "w-full pl-10 pr-4 py-2 rounded-lg bg-white border border-yellow-500 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"}
@@ -70,9 +72,9 @@ const Ubicaciones = () => {
                       {status}
                     </span>
                   </div>
-                  <p className="text-sm font-semibold">Conductor: {driver}</p>
+                  <p className="text-sm font-semibold">{translate("Conductor")}: {driver}</p>
                   <p className={theme === "dark" ? "text-xs text-gray-400" : "text-xs text-gray-900"}>
-                    Actualizado: {updated}
+                    {translate("Actualizado")}: {updated}
                   </p>
                 </div>
               );
@@ -113,7 +115,7 @@ const Ubicaciones = () => {
             <section className="p-6">
               <header className="flex justify-between items-start mb-6">
                 <h2 className="text-xl font-bold">
-                  Vehículo {selectedVehicle.plate}
+                  {translate("vehiculo")} {selectedVehicle.plate}
                 </h2>
                 <span className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
                   {selectedVehicle.status}
@@ -122,22 +124,22 @@ const Ubicaciones = () => {
 
               <div className={theme === "dark" ? "grid grid-cols-1 sm:grid-cols-2 gap-y-6 text-sm text-white mb-6" : "grid grid-cols-1 sm:grid-cols-2 gap-y-6 text-sm text-gray-900 mb-6"}>
                 <div>
-                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>Conductor</p>
+                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>{translate("Conductor")}</p>
                   <p className="font-semibold">{selectedVehicle.driver}</p>
                 </div>
                 <div>
-                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>Última actualización</p>
+                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>{translate("Ultima actualización")}</p>
                   <p className="font-semibold">{selectedVehicle.updated}</p>
                 </div>
                 <div className="sm:col-span-2">
-                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>Ubicación actual</p>
+                  <p className={theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"}>{translate("Ubicación actual")}</p>
                   <p className="font-semibold">{selectedVehicle.location}</p>
                 </div>
               </div>
 
               <div className="flex justify-end gap-4">
                 <button className="bg-yellow-600 hover:bg-yellow-500 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200">
-                  Ver ruta
+                  {translate("Ver ruta")}
                 </button>
               </div>
             </section>

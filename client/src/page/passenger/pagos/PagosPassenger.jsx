@@ -1,5 +1,6 @@
 import { historialPagos, historialCompleto } from "../../../data/data";
 import { ThemeContext } from "../../../context/ThemeContext";
+import {useTranslate} from "../../../hooks/useTranslate";
 import { useState, useContext } from "react";
 import {
   CreditCard,
@@ -18,6 +19,8 @@ import MainLayout from "../../../components/layout/MainLayout";
 
 const PagosPassenger = () => {
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
+
   const [showAddCard, setShowAddCard] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState(1); // Ahora guardamos el ID del método seleccionado
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
@@ -84,13 +87,13 @@ const PagosPassenger = () => {
 
     // Validación básica
     if (!cardNumber || !cardExpiry || !cardCVC || !cardName || !cardCountry) {
-      setFormError("Por favor completa todos los campos");
+      setFormError(translate("Por favor completa todos los campos"));
       return;
     }
 
     // Validar formato de número de tarjeta (simplificado)
     if (cardNumber.replace(/\s/g, "").length < 13) {
-      setFormError("Número de tarjeta inválido");
+      setFormError(translate("Número de tarjeta inválido"));
       return;
     }
 
@@ -132,10 +135,10 @@ const PagosPassenger = () => {
           <div className={` rounded-lg p-6 ${theme === 'dark' ? 'border border-zinc-800' : 'border border-yellow-500'}`}>
             <div className="mb-6">
               <h1 className="text-2xl font-bold mb-2">
-                Métodos de Pago Guardados
+               {translate("Métodos de Pago Guardados")}
               </h1>
               <p className="text-gray-400">
-                Selecciona tu método de pago predeterminado
+                {translate("Selecciona tu método de pago predeterminado")}
               </p>
             </div>
 
@@ -205,7 +208,7 @@ const PagosPassenger = () => {
               onClick={() => setShowAddCard(!showAddCard)}
             >
               <Plus className="w-5 h-5" />
-              <span className="cursor-pointer">Agregar método de pago</span>
+              <span className="cursor-pointer">{translate("Agregar método de pago")}</span>
             </button>
           </div>
 
@@ -214,10 +217,10 @@ const PagosPassenger = () => {
             <div className={`rounded-lg p-6 ${theme === 'dark' ? 'border border-zinc-800' : 'border border-yellow-500'}`}>
               <div className="mb-6">
                 <h2 className="text-2xl font-bold mb-2">
-                  Añadir Nueva Tarjeta
+                  {translate("Añadir Nueva Tarjeta")}
                 </h2>
                 <p className="text-gray-400">
-                  Ingresa los detalles de tu tarjeta
+                  {translate("Ingresa los detalles de tu tarjeta")}
                 </p>
               </div>
 
@@ -230,7 +233,7 @@ const PagosPassenger = () => {
               <form className="space-y-4" onSubmit={handleAddCard}>
                 <div className="mb-6">
                   <label htmlFor="cardNumber" className="block mb-2">
-                    Número de Tarjeta
+                    {translate("Número de Tarjeta")}
                   </label>
                   <input
                     type="text"
@@ -245,7 +248,7 @@ const PagosPassenger = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="expiry" className="block mb-2">
-                      Fecha de Expiración
+                      {translate("Fecha de Expiración")}
                     </label>
                     <input
                       type="text"
@@ -273,12 +276,12 @@ const PagosPassenger = () => {
 
                 <div>
                   <label htmlFor="cardName" className="block mb-2">
-                    Nombre en la Tarjeta
+                    {translate("Nombre en la Tarjeta")}
                   </label>
                   <input
                     type="text"
                     id="cardName"
-                    placeholder="Nombre completo"
+                    placeholder={translate("Nombre completo")}
                     className={`w-full rounded-lg p-3   focus:outline-none focus:border-yellow-500 transition-colors ${theme === 'dark' ? 'bg-zinc-900 border border-zinc-700 text-white ' : 'bg-white border border-yellow-500 text-gray-900 '}`}
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value)}
@@ -287,7 +290,7 @@ const PagosPassenger = () => {
 
                 <div>
                   <label htmlFor="country" className="block mb-2">
-                    País
+                    {translate("País")}
                   </label>
                   <div className="relative">
                     <select
@@ -296,7 +299,7 @@ const PagosPassenger = () => {
                       value={cardCountry}
                       onChange={(e) => setCardCountry(e.target.value)}
                     >
-                      <option value="">Selecciona un país</option>
+                      <option value="">{translate("Selecciona un país")}</option>
                       <option value="br">Brasil</option>
                       <option value="co">Colombia</option>
                       <option value="ar">Argentina</option>
@@ -310,7 +313,7 @@ const PagosPassenger = () => {
                   type="submit"
                   className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-3 px-4 rounded-lg transition-colors mt-4 cursor-pointer"
                 >
-                  Guardar Tarjeta
+              {translate("Guardar tarjeta")}
                 </button>
               </form>
             </div>
@@ -319,8 +322,8 @@ const PagosPassenger = () => {
           {/* Historial de Pagos */}
           <div className={` rounded-lg p-6 ${theme === 'dark' ? 'border border-zinc-800' : 'border border-yellow-500'}`}>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">Historial de Pagos</h2>
-              <p className="text-gray-400">Revisa tus pagos recientes</p>
+              <h2 className="text-2xl font-bold mb-2">{translate("Historial de Pagos")}</h2>
+              <p className="text-gray-400">{translate("Revisa tus pagos recientes")}</p>
             </div>
 
             <div className="space-y-4">
@@ -361,7 +364,7 @@ const PagosPassenger = () => {
               className={`mt-4 w-full border font-semibold rounded-lg py-3 text-center transition-colors cursor-pointer ${theme === 'dark' ? 'text-white border-zinc-700 hover:border-zinc-600' : 'bg-yellow-500 text-gray-900 border-yellow-500 hover:border-yellow-400'}`}
               onClick={() => setShowFullHistory(true)}
             >
-              Ver historial completo
+              {translate("Ver historial completo")}
             </button>
           </div>
         </div>
@@ -374,7 +377,7 @@ const PagosPassenger = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-yellow-500 ">
-                  Detalles del Viaje
+                  {translate("Detalles de viaje")}
                 </h2>
                 <button
                   className={` cursor-pointer ${theme === 'dark' ? 'text-gray-900 hover:text-yellow-500 cursor-pointer ' : 'text-yellow-400 hover:text-gray-900 cursor-pointer '}`}
@@ -386,7 +389,7 @@ const PagosPassenger = () => {
 
               <div className="bg-yellow-500 text-black p-4 rounded-lg mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-lg">Total</span>
+                  <span className="font-bold text-lg">{translate("Total")}</span>
                   <span className="font-bold text-lg">
                     {selectedPayment.monto}
                   </span>
@@ -395,7 +398,7 @@ const PagosPassenger = () => {
 
               <div className="space-y-6">
                 <div>
-                  <h3 className={` text-sm mb-2 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Fecha y Hora</h3>
+                  <h3 className={` text-sm mb-2 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Fecha y Hora")}</h3>
                   <div className="flex items-center gap-3">
                     <Calendar className={theme === 'dark' ? 'w-5 h-5 text-yellow-500' : 'w-5 h-5 text-gray-900'} />
                     <span className="font-medium text-gray-400">
@@ -405,14 +408,14 @@ const PagosPassenger = () => {
                 </div>
 
                 <div>
-                  <h3 className={`text-sm mb-2 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Ubicaciones</h3>
+                  <h3 className={`text-sm mb-2 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Ubicaciones")}</h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="mt-1">
                         <MapPin className={theme === 'dark' ? 'w-4 h-4 text-yellow-500' : 'w-4 h-4 text-gray-900'} />
                       </div>
                       <div>
-                        <p className={` text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Origen</p>
+                        <p className={` text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Origen")}</p>
                         <p className="text-sm font-medium text-gray-400">
                           {selectedPayment.origen}
                         </p>
@@ -423,7 +426,7 @@ const PagosPassenger = () => {
                         <MapPin className="w-4 h-4 text-red-500" />
                       </div>
                       <div>
-                        <p className={` text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Destino</p>
+                        <p className={` text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Destino")}</p>
                         <p className="text-sm  font-medium text-gray-400">
                           {selectedPayment.destinoCompleto}
                         </p>
@@ -434,7 +437,7 @@ const PagosPassenger = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Distancia</h3>
+                    <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Distancia")}</h3>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <span className="font-medium text-gray-400">
@@ -443,7 +446,7 @@ const PagosPassenger = () => {
                     </div>
                   </div>
                   <div>
-                    <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Tiempo</h3>
+                    <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Tiempo")}</h3>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-400" />
                       <span className="font-medium text-gray-400">
@@ -454,14 +457,14 @@ const PagosPassenger = () => {
                 </div>
 
                 <div>
-                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Conductor</h3>
+                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Conductor")}</h3>
                   <p className="font-medium text-gray-400">
                     {selectedPayment.conductor}
                   </p>
                 </div>
 
                 <div>
-                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Método de Pago</h3>
+                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Método de Pago")}</h3>
                   <div className="flex items-center gap-2">
                     {selectedPayment.metodo.includes("Visa") ? (
                       <CreditCardIcon className="w-4 h-4 text-gray-400" />
@@ -475,7 +478,7 @@ const PagosPassenger = () => {
                 </div>
 
                 <div>
-                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Estado</h3>
+                  <h3 className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Estado")}</h3>
                   <div className={theme === 'dark' ? 'inline-block px-3 py-1 border border-yellow-500 font-medium text-gray-400 rounded-full text-sm' : 'inline-block px-3 py-1 border border-yellow-500 font-medium text-gray-400 rounded-full text-sm'}>
                     {selectedPayment.estado}
                   </div>
@@ -486,7 +489,7 @@ const PagosPassenger = () => {
                 className={theme === 'dark' ? 'mt-6 w-full bg-zinc-700 hover:bg-zinc-600 rounded-lg py-3 text-center transition-colors cursor-pointer' : 'mt-6 w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-3 rounded-lg transition-colors cursor-pointer'}
                 onClick={() => setShowPaymentDetails(false)}
               >
-                Cerrar
+                {translate("Cerrar")}
               </button>
             </div>
           </div>
@@ -500,7 +503,7 @@ const PagosPassenger = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl  text-yellow-500 font-bold">
-                  Historial Completo de Viajes
+                  {translate("Historial Completo de Viajes")}
                 </h2>
                 <button
                   className={theme === 'dark' ? 'text-yellow-500 hover:text-gray-900 cursor-pointer' : 'text-gray-900 hover:text-yellow-500 cursor-pointer'}
@@ -553,7 +556,7 @@ const PagosPassenger = () => {
                 className={theme === 'dark' ? 'mt-6 w-full bg-zinc-700 hover:bg-zinc-600 rounded-lg py-3 text-center text-white transition-colors cursor-pointer' : 'mt-6 w-full bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold py-3 rounded-lg transition-colors cursor-pointer'}
                 onClick={() => setShowFullHistory(false)}
               >
-                Cerrar
+                {translate("Cerrar")}
               </button>
             </div>
           </div>

@@ -2,15 +2,20 @@ import { ArrowLeft, Search, Send, User } from "lucide-react";
 import { useState, useContext } from "react";
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 import { initialChats } from "../../../data/data";
 
 const ChatDriver = () => {
+
   const [activeChat, setActiveChat] = useState(1);
   const [showChatOnMobile, setShowChatOnMobile] = useState(false);
   const [chats, setChats] = useState(initialChats);
   const [newMessage, setNewMessage] = useState("");
   const [search, setSearch] = useState("");
+
+
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
 
   const activeChatData = chats.find((chat) => chat.id === activeChat);
 
@@ -49,7 +54,7 @@ const ChatDriver = () => {
         <div className="h-screen flex flex-col">
           <div className={`p-6 ${theme === 'dark' ? 'border border-zinc-800' : 'border border-yellow-500'}`}>
             <h1 className={`text-3xl font-bold bg-clip-text text-transparent  ${theme === 'dark' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 'bg-gradient-to-r from-gray-900 to-yellow-600'}`}>
-              Mensajes
+             {translate("Mensajes")}
             </h1>
           </div>
 
@@ -70,7 +75,7 @@ const ChatDriver = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className={`block w-full pl-10 pr-3 py-2  transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500' : 'border border-gray-900 rounded-lg  text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800/50 focus:border-gray-800'}`}
-                    placeholder="Buscar conversaciones"
+                    placeholder={translate("Buscar")}
                   />
                 </div>
               </div>
