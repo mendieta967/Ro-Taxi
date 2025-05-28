@@ -1,7 +1,8 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Modal from "../../../components/ui/Modal";
 import FormProfile from "../../../components/common/FormProfile";
-import {ThemeContext} from "../../../context/ThemeContext";
+import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 import {
   generarResumenViaje,
   imprimirResumen,
@@ -20,7 +21,8 @@ const HomeSuperAdmin = () => {
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
   const [conductores, setConductores] = useState(dataAdmin.conductores);
   const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
-  const {theme} = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
 
   const usersPerPage = 10;
 
@@ -35,54 +37,61 @@ const HomeSuperAdmin = () => {
   if (activeTab === "usuarios") {
     displayedData = [...conductores, ...dataAdmin.pasajeros];
 
-    headers = [
-      "id",
-      "Nombre",
-      "Email",
-      "Rol",
-      "DNI",
-      "Estado",
-      "Fecha registro",
+    headers = [ 
+      translate("id"),
+      translate("Nombre"),
+      translate("Email"),
+      translate("Rol"),
+      translate("DNI"),
+      translate("Estado"),
+      translate("Fecha registro"),
     ];
   } else if (activeTab === "conductores") {
     displayedData = conductores.filter((u) => u.rol === "Conductor");
-    headers = ["id", "Nombre", "DNI", "Email", "Estado", "Acciones"];
+    headers = [
+      translate("id"),
+      translate("Nombre"),
+      translate("DNI"),
+      translate("Email"),
+      translate("Estado"),
+      translate("Acciones"),
+    ];
   } else if (activeTab === "pasajeros") {
     displayedData = dataAdmin.pasajeros.filter((u) => u.rol === "Pasajero");
     headers = [
-      "id",
-      "Nombre",
-      "DNI",
-      "Email",
-      "Dirección",
-      "Estado",
-      "Acciones",
+      translate("id"),
+      translate("Nombre"),
+      translate("DNI"),
+      translate("Email"),
+      translate("Dirección"),
+      translate("Estado"),
+      translate("Acciones"),
     ];
   } else if (activeTab === "vehiculos") {
     displayedData = vehiculos;
     headers = [
-      "id",
-      "Patente",
-      "Marca",
-      "Modelo",
-      "Año",
-      "Color",
-      "Conductor",
-      "Estado",
-      "Acciones",
+      translate("id"),
+      translate("Patente"),
+      translate("Marca"),
+      translate("Modelo"),
+      translate("Año"),
+      translate("Color"),
+      translate("Conductor"),
+      translate("Estado"),
+      translate("Acciones"),
     ];
   } else if (activeTab === "viajes") {
     displayedData = dataAdmin.viajes;
     headers = [
-      "id",
-      "Fecha",
-      "Origen",
-      "Destino",
-      "Pasajero",
-      "Conductor",
-      "Estado",
-      "Importe",
-      "Resumen",
+      translate("id"),
+      translate("Fecha"),
+      translate("Origen"),
+      translate("Destino"),
+      translate("Pasajero"),
+      translate("Conductor"),
+      translate("Estado"),
+      translate("Importe"),
+      translate("Resumen"),
     ];
   }
 
@@ -132,96 +141,96 @@ const HomeSuperAdmin = () => {
   const conductorFields = [
     {
       name: "name",
-      label: "Nombre",
+      label: translate("Nombre"),
       type: "text",
-      placeholder: "Ingrese su nombre",
+      placeholder: translate("Ingrese su nombre"),
       required: true,
       autoComplete: "name",
       autoFocus: true,
     },
     {
       name: "dni",
-      label: "DNI",
+      label: translate("DNI"),
       type: "text",
-      placeholder: "Ingrese su DNI",
+      placeholder: translate("Ingrese su DNI"),
       required: true,
       autoComplete: "dni",
     },
     {
       name: "email",
-      label: "Correo electrónico",
+      label: translate("Correo electrónico"),
       type: "email",
-      placeholder: "Correo electrónico",
+      placeholder: translate("Ingrese su correo electrónico"),
       required: true,
       autoComplete: "email",
     },
     {
       name: "password",
-      label: "Contraseña",
+      label: translate("Contraseña"),
       type: "password",
-      placeholder: "Contraseña",
+      placeholder: translate("Ingrese su contraseña"),
       required: true,
       autoComplete: "current-password",
     },
     {
       name: "genre",
-      label: "Género",
+      label: translate("Género"),
       type: "select",
       required: true,
       options: [
-        { label: "Selecciona tu género", value: "" },
-        { label: "Masculino", value: "Male" },
-        { label: "Femenino", value: "Female" },
-        { label: "Otro", value: "Other" },
+        { label: translate("Selecciona tu género"), value: "" },
+        { label: translate("Masculino"), value: "Male" },
+        { label: translate("Femenino"), value: "Female" },
+        { label: translate("Otro"), value: "Other" },
       ],
     },
   ];
   const vehiculoFields = [
     {
       name: "marca",
-      label: "Marca",
+      label: translate("Marca"),
       type: "text",
-      placeholder: "Ingrese la marca",
+      placeholder: translate("Ingrese la marca"),
       required: true,
       autoComplete: "off",
     },
     {
       name: "modelo",
-      label: "Modelo",
+      label: translate("Modelo"),
       type: "text",
-      placeholder: "Ingrese el modelo",
+      placeholder: translate("Ingrese el modelo"),
       required: true,
       autoComplete: "off",
     },
     {
       name: "patente",
-      label: "Patente",
+      label: translate("Patente"),
       type: "text",
-      placeholder: "Ingrese la patente",
+      placeholder: translate("Ingrese la patente"),
       required: true,
       autoComplete: "off",
     },
     {
       name: "color",
-      label: "Color",
+      label: translate("Color"),
       type: "text",
-      placeholder: "Ingrese el color",
+      placeholder: translate("Ingrese el color"),
       required: true,
       autoComplete: "off",
     },
     {
       name: "anio",
-      label: "Año",
+      label: translate("Año"),
       type: "number",
-      placeholder: "Ingrese el año",
+      placeholder: translate("Ingrese el año"),
       required: true,
       autoComplete: "off",
     },
     {
       name: "conductor",
-      label: "Conductor",
+      label: translate("Conductor"),
       type: "text",
-      placeholder: "Ingrese el conductor",
+      placeholder: translate("Ingrese el conductor"),
       required: true,
       autoComplete: "off",
     },
@@ -263,11 +272,23 @@ const HomeSuperAdmin = () => {
 
   return (
     <MainLayout>
-      <div className={theme === 'dark' ? "min-h-screen bg-zinc-900 p-6 text-white" : "min-h-screen bg-white p-6 text-gray-900 border rounded-lg border-yellow-500"}>
-        <div className={theme === 'dark' ? "flex flex-col items-center mb-8 text-center border border-zinc-700 p-8 rounded-md" : "flex flex-col items-center mb-8 text-center border border-yellow-500 p-8 rounded-md"}>
+      <div
+        className={
+          theme === "dark"
+            ? "min-h-screen bg-zinc-900 p-6 text-white"
+            : "min-h-screen bg-white p-6 text-gray-900 border rounded-lg border-yellow-500"
+        }
+      >
+        <div
+          className={
+            theme === "dark"
+              ? "flex flex-col items-center mb-8 text-center border border-zinc-700 p-8 rounded-md"
+              : "flex flex-col items-center mb-8 text-center border border-yellow-500 p-8 rounded-md"
+          }
+        >
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
-              Gestión de la Plataforma
+              {translate("Platform Management")}
             </h1>
           </div>
           <div className="flex justify-center space-x-4 mb-6">
@@ -282,50 +303,77 @@ const HomeSuperAdmin = () => {
                 key={tab}
                 className={`px-6 py-2 rounded-md font-semibold cursor-pointer ${
                   activeTab === tab
-                    ? theme === 'dark' ? "bg-yellow-500 text-gray-900" : "bg-yellow-500 text-gray-900"
-                    : theme === 'dark' ? "bg-white/10 text-white hover:bg-white/20" : " text-gray-900 border border-yellow-500"
+                    ? theme === "dark"
+                      ? "bg-yellow-500 text-gray-900"
+                      : "bg-yellow-500 text-gray-900"
+                    : theme === "dark"
+                    ? "bg-white/10 text-white hover:bg-white/20"
+                    : " text-gray-900 border border-yellow-500"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+               {translate(tab).charAt(0).toUpperCase() + translate(tab).slice(1)}
               </button>
             ))}
           </div>
         </div>
 
-        <div className={theme === 'dark' ? "bg-zinc-900 border border-zinc-700 rounded-lg p-4" : "bg-white border border-yellow-500 rounded-lg p-4 "}>
+        <div
+          className={
+            theme === "dark"
+              ? "bg-zinc-900 border border-zinc-700 rounded-lg p-4"
+              : "bg-white border border-yellow-500 rounded-lg p-4 "
+          }
+        >
           <div className="flex justify-between items-center mb-4">
             <div className="relative w-full max-w-md">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className={theme === 'dark' ? "w-4 h-4 text-zinc-500" : "w-4 h-4 text-gray-900"} />
+                <Search
+                  className={
+                    theme === "dark"
+                      ? "w-4 h-4 text-zinc-500"
+                      : "w-4 h-4 text-gray-900"
+                  }
+                />
               </div>
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 type="search"
-                className={theme === 'dark' ? "w-full p-2.5 pl-10 border border-zinc-700 rounded-lg placeholder-zinc-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" : "w-full p-2.5 pl-10 border border-yellow-500 rounded-lg placeholder-zinc-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"}
-                placeholder={
+                className={
+                  theme === "dark"
+                    ? "w-full p-2.5 pl-10 border border-zinc-700 rounded-lg placeholder-zinc-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    : "w-full p-2.5 pl-10 border border-yellow-500 rounded-lg placeholder-zinc-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                }
+                placeholder={translate(
                   activeTab === "vehiculos"
                     ? "Buscar vehículo por patente o marca..."
                     : activeTab === "viajes"
                     ? "Buscar viaje por fecha u origen..."
                     : "Buscar usuario por N° documento o nombre..."
-                }
-              />
+                )}
+/>              
+              
             </div>
             <button
               onClick={handleClick}
               className="ml-4 flex items-center bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-md transition cursor-pointer"
             >
               <Plus className="mr-2 w-4 h-4" />
-              Agregar
+              {translate("Agregar")}
             </button>
           </div>
           {showModal && (
             <Modal onClose={() => setShowModal(false)}>
               <div className="flex flex-col gap-4">
-                <h1 className={theme === 'dark' ? "text-3xl font-extrabold text-center  mb-8 tracking-wide text-white" : "text-3xl font-extrabold text-center  mb-8 tracking-wide text-gray-900"}>
-                  Agregar Usuario
+                <h1
+                  className={
+                    theme === "dark"
+                      ? "text-3xl font-extrabold text-center  mb-8 tracking-wide text-white"
+                      : "text-3xl font-extrabold text-center  mb-8 tracking-wide text-gray-900"
+                  }
+                >
+                  {translate("Agregar Usuario")}
                 </h1>
 
                 <div className="flex justify-center gap-4">
@@ -333,13 +381,13 @@ const HomeSuperAdmin = () => {
                     onClick={handleClickConductor}
                     className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition cursor-pointer"
                   >
-                    Agregar Conductor
+                    {translate("Agregar Conductor")}
                   </button>
                   <button
                     onClick={handleClickVehiculo}
                     className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition cursor-pointer"
                   >
-                    Agregar Vehiculo
+                    {translate("Agregar Vehiculo")}
                   </button>
                 </div>
               </div>
@@ -350,7 +398,7 @@ const HomeSuperAdmin = () => {
               <FormProfile
                 fields={conductorFields}
                 onSubmit={handleSubmitConductor}
-                submitText="Guardar"
+                submitText={translate("Guardar")}
               />
             </Modal>
           )}
@@ -360,12 +408,18 @@ const HomeSuperAdmin = () => {
               <Form
                 fields={vehiculoFields}
                 onSubmit={handleSubmitVehiculo}
-                submitText="Guardar"
+                submitText={translate("Guardar")}
               />
             </Modal>
           )}
           <div className="overflow-x-auto">
-            <table className={theme === 'dark' ? "min-w-full text-sm text-left text-white" : "min-w-full text-sm text-left text-gray-900"}>
+            <table
+              className={
+                theme === "dark"
+                  ? "min-w-full text-sm text-left text-white"
+                  : "min-w-full text-sm text-left text-gray-900"
+              }
+            >
               <thead>
                 <tr>
                   {headers.map((header, i) => (
@@ -375,18 +429,34 @@ const HomeSuperAdmin = () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className={theme === 'dark' ? "bg-[#121212] divide-y divide-zinc-800" : "bg-white divide-y divide-yellow-500"}>
+              <tbody
+                className={
+                  theme === "dark"
+                    ? "bg-[#121212] divide-y divide-zinc-800"
+                    : "bg-white divide-y divide-yellow-500"
+                }
+              >
                 {currentData.map((item, index) => (
                   <tr
                     key={`${activeTab}-${item.id}-${index}`}
-                    className={theme === 'dark' ? "hover:bg-zinc-800 transition" : "hover:bg-yellow-200 transition"}
+                    className={
+                      theme === "dark"
+                        ? "hover:bg-zinc-800 transition"
+                        : "hover:bg-yellow-200 transition"
+                    }
                   >
                     {/* Usuario */}
                     {activeTab === "usuarios" && (
                       <>
-                        <td className= "px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
-                        <td className="px-6 py-4 font-semibold">{item.email}</td>
+                        <td className="px-6 py-4 font-semibold text-yellow-500">
+                          {item.id}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.nombre}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.email}
+                        </td>
                         <td className="px-6 py-4 font-semibold">{item.rol}</td>
                         <td className="px-6 py-4 font-semibold">{item.dni}</td>
                         <td className="px-6 py-4 font-semibold">
@@ -404,17 +474,25 @@ const HomeSuperAdmin = () => {
                             {item?.estado ?? "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 font-semibold">{item.fecha}</td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.fecha}
+                        </td>
                       </>
                     )}
 
                     {/* Conductores */}
                     {activeTab === "conductores" && (
                       <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
+                        <td className="px-6 py-4 font-semibold text-yellow-500">
+                          {item.id}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.nombre}
+                        </td>
                         <td className="px-6 py-4 font-semibold">{item.dni}</td>
-                        <td className="px-6 py-4 font-semibold">{item.email}</td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.email}
+                        </td>
                         <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -441,11 +519,19 @@ const HomeSuperAdmin = () => {
                     {/* Pasajeros */}
                     {activeTab === "pasajeros" && (
                       <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4 font-semibold">{item.nombre}</td>
+                        <td className="px-6 py-4 font-semibold text-yellow-500">
+                          {item.id}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.nombre}
+                        </td>
                         <td className="px-6 py-4 font-semibold">{item.dni}</td>
-                        <td className="px-6 py-4 font-semibold">{item.email}</td>
-                        <td className="px-6 py-4 font-semibold">{item.direccion}</td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.email}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.direccion}
+                        </td>
                         <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -472,12 +558,24 @@ const HomeSuperAdmin = () => {
                     {/* Vehículos */}
                     {activeTab === "vehiculos" && (
                       <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4 font-semibold">{item?.patente ?? "N/A"}</td>
-                        <td className="px-6 py-4 font-semibold">{item?.marca ?? "N/A"}</td>
-                        <td className="px-6 py-4 font-semibold">{item?.modelo ?? "N/A"}</td>
-                        <td className="px-6 py-4 font-semibold">{item?.anio ?? "N/A"}</td>
-                        <td className="px-6 py-4 font-semibold">{item?.color ?? "N/A"}</td>
+                        <td className="px-6 py-4 font-semibold text-yellow-500">
+                          {item.id}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item?.patente ?? "N/A"}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item?.marca ?? "N/A"}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item?.modelo ?? "N/A"}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item?.anio ?? "N/A"}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item?.color ?? "N/A"}
+                        </td>
                         <td className="px-6 py-4 font-semibold">
                           {item?.conductor ?? "N/A"}
                         </td>
@@ -507,12 +605,24 @@ const HomeSuperAdmin = () => {
                     {/* Viajes */}
                     {activeTab === "viajes" && (
                       <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">{item.id}</td>
-                        <td className="px-6 py-4 font-semibold">{item.fecha}</td>
-                        <td className="px-6 py-4 font-semibold">{item.origen}</td>
-                        <td className="px-6 py-4 font-semibold">{item.destino}</td>
-                        <td className="px-6 py-4 font-semibold">{item.pasajero}</td>
-                        <td className="px-6 py-4 font-semibold">{item.conductor}</td>
+                        <td className="px-6 py-4 font-semibold text-yellow-500">
+                          {item.id}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.fecha}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.origen}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.destino}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.pasajero}
+                        </td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.conductor}
+                        </td>
                         <td className="px-6 py-4 font-semibold">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -528,7 +638,9 @@ const HomeSuperAdmin = () => {
                             {item?.estado ?? "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 font-semibold">{item.importe}</td>
+                        <td className="px-6 py-4 font-semibold">
+                          {item.importe}
+                        </td>
                         <button
                           onClick={() =>
                             imprimirResumen(generarResumenViaje(item))
@@ -550,7 +662,11 @@ const HomeSuperAdmin = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={theme === 'dark' ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"}
+            className={
+              theme === "dark"
+                ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
+                : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"
+            }
           >
             «
           </button>
@@ -560,8 +676,12 @@ const HomeSuperAdmin = () => {
               onClick={() => handlePageChange(i + 1)}
               className={`px-3 py-1 rounded cursor-pointer ${
                 currentPage === i + 1
-                  ? theme === 'dark' ? "bg-zinc-800 text-white font-semibold" : "bg-yellow-500 text-black font-semibold"
-                  : theme === 'dark' ? "bg-zinc-800/10 hover:bg-zinc-800/20 text-white" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900"
+                  ? theme === "dark"
+                    ? "bg-zinc-800 text-white font-semibold"
+                    : "bg-yellow-500 text-black font-semibold"
+                  : theme === "dark"
+                  ? "bg-zinc-800/10 hover:bg-zinc-800/20 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-800 text-gray-900"
               }`}
             >
               {i + 1}
@@ -570,7 +690,11 @@ const HomeSuperAdmin = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={theme === 'dark' ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer" : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"}
+            className={
+              theme === "dark"
+                ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
+                : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"
+            }
           >
             »
           </button>

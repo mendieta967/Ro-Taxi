@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Eye, EyeOff, Pencil, Save } from "lucide-react";
 import useFormValidation from "../../hooks/useFormValidation";
 import { ThemeContext } from "../../context/ThemeContext";
+import { useTranslate } from "../../hooks/useTranslate";
 
 const FormProfile = ({
   fields,
@@ -16,6 +17,7 @@ const FormProfile = ({
   const [showPassword, setShowPassword] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
 
   useEffect(() => {
     const initialData = {};
@@ -163,7 +165,7 @@ const FormProfile = ({
           >
             <span className="flex justify-center items-center gap-2 font-semibold">
               <Pencil className="h-5 w-5" />
-              Editar
+              {translate("Editar")}
             </span>
           </button>
         )}
