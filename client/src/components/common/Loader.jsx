@@ -1,6 +1,6 @@
 const Loader = ({ progress = 0 }) => {
   return (
-    <div className="fixed inset-0 bg-gray-900 flex items-center justify-center">
+    <div className="fixed inset-0 bg-gray-900 z-[2000] flex items-center justify-center">
       {/* Fondo con efectos de luz */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>

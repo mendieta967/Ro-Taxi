@@ -37,6 +37,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import MapPanel from "./MapPanel";
+import Loader from "../Loader";
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -54,13 +55,15 @@ function SetViewOnClick({ coords }) {
   return null;
 }
 
-const MapView = () => {
+const MapView = ({ cancel }) => {
   const [position, setPosition] = useState(null);
   const [origin, setOrigin] = useState(null);
   const [destination, setDestination] = useState(null);
   const [inputValues, setInputValues] = useState({
     origin: "",
     destination: "",
+    date: "",
+    time: "",
   });
   const [searchResults, setSearchResults] = useState([]);
   const [activeInput, setActiveInput] = useState("origin"); // 'origin' o 'destination'
@@ -68,7 +71,7 @@ const MapView = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const inputOriginRef = useRef();
   const inputDestinationRef = useRef();
-  console.log(inputValues);
+  const [mapLoading, setMapLoading] = useState(true);
   // Get current location
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -193,23 +196,8 @@ const MapView = () => {
       const data = await res.json();
 
       handleSelect(data);
-    } catch {
-      const punto = {
-        lat,
-        lng,
-        display_name: "Ubicación seleccionada",
-        short_name: "Ubicación seleccionada",
-        zone: "",
-      };
-      if (activeInput === "origin") {
-        setOrigin(punto);
-        handleInputChange("origin", "Ubicación seleccionada");
-        setPosition({ lat, lng });
-      } else {
-        setDestination(punto);
-        handleInputChange("destination", "Ubicación seleccionada");
-        setPosition({ lat, lng });
-      }
+    } catch (err) {
+      console.log(err);
     }
     setSearchResults([]);
   };
@@ -244,9 +232,7 @@ const MapView = () => {
 
   const handleSubmit = () => {
     alert(
-      `Origen: ${JSON.stringify(origin)}\nDestino: ${JSON.stringify(
-        destination
-      )}`
+      `Origen: ${origin.lat}, ${origin.lng}, ${origin.short_name}\nDestino: ${destination.lat}, ${destination.lng}, ${destination.short_name}`
     );
   };
 
@@ -264,7 +250,10 @@ const MapView = () => {
         searchResults={searchResults}
         handleSubmit={handleSubmit}
         currentLocation={currentLocation}
+        cancel={cancel}
       />
+
+      {mapLoading && <Loader />}
 
       <MapContainer
         center={position}
@@ -280,6 +269,9 @@ const MapView = () => {
         <TileLayer
           attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+          eventHandlers={{
+            load: () => setMapLoading(false),
+          }}
         />
         {origin && (
           <Marker
@@ -323,20 +315,6 @@ const MapView = () => {
         <SetViewOnClick coords={position} />
         <MapClickHandler onMapClick={handleMapClick} />
       </MapContainer>
-
-      {/* Botón flotante para usar la ubicación señalada */}
-      {origin && destination && (
-        <button
-          onClick={() =>
-            alert(
-              `Origen: ${origin.display_name}\nDestino: ${destination.display_name}`
-            )
-          }
-          className="absolute bottom-8 right-8 z-10 bg-yellow-400 text-gray-700 rounded-full px-6 py-2 font-bold shadow-md cursor-pointer transition duration-200 hover:bg-yellow-500"
-        >
-          Usar recorrido
-        </button>
-      )}
     </div>
   );
 };

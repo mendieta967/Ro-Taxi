@@ -7,6 +7,7 @@ import {
   trips as initialTrips,
   scheduledTrip as initialScheduledTrips,
 } from "../../../data/data";
+import MapView from "../../../components/common/Map/MapView";
 
 const HistorialPassenger = () => {
   const { theme } = useContext(ThemeContext);
@@ -177,14 +178,18 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
+
                       {translate("Viaje programado")}
+
                     </h3>
                     <p
                       className={`text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
+
                       {translate("Tu próximo viaje")}
+
                     </p>
                     <div
                       className={`flex items-center gap-2 text-sm ${
@@ -202,7 +207,9 @@ const HistorialPassenger = () => {
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       >
+
                         {translate("Origen")}:
+
                       </span>{" "}
                       {trip.from}
                     </div>
@@ -218,7 +225,9 @@ const HistorialPassenger = () => {
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       >
+
                         {translate("Destino")}:
+
                       </span>{" "}
                       {trip.to}
                     </div>
@@ -306,7 +315,9 @@ const HistorialPassenger = () => {
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
                   >
+
                     {translate("Origen")}:
+
                   </span>{" "}
                   {trip.from}
                 </div>
@@ -322,7 +333,9 @@ const HistorialPassenger = () => {
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
                   >
+
                     {translate("Destino")}:
+
                   </span>{" "}
                   {trip.to}
                 </div>
@@ -375,7 +388,7 @@ const HistorialPassenger = () => {
 
           {/* Schedule Trip Modal */}
           {showScheduleModal && (
-            <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
+            {/* <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
               <div
                 className={`p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
                   theme === "dark" ? "bg-zinc-800" : "bg-white"
@@ -498,7 +511,9 @@ const HistorialPassenger = () => {
                     {translate("Programar")}
                   </button>
                 </div>
-              </div>
+              </div> */}
+            <div className="fixed inset-0">
+              <MapView cancel={() => setShowScheduleModal(false)} />
             </div>
           )}
 
@@ -517,7 +532,9 @@ const HistorialPassenger = () => {
                     theme === "dark" ? "text-white" : "text-black"
                   }`}
                 >
+
                   {translate("Editar Viaje")}
+
                 </h3>
                 <div className="space-y-3">
                   <div>
@@ -541,7 +558,9 @@ const HistorialPassenger = () => {
                           ? "bg-zinc-800 text-white border border-zinc-700 "
                           : "bg-white text-zinc-900 border border-yellow-500"
                       }`}
+
                       placeholder={translate("Origen")}
+
                     />
                   </div>
                   <div>
@@ -565,7 +584,9 @@ const HistorialPassenger = () => {
                           ? "bg-zinc-800 text-white border border-zinc-700 "
                           : "bg-white text-zinc-900 border border-yellow-500"
                       }`}
+
                       placeholder={translate("Destino")}
+
                     />
                   </div>
                 </div>
