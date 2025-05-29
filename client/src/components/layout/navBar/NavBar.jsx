@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User } from "lucide-react";
 import { useAuth } from "../../../context/auth";
 import { useNavigate } from "react-router-dom";
+import {useTranslate} from "../../../hooks/useTranslate";
 import { useContext } from "react";
 import { ThemeContext } from "../../../context/ThemeContext";
 
@@ -10,6 +11,7 @@ const Navbar = ({ isMobile }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -63,7 +65,7 @@ const Navbar = ({ isMobile }) => {
               onClick={handleLogaut}
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-800 cursor-pointer"
             >
-              Cerrar Sesión
+              {translate("Cerrar Sesión")}
             </button>
           </div>
         )}

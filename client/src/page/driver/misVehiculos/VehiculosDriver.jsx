@@ -2,8 +2,13 @@ import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { Car, Plus, Edit, Trash2, Check, AlertCircle } from "lucide-react";
 import { useContext, useState } from "react";
+import { useTranslate } from "../../../hooks/useTranslate";
+
+
 const VehiculosDriver = () => {
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
+
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [vehiculoEditando, setVehiculoEditando] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -96,14 +101,14 @@ const VehiculosDriver = () => {
         <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4 sm:gap-0">
               <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
-                Mis Vehículos
+                {translate("Mis vehiculos")}
               </h1>
               <button
                 onClick={() => setShowAddVehicle(true)}
                 className="flex cursor-pointer items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-yellow-500/20 w-[50%] sm:w-auto"
               >
                 <Plus size={20} />
-                Agregar Vehículo
+               {translate("Agregar Vehículo")}
               </button>
             </div>
 
@@ -124,19 +129,19 @@ const VehiculosDriver = () => {
                       <h3 className="text-xl font-bold">{vehiculo.marca}</h3>
                       <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-500">
                         <p>
-                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>Modelo: </span>
+                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>{translate("Modelo")}: </span>
                           {vehiculo.modelo}
                         </p>
                         <p>
-                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>Patente: </span>
+                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>{translate("Patente")}: </span>
                           {vehiculo.patente}
                         </p>
                         <p>
-                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>Año: </span>{" "}
+                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>{translate("Año")}: </span>{" "}
                           {vehiculo.año}
                         </p>
                         <p>
-                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>Color: </span>{" "}
+                          <span className={`${theme === 'dark' ? 'text-yellow-500 font-semibold ' : 'text-gray-900 font-semibold'}`}>{translate("Color")}: </span>{" "}
                           {vehiculo.color}
                         </p>
                       </div>
@@ -183,10 +188,10 @@ const VehiculosDriver = () => {
           {mostrarModal && (
             <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
               <div className={`rounded-2xl p-6 w-full max-w-lg shadow-lg  relative ${theme === 'dark' ? 'bg-zinc-900 border border-zinc-800/50 text-white' : 'bg-white border border-yellow-500 text-gray-900'}`}>
-                <h2 className="text-xl text-center font-semibold mb-4">Editar vehículo</h2>
+                <h2 className="text-xl text-center font-semibold mb-4">{translate("Editar vehículo")}</h2>
 
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Marca:</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Marca")}:</label>
                   <input
                     className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                     value={vehiculoEditando.marca}
@@ -200,7 +205,7 @@ const VehiculosDriver = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Modelo</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Modelo")}</label>
                   <input
                     className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                     value={vehiculoEditando.modelo}
@@ -213,7 +218,7 @@ const VehiculosDriver = () => {
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Patente</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Patente")}</label>
                   <input
                     className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                     value={vehiculoEditando.patente}
@@ -226,7 +231,7 @@ const VehiculosDriver = () => {
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Año</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Año")}</label>
                   <input
                     className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                     value={vehiculoEditando.año}
@@ -239,7 +244,7 @@ const VehiculosDriver = () => {
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Color</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Color")}</label>
                   <input
                     className={`block w-full px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                     value={vehiculoEditando.color}
@@ -253,7 +258,7 @@ const VehiculosDriver = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>Estado</label>
+                  <label className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} font-semibold text-sm`}>{translate("Estado")}</label>
                   <select
                     value={vehiculoEditando.estado}
                     onChange={(e) =>
@@ -264,9 +269,9 @@ const VehiculosDriver = () => {
                     }
                     className={`block w-full cursor-pointer px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'bg-white border border-yellow-500 '}`}
                   >
-                    <option value="activo">Activo</option>
-                    <option value="revision">Revisión</option>
-                    <option value="inactivo">Inactivo</option>
+                    <option value="activo">{translate("Activo")}</option>
+                    <option value="revision">{translate("Revisión")}</option>
+                    <option value="inactivo">{translate("Inactivo")}</option>
                   </select>
                 </div>
                 <div className="flex justify-center space-x-3 mt-5">
@@ -274,13 +279,13 @@ const VehiculosDriver = () => {
                     className="flex cursor-pointer items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-yellow-500/20"
                     onClick={guardarCambios}
                   >
-                    Guardar
+                    {translate("Guardar")}
                   </button>
                   <button
                     className="py-3 px-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all text-white duration-200 font-medium cursor-pointer"
                     onClick={() => setMostrarModal(false)}
                   >
-                    Cancelar
+                    {translate("Cancelar")}
                   </button>
                 </div>
               </div>
@@ -295,13 +300,13 @@ const VehiculosDriver = () => {
             >
               <div className="flex justify-center items-center">
                 <h2 className=" text-xl  font-bold mb-6 flex items-center gap-4">
-                  Agregar Nuevo Vehículo
+                  {translate("Agregar Nuevo Vehículo")}
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1  transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Marca
+                    {translate("Marca")}
                   </label>
                   <input
                     type="text"
@@ -314,7 +319,7 @@ const VehiculosDriver = () => {
 
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1 transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Modelo
+                    {translate("Modelo")}
                   </label>
                   <input
                     type="text"
@@ -327,7 +332,7 @@ const VehiculosDriver = () => {
 
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1 transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Patente
+                    {translate("Patente")}
                   </label>
                   <input
                     type="text"
@@ -340,7 +345,7 @@ const VehiculosDriver = () => {
 
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1 transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Año
+                    {translate("Año")}
                   </label>
                   <input
                     type="number"
@@ -353,7 +358,7 @@ const VehiculosDriver = () => {
 
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1 transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Color
+                    {translate("Color")}
                   </label>
                   <input
                     type="text"
@@ -365,16 +370,16 @@ const VehiculosDriver = () => {
                 </div>
                 <div className="group">
                   <label className={`block text-sm font-semibold  mb-1 transition-colors duration-200 ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-                    Estado
+                    {translate("Estado")}
                   </label>
                   <select
                     value={estado}
                     onChange={(e) => setEstado(e.target.value)}
                     className={`block w-full px-3 py-3 focus:outline-none rounded-lg focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${theme === 'dark' ? ' border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 ' : 'border border-yellow-500 '}`}
                   >
-                    <option value="activo">Activo</option>
-                    <option value="revision">Revisión</option>
-                    <option value="inactivo">Inactivo</option>
+                    <option value="activo">{translate("Activo")}</option>
+                    <option value="revision">{translate("Revisión")}</option>
+                    <option value="inactivo">{translate("Inactivo")}</option>
                   </select>
                 </div>
               </div>
@@ -383,13 +388,13 @@ const VehiculosDriver = () => {
                   onClick={() => setShowAddVehicle(false)}
                   className="flex-1 py-3 px-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all text-white duration-200 font-medium cursor-pointer"
                 >
-                  Cancelar
+                  {translate("Cancelar")}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 py-3 px-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-medium rounded-lg transition-all duration-300 shadow-lg hover:shadow-yellow-500/20 cursor-pointer"
                 >
-                  Agregar
+                  {translate("Agregar")}
                 </button>
               </div>
             </form>

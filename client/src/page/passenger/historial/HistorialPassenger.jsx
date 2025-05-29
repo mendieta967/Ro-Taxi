@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Clock, MapPin, Navigation, Search } from "lucide-react";
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 import {
   trips as initialTrips,
   scheduledTrip as initialScheduledTrips,
@@ -9,8 +10,10 @@ import {
 import MapView from "../../../components/common/Map/MapView";
 
 const HistorialPassenger = () => {
-  const [activeTab, setActiveTab] = useState("todos");
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
+
+  const [activeTab, setActiveTab] = useState("todos");
   const [ratings, setRatings] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(null);
@@ -112,7 +115,7 @@ const HistorialPassenger = () => {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="search"
-                placeholder="Buscar viajes..."
+                placeholder={translate("Buscar viajes")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={`w-full pl-8 pr-4 py-2 rounded placeholder-gray-400 ${
@@ -126,7 +129,7 @@ const HistorialPassenger = () => {
               onClick={() => setShowScheduleModal(true)}
               className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
             >
-              Programar Viaje
+              {translate("Programar Viaje")}
             </button>
           </div>
 
@@ -149,10 +152,10 @@ const HistorialPassenger = () => {
                 }`}
               >
                 {tab === "todos"
-                  ? "Todos"
+                  ? translate("Todos")
                   : tab === "completados"
-                  ? "Completados"
-                  : "Programados"}
+                  ? translate("Completado")
+                  : translate("Programado")}
               </div>
             ))}
           </div>
@@ -175,14 +178,18 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      Viaje Programado
+
+                      {translate("Viaje programado")}
+
                     </h3>
                     <p
                       className={`text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      Tu próximo viaje
+
+                      {translate("Tu próximo viaje")}
+
                     </p>
                     <div
                       className={`flex items-center gap-2 text-sm ${
@@ -200,7 +207,9 @@ const HistorialPassenger = () => {
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       >
-                        Origen:
+
+                        {translate("Origen")}:
+
                       </span>{" "}
                       {trip.from}
                     </div>
@@ -216,7 +225,9 @@ const HistorialPassenger = () => {
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       >
-                        Destino:
+
+                        {translate("Destino")}:
+
                       </span>{" "}
                       {trip.to}
                     </div>
@@ -249,13 +260,13 @@ const HistorialPassenger = () => {
                     onClick={() => handleEdit(trip)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    Editar
+                    {translate("Editar")}
                   </button>
                   <button
                     onClick={() => handleCancel(trip.id)}
                     className="bg-red-700 hover:bg-red-900 text-white px-3 py-1 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    Cancelar
+                    {translate("Cancelar")}
                   </button>
                 </div>
               </div>
@@ -304,7 +315,9 @@ const HistorialPassenger = () => {
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
                   >
-                    Origen:
+
+                    {translate("Origen")}:
+
                   </span>{" "}
                   {trip.from}
                 </div>
@@ -320,7 +333,9 @@ const HistorialPassenger = () => {
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
                   >
-                    Destino:
+
+                    {translate("Destino")}:
+
                   </span>{" "}
                   {trip.to}
                 </div>
@@ -365,7 +380,7 @@ const HistorialPassenger = () => {
                     onClick={() => handleDetails(trip)}
                     className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-1 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    Detalles
+                    {translate("Ver detalles")}
                   </button>
                 </div>
               </div>
@@ -373,131 +388,130 @@ const HistorialPassenger = () => {
 
           {/* Schedule Trip Modal */}
           {showScheduleModal && (
-            // <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
-            //   <div
-            //     className={`p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
-            //       theme === "dark" ? "bg-zinc-800" : "bg-white"
-            //     }`}
-            //   >
-            //     <h3
-            //       className={` text-center text-lg font-bold ${
-            //         theme === "dark" ? "text-gray-400" : "text-gray-900"
-            //       }`}
-            //     >
-            //       Programar Nuevo Viaje
-            //     </h3>
-            //     <div className="space-y-3">
-            //       <div>
-            //         <label
-            //           htmlFor="origin"
-            //           className={`font-semibold text-sm  mb-1 ${
-            //             theme === "dark" ? "text-gray-400" : "text-gray-900"
-            //           }`}
-            //         >
-            //           Origen
-            //         </label>
-            //         <input
-            //           id="origin"
-            //           type="text"
-            //           value={newTrip.from}
-            //           onChange={(e) =>
-            //             setNewTrip({ ...newTrip, from: e.target.value })
-            //           }
-            //           className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-            //             theme === "dark"
-            //               ? "bg-zinc-800 text-white border border-zinc-700 "
-            //               : "bg-white text-zinc-900 border border-yellow-500"
-            //           }`}
-            //           placeholder="Ciudad de origen"
-            //         />
-            //       </div>
-            //       <div>
-            //         <label
-            //           htmlFor="destination"
-            //           className={`font-semibold text-sm  mb-1 ${
-            //             theme === "dark" ? "text-gray-400" : "text-gray-900"
-            //           }`}
-            //         >
-            //           Destino
-            //         </label>
-            //         <input
-            //           id="destination"
-            //           type="text"
-            //           value={newTrip.to}
-            //           onChange={(e) =>
-            //             setNewTrip({ ...newTrip, to: e.target.value })
-            //           }
-            //           className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-            //             theme === "dark"
-            //               ? "bg-zinc-800 text-white border border-zinc-700 "
-            //               : "bg-white text-zinc-900 border border-yellow-500"
-            //           }`}
-            //           placeholder="Ciudad de destino"
-            //         />
-            //       </div>
-            //       <div>
-            //         <label
-            //           htmlFor="date"
-            //           className={`font-semibold text-sm  mb-1 ${
-            //             theme === "dark" ? "text-gray-400" : "text-gray-900"
-            //           }`}
-            //         >
-            //           Fecha
-            //         </label>
-            //         <input
-            //           id="date"
-            //           type="date"
-            //           value={newTrip.date}
-            //           onChange={(e) =>
-            //             setNewTrip({ ...newTrip, date: e.target.value })
-            //           }
-            //           className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-            //             theme === "dark"
-            //               ? "bg-zinc-800 text-white border border-zinc-700 "
-            //               : "bg-white text-zinc-900 border border-yellow-500"
-            //           }`}
-            //         />
-            //       </div>
-            //       <div>
-            //         <label
-            //           htmlFor="time"
-            //           className={`font-semibold text-sm  mb-1 ${
-            //             theme === "dark" ? "text-gray-400" : "text-gray-900"
-            //           }`}
-            //         >
-            //           Hora
-            //         </label>
-            //         <input
-            //           id="time"
-            //           type="time"
-            //           value={newTrip.time}
-            //           onChange={(e) =>
-            //             setNewTrip({ ...newTrip, time: e.target.value })
-            //           }
-            //           className={`w-full p-2   rounded border focus:outline-none focus:border-yellow-500 transition-colors ${
-            //             theme === "dark"
-            //               ? "bg-zinc-800 text-white border-zinc-700 "
-            //               : "bg-white text-zinc-900 border-yellow-500"
-            //           }`}
-            //         />
-            //       </div>
-            //     </div>
-            //     <div className="flex justify-end gap-4 pt-2">
-            //       <button
-            //         onClick={() => setShowScheduleModal(false)}
-            //         className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
-            //       >
-            //         Cancelar
-            //       </button>
-            //       <button
-            //         onClick={handleScheduleTrip}
-            //         className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
-            //       >
-            //         Programar
-            //       </button>
-            //     </div>
-            //   </div>
-            // </div>
+            {/* <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
+              <div
+                className={`p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
+                  theme === "dark" ? "bg-zinc-800" : "bg-white"
+                }`}
+              >
+                <h3
+                  className={` text-center text-lg font-bold ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-900"
+                  }`}
+                >
+                  {translate("Programar Nuevo Viaje")}
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label
+                      htmlFor="origin"
+                      className={`font-semibold text-sm  mb-1 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Origen")}
+                    </label>
+                    <input
+                      id="origin"
+                      type="text"
+                      value={newTrip.from}
+                      onChange={(e) =>
+                        setNewTrip({ ...newTrip, from: e.target.value })
+                      }
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder="Ciudad de origen"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="destination"
+                      className={`font-semibold text-sm  mb-1 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Destino")}
+                    </label>
+                    <input
+                      id="destination"
+                      type="text"
+                      value={newTrip.to}
+                      onChange={(e) =>
+                        setNewTrip({ ...newTrip, to: e.target.value })
+                      }
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder="Ciudad de destino"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="date"
+                      className={`font-semibold text-sm  mb-1 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Fecha")}
+                    </label>
+                    <input
+                      id="date"
+                      type="date"
+                      value={newTrip.date}
+                      onChange={(e) =>
+                        setNewTrip({ ...newTrip, date: e.target.value })
+                      }
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="time"
+                      className={`font-semibold text-sm  mb-1 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Hora")}
+                    </label>
+                    <input
+                      id="time"
+                      type="time"
+                      value={newTrip.time}
+                      onChange={(e) =>
+                        setNewTrip({ ...newTrip, time: e.target.value })
+                      }
+                      className={`w-full p-2   rounded border focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border-zinc-700 "
+                          : "bg-white text-zinc-900 border-yellow-500"
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 pt-2">
+                  <button
+                    onClick={() => setShowScheduleModal(false)}
+                    className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
+                  >
+                    {translate("Cancelar")}
+                  </button>
+                  <button
+                    onClick={handleScheduleTrip}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
+                  >
+                    {translate("Programar")}
+                  </button>
+                </div>
+              </div> */}
             <div className="fixed inset-0">
               <MapView cancel={() => setShowScheduleModal(false)} />
             </div>
@@ -518,7 +532,9 @@ const HistorialPassenger = () => {
                     theme === "dark" ? "text-white" : "text-black"
                   }`}
                 >
-                  Editar Viaje
+
+                  {translate("Editar Viaje")}
+
                 </h3>
                 <div className="space-y-3">
                   <div>
@@ -528,7 +544,7 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      Origen
+                      {translate("Origen")}
                     </label>
                     <input
                       id="origin"
@@ -542,7 +558,9 @@ const HistorialPassenger = () => {
                           ? "bg-zinc-800 text-white border border-zinc-700 "
                           : "bg-white text-zinc-900 border border-yellow-500"
                       }`}
-                      placeholder="Origen"
+
+                      placeholder={translate("Origen")}
+
                     />
                   </div>
                   <div>
@@ -552,7 +570,7 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      Destino
+                      {translate("Destino")}
                     </label>
                     <input
                       id="destination"
@@ -566,7 +584,9 @@ const HistorialPassenger = () => {
                           ? "bg-zinc-800 text-white border border-zinc-700 "
                           : "bg-white text-zinc-900 border border-yellow-500"
                       }`}
-                      placeholder="Destino"
+
+                      placeholder={translate("Destino")}
+
                     />
                   </div>
                 </div>
@@ -575,13 +595,13 @@ const HistorialPassenger = () => {
                     onClick={() => setIsEditing(null)}
                     className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    Cancelar
+                    {translate("Cancelar")}
                   </button>
                   <button
                     onClick={() => handleSave(isEditing)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
                   >
-                    Guardar
+                    {translate("Guardar")}
                   </button>
                 </div>
               </div>

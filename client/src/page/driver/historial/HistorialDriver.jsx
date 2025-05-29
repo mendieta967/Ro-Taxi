@@ -2,6 +2,7 @@ import MainLayout from "../../../components/layout/MainLayout";
 import { tripsDriver } from "../../../data/data";
 import { useSearch } from "../../../context/SearchContext";
 import {ThemeContext} from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 import {
   Calendar,
   Search,
@@ -15,6 +16,8 @@ import {
 import { useState, useContext } from "react";
 const HistorialDriver = () => {
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
+
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -54,7 +57,7 @@ const HistorialDriver = () => {
                 <input
                   type="text"
                   className={`block w-full pl-10 pr-3 py-3  transition-all duration-200 ${theme === 'dark' ? 'border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500' : 'border border-yellow-500 rounded-lg bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500'}`}
-                  placeholder="Buscar por dirección o fecha"
+                  placeholder={translate("Buscar por dirección o fecha")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -83,7 +86,7 @@ const HistorialDriver = () => {
                     : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
-                Todos
+                {translate("Todos")}
               </button>
               <button
                 onClick={() => setActiveTab("completed")}
@@ -93,7 +96,7 @@ const HistorialDriver = () => {
                     : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
-                Completados
+                {translate("Completado")}
               </button>
               <button
                 onClick={() => setActiveTab("canceled")}
@@ -103,7 +106,7 @@ const HistorialDriver = () => {
                     : theme === 'dark' ? 'text-gray-400 hover:text-gray-400' : 'text-gray-900 hover:text-gray-400'
                 }`}
               >
-                Cancelados
+                {translate("Cancelado")}
               </button>
             </div>
 
@@ -111,21 +114,21 @@ const HistorialDriver = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
-                  Total de viajes
+                  {translate("Total de viajes")}
                 </h3>
                 <p className="text-2xl font-bold">342</p>
               </div>
 
               <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
-                  Ingresos totales
+                  {translate("Ingresos totales")}
                 </h3>
                 <p className="text-2xl font-bold">$45,320</p>
               </div>
 
               <div className={`backdrop-blur-md  rounded-xl p-4 border  ${theme === 'dark' ? 'bg-zinc-900/70 border border-zinc-800/50' : 'bg-white/70 border border-yellow-500'}`}>
                 <h3 className="text-sm text-yellow-500 mb-1">
-                  Distancia total
+                  {translate("Distancia total")}
                 </h3>
                 <p className="text-2xl font-bold">1,245 km</p>
               </div>
@@ -133,7 +136,7 @@ const HistorialDriver = () => {
 
             <button className="flex items-center justify-center gap-2 w-full bg-yellow-500 hover:bg-zinc-700 py-2 px-4 rounded-lg transition-all duration-200 text-sm font-medium cursor-pointer">
               <Download size={16} />
-              Descargar Reporte
+              {translate("Descargar Reporte")}
             </button>
           </div>
 
@@ -151,7 +154,7 @@ const HistorialDriver = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-sm text-gray-400">{trip.date}</p>
-                    <h3 className="text-lg font-bold">Viaje #{trip.id}</h3>
+                    <h3 className="text-lg font-bold">{translate("Viaje")} #{trip.id}</h3>
                   </div>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -170,7 +173,7 @@ const HistorialDriver = () => {
                       <MapPin size={16} className="text-yellow-500" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">Ruta</p>
+                      <p className="text-xs text-gray-400">{translate("Ruta")}</p>
                       <p className="text-sm">{trip.route}</p>
                     </div>
                   </div>
@@ -180,7 +183,7 @@ const HistorialDriver = () => {
                       <Clock size={16} className="text-yellow-500" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">Duración</p>
+                      <p className="text-xs text-gray-400">{translate("Duración")}</p>
                       <p className="text-sm">{trip.duration}</p>
                     </div>
                   </div>
@@ -190,7 +193,7 @@ const HistorialDriver = () => {
                       <DollarSign size={16} className="text-yellow-500" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">Ganancia</p>
+                      <p className="text-xs text-gray-400">{translate("Ganancias")}</p>
                       <p className="text-sm font-bold">
                         ${trip.earnings.toFixed(2)}
                       </p>
@@ -203,7 +206,7 @@ const HistorialDriver = () => {
                     onClick={() => openModal(trip)}
                     className="flex items-center text-sm text-yellow-500 hover:text-yellow-400 cursor-pointer"
                   >
-                    Ver detalles <ChevronRight size={16} />
+                    {translate("Ver detalles")} <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
@@ -221,30 +224,30 @@ const HistorialDriver = () => {
                 </button>
 
                 <h2 className="text-xl text-center font-bold mb-4">
-                  N° de Viaje: {selectedTrip.id}
+                  {translate("N° de Viaje")} {selectedTrip.id}
                 </h2>
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Fecha</p>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Fecha")}</p>
                     <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.date}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Ruta</p>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Ruta")}</p>
                     <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.route}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Duración</p>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Duración")}</p>
                     <p className={`text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedTrip.duration}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Ganancia</p>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Ganancias")}</p>
                     <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
                       ${selectedTrip.earnings.toFixed(2)}
                     </p>
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>Estado</p>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Estado")}</p>
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${
                         selectedTrip.status === "completed"
@@ -260,8 +263,8 @@ const HistorialDriver = () => {
                         }`}
                       >
                         {selectedTrip.status === "completed"
-                          ? "Completado"
-                          : "Cancelado"}
+                          ? translate("Completado")
+                          : translate("Cancelado")}
                       </p>
                     </div>
                   </div>

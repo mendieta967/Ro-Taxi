@@ -6,6 +6,7 @@ import { modalOrderTaxi } from "../../../data/data";
 import { useState, useContext } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 
 const HomePassenger = () => {
   const [showModal, setShowModal] = useState(false);
@@ -13,8 +14,10 @@ const HomePassenger = () => {
   const [selectedCar, setSelectedCar] = useState("estandar");
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  
   const { user } = useAuth();
   const {theme} = useContext(ThemeContext);
+  const  translate  = useTranslate();
 
   const handleOrderTaxi = () => {
     setShowModal(true);
@@ -38,9 +41,9 @@ const HomePassenger = () => {
         <div className="lg:col-span-2 space-y-4">
           <div>
             <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-              ¡Hola, {user.userName.split(" ")[0]}!
+              !{translate("Hola")}, {user.userName.split(" ")[0]}!
             </h1>
-            <p className={`  ${theme === 'dark' ? 'text-white' : 'text-gray-800'}` }>¿A dónde quieres ir hoy?</p>
+            <p className={`  ${theme === 'dark' ? 'text-white' : 'text-gray-800'}` }>{translate("¿A dónde quieres ir hoy?")}</p>
           </div>
           {/* Formulario */}
           <div className={`p-6 rounded-xl space-y-6  ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
@@ -50,7 +53,7 @@ const HomePassenger = () => {
                 <MapPin className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} size={20} />
                 <input
                   type="text"
-                  placeholder="Mi ubicación actual"
+                  placeholder={translate("Mi ubicación actual")}
                   className={`bg-transparent outline-none w-full ${theme === 'dark' ? 'text-white' : 'text-gray-900'} placeholder:text-zinc-400`}
                 />
               </div>
@@ -58,7 +61,7 @@ const HomePassenger = () => {
                 <MapPin className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`} size={20} />
                 <input
                   type="text"
-                  placeholder="¿A dónde vas?"
+                  placeholder={translate("¿A dónde vas?")}
                   className={`bg-transparent outline-none w-full ${theme === 'dark' ? 'text-white' : 'text-gray-900'} placeholder:text-zinc-400`}
                 />
               </div>
@@ -75,7 +78,7 @@ const HomePassenger = () => {
                 onClick={handleOrderTaxi}
                 className="w-full  bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-3 rounded-lg transition-colors cursor-pointer"
               >
-                Solicitar Taxi
+                {translate("Solicitar Taxi")}
               </button>
             </div>
           </div>
@@ -85,7 +88,7 @@ const HomePassenger = () => {
         <div className={`p-4 rounded-xl space-y-6 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
           {/* Título */}
           <h2 className={`text-2xl font-bold  ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-            Viajes Recientes
+            {translate("Viajes Recientes")}
           </h2>
 
           {/* Lista de viajes */}
@@ -114,7 +117,7 @@ const HomePassenger = () => {
 
           {/* Ver todos */}
           <button className={` hover:underline w-full text-sm font-medium text-center cursor-pointer ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
-            Ver todos los viajes
+            {translate("Ver todos los viajes")}
           </button>
         </div>
 
@@ -136,9 +139,9 @@ const HomePassenger = () => {
             <div className={`w-10 h-10 flex items-center justify-center  text-black text-xl font-bold rounded-full ${theme === 'dark' ? 'bg-yellow-500' : 'bg-yellow-500'}`}>
               +
             </div>
-            <h3 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>Agregar</h3>
+            <h3 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>{translate("Agregar")}</h3>
             <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>
-              Añadir nuevo destino o preferencia
+              {translate("Añadir nuevo destino o preferencia")}
             </p>
           </div>
         </div>
@@ -147,9 +150,9 @@ const HomePassenger = () => {
       {/* Modal Pedir taxi */}
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
-          <h2 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-xl font-bold`}>Seleccione su vehículo</h2>
+          <h2 className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-xl font-bold`}>{translate("Seleccione su vehículo")}</h2>
           <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm mb-4`}>
-            Elige el tipo de coche para tu viaje
+            {translate("Elige el tipo de coche para tu viaje")}
           </p>
           {/* Opciones de vehículos */}
           <div className="space-y-3">
@@ -168,12 +171,12 @@ const HomePassenger = () => {
                     <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} font-semibold`}>{car.name}</p>
                     <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>{car.desc}</p>
                     <span className="inline-block mt-1 text-xs bg-zinc-700 rounded-full px-2 py-0.5">
-                      {car.seats} pasajeros
+                      {car.seats} {translate("pasajeros")}
                     </span>
                   </div>
                   <div className="text-right">
                     <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-md font-semibold`}>{car.price}</p>
-                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>Llegada: {car.time}</p>
+                    <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm`}>{translate("Llegada")}: {car.time}</p>
                   </div>
                 </div>
               </div>
@@ -190,7 +193,7 @@ const HomePassenger = () => {
                   : "bg-zinc-800 text-white "
               }`}
             >
-              Efectivo
+              {translate("Efectivo")}
             </button>
             <button
               onClick={() => setPaymentMethod("tarjeta")}
@@ -200,14 +203,13 @@ const HomePassenger = () => {
                   : "bg-zinc-800 text-white"
               }`}
             >
-              Tarjeta
+              {translate("Tarjeta")}
             </button>
           </div>
 
           <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'} text-sm mt-2`}>
-            Pagarás{" "}
-            {paymentMethod === "efectivo" ? "en efectivo" : "con tarjeta"} al
-            final del viaje
+            {translate("Pagarás")}{" "}
+            {paymentMethod === "efectivo" ? translate("en efectivo") : translate("con tarjeta")} {translate("final del viaje")}
           </p>
 
           {/* Confirmar */}
@@ -215,7 +217,7 @@ const HomePassenger = () => {
             className="w-full cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-4 rounded"
             onClick={handlePedirAhora}
           >
-            Pedir Ahora
+            {translate("Pedir Ahora")}
           </button>
         </Modal>
       )}
@@ -225,8 +227,8 @@ const HomePassenger = () => {
         <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
             <div className="text-4xl mb-4 animate-spin">🚕</div>
-            <h2 className="text-xl font-bold">Buscando un taxi cercano...</h2>
-            <p className="text-zinc-400 mt-2">Esto tomará unos segundos</p>
+            <h2 className="text-xl font-bold">{translate("Buscando un taxi cercano")}...</h2>
+            <p className="text-zinc-400 mt-2">{translate("Esto tomará unos segundos")}</p>
           </div>
         </div>
       )}
@@ -242,10 +244,10 @@ const HomePassenger = () => {
             </div>
 
             <h2 className={`text-2xl font-bold text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              ¡Tu taxi está en camino!
+              {translate("¡Tu taxi está en camino!")}
             </h2>
             <p className={`text-center text-zinc-400 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Llegada estimada: 3 minutos
+              {translate("Llegada estimada")}: 3 minutos
             </p>
 
             <div className={`flex items-center gap-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
@@ -262,19 +264,19 @@ const HomePassenger = () => {
 
             <div className="flex gap-3">
               <button className={`flex-1 py-2 border rounded-lg cursor-pointer ${theme === 'dark' ? 'bg-zinc-800 border-zinc-700  hover:bg-zinc-800 ' : 'bg-yellow-500 border border-yellow-600 hover:bg-yellow-400 '}`}>
-                Contactar
+                {translate("Contactar")}
               </button>
               <button
                 onClick={() => setShowConfirmationModal(false)}
                 className="flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer"
               >
-                Cancelar
+                {translate("Cancelar")}
               </button>
             </div>
 
             <div className={`p-3 rounded-lg text-sm ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'}`}>
-              <strong className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>¡Taxi en camino!</strong>
-              <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tu conductor llegará en aproximadamente 3 minutos</p>
+              <strong className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{translate("¡Taxi en camino!")}</strong>
+              <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{translate("Tu conductor llegará en aproximadamente 3 minutos")}</p>
             </div>
           </div>
         </div>

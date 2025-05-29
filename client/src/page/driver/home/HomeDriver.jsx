@@ -1,5 +1,6 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
+import {useTranslate} from "../../../hooks/useTranslate";
 import {
   Power,
   MapPin,
@@ -14,9 +15,13 @@ import { useContext, useState } from "react";
 
 export default function HomeDriver() {
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
+
   const [isOnline, setIsOnline] = useState(true);
   const [showRequest, setShowRequest] = useState(true);
   const [drivingMode, setDrivingMode] = useState(false);
+
+
 
   // Simular la posición del conductor y del pasajero
 
@@ -42,7 +47,7 @@ export default function HomeDriver() {
             <div className="max-w-4xl mx-auto">
               <div className="flex justify-between items-center mb-4">
                 <h1 className={`text-3xl font-bold bg-clip-text text-transparent ${theme === 'dark' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 ' : 'bg-gradient-to-r from-gray-900 to-gray-600'}`}>
-                  Panel del Conductor
+                  {translate("Panel del Conductor")}
                 </h1>
                 <button
                   onClick={() => setIsOnline(!isOnline)}
@@ -53,7 +58,7 @@ export default function HomeDriver() {
                   } text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg`}
                 >
                   <Power size={20} />
-                  {isOnline ? "Conectado" : "Desconectado"}
+                  {isOnline ? translate("Conectado") : translate("Desconectado")}
                 </button>
               </div>
 
@@ -97,7 +102,7 @@ export default function HomeDriver() {
                         </div>
                         <div className="ml-auto text-right">
                           <p className="font-medium">$1,250</p>
-                          <p className="text-sm text-gray-400">Efectivo</p>
+                          <p className="text-sm text-gray-400">{translate("Efectivo")}</p>
                         </div>
                       </div>
                     </div>
@@ -111,7 +116,7 @@ export default function HomeDriver() {
                           <MapPin size={20} className="text-green-500" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">Recoger en</p>
+                          <p className="text-sm text-gray-400">{translate("Recoger en")}</p>
                           <p className="font-medium">
                             Av. Libertador 1250, Buenos Aires
                           </p>
@@ -123,7 +128,7 @@ export default function HomeDriver() {
                           <MapPin size={20} className="text-red-500" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">Destino</p>
+                          <p className="text-sm text-gray-400">{translate("Destino")}</p>
                           <p className="font-medium">
                             Plaza de Mayo, Buenos Aires
                           </p>
@@ -138,14 +143,14 @@ export default function HomeDriver() {
                         className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-600 hover:bg-red-700 py-4 px-4 rounded-xl transition-all duration-300 font-medium text-lg"
                       >
                         <X size={24} />
-                        Rechazar
+                        {translate("Rechazar")}
                       </button>
                       <button
                         onClick={handleAccept}
                         className="flex-1 flex items-center cursor-pointer justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white font-medium py-4 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/20 text-lg"
                       >
                         <Check size={24} />
-                        Aceptar
+                        {translate("Aceptar")}
                       </button>
                     </div>
                   </div>
@@ -158,7 +163,7 @@ export default function HomeDriver() {
                   <div className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50 ' : 'bg-white border-yellow-500'}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <Clock className="text-yellow-500" size={20} />
-                      <h3 className="font-medium">Tiempo</h3>
+                      <h3 className="font-medium">{translate("Tiempo")}</h3>
                     </div>
                     <p className="text-2xl font-bold">5h 23m</p>
                   </div>
@@ -166,7 +171,7 @@ export default function HomeDriver() {
                   <div className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50 ' : 'bg-white border-yellow-500'}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="text-yellow-500" size={20} />
-                      <h3 className="font-medium">Distancia</h3>
+                      <h3 className="font-medium">{translate("Distancia")}</h3>
                     </div>
                     <p className="text-2xl font-bold">78.5 km</p>
                   </div>
@@ -174,7 +179,7 @@ export default function HomeDriver() {
                   <div className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50 ' : 'bg-white border-yellow-500'}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <DollarSign className="text-yellow-500" size={20} />
-                      <h3 className="font-medium">Ganancias</h3>
+                      <h3 className="font-medium">{translate("Ganancias")}</h3>
                     </div>
                     <p className="text-2xl font-bold">$3,450</p>
                   </div>
@@ -182,7 +187,7 @@ export default function HomeDriver() {
                   <div className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${theme === 'dark' ? 'bg-zinc-900/70 border-zinc-800/50 ' : 'bg-white border-yellow-500'}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <User className="text-yellow-500" size={20} />
-                      <h3 className="font-medium">Viajes</h3>
+                      <h3 className="font-medium">{translate("Viajes")}</h3>
                     </div>
                     <p className="text-2xl font-bold">12</p>
                   </div>
@@ -229,7 +234,7 @@ export default function HomeDriver() {
                   </div>
                   <div className="ml-auto text-right">
                     <p className={`font-medium text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>$1,250</p>
-                    <p className="text-gray-400">Efectivo</p>
+                    <p className="text-gray-400">{translate("Efectivo")}</p>
                   </div>
                 </div>
               </div>
@@ -240,7 +245,7 @@ export default function HomeDriver() {
               <div className="flex justify-around">
                 <button className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${theme === 'dark' ? 'bg-zinc-900/70' : 'bg-white border border-yellow-500 text-yellow-500'}`}>
                   <MessageCircle size={28} className="text-green-500 mb-1" />
-                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Mensaje</span>
+                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{translate("Mensaje")}</span>
                 </button>
 
                 <button
@@ -248,7 +253,7 @@ export default function HomeDriver() {
                   className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${theme === 'dark' ? 'bg-zinc-900/70' : 'bg-white border border-yellow-500 text-yellow-500'}`}
                 >
                   <X size={28} className="text-red-500 mb-1" />
-                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Salir</span>
+                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{translate("Salir")}</span>
                 </button>
               </div>
             </div>
