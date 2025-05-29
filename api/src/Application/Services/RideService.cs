@@ -30,16 +30,16 @@ public class RideService: IRideService
         _paymentRepository = paymentRepository;
         _paymentMethodRepository = paymentMethodRepository;
     }
-    public async Task<List<Ride>> GetAll(UserRole role, int userId)
+    public async Task<List<Ride>> GetAll(int userId)
     {
         var user = await _userRepository.GetById(userId);
         if(user is null) throw new NotFoundException("user not found");
 
-        if (role == UserRole.Client)
+        if (user.Role == UserRole.Client)
         {
             return await _rideRepository.GetAllByPasseger(userId);
         }
-        else if (role == UserRole.Driver) 
+        else if (user.Role == UserRole.Driver) 
         { 
             return await _rideRepository.GetAllByDriver(userId);
         }
@@ -130,6 +130,31 @@ public class RideService: IRideService
     //    }        
     //}
 
+    public async Task Cancel(int userId, int rideId)
+    {
+        var ride = await _rideRepository.GetById(rideId);
+        if (ride is null) throw new NotFoundException("Ride not found");
+         
+
+        if (ride.Status != RideStatus.Pending && ride.Status != RideStatus.Accepted)
+            throw new Exception("This ride cannot be cancel");
+
+        if(ride.Status == RideStatus.Pending)
+        {
+            if (ride.PassegerId != userId) throw new ForbiddenAccessException("You do not have access to this ride.");
+            _rideRepository.Delete(ride);
+        } 
+        else
+        {
+            if (ride.PassegerId != userId && ride.DriverId != userId)
+                throw new ForbiddenAccessException("You do not have access to this ride.");
+
+            ride.Status = RideStatus.Cancelled;
+            _rideRepository.Update(ride);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+    }
     private decimal EstimatePrice(double originLat, double originLng, double destLat, double destLng)
     {
         // Ejemplo simple usando distancia euclideana (NO es exacto, solo placeholder)

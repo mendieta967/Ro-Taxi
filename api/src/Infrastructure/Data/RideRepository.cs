@@ -44,6 +44,15 @@ public class RideRepository : IRideRepository
             .Where(r => r.DriverId == id).ToListAsync();
     }
 
+    public async Task<Ride?> GetById(int rideId)
+    {
+        return await _context.Rides
+            .Include(r => r.Passeger)
+            .Include(r => r.Driver)
+            .Include(r => r.Payment)
+            .FirstOrDefaultAsync(r => r.Id == rideId);
+    }
+
     public async Task Create(Ride ride)
     {
         await _context.Rides.AddAsync(ride);        
@@ -53,4 +62,10 @@ public class RideRepository : IRideRepository
     {
         _context.Rides.Update(ride);
     }
+
+    public void Delete(Ride ride)
+    { 
+        _context.Remove(ride);        
+    }
+
 }
