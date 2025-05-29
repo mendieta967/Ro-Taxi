@@ -43,4 +43,14 @@ public class RideRepository : IRideRepository
             .Include(r => r.Payment)
             .Where(r => r.DriverId == id).ToListAsync();
     }
+
+    public async Task Create(Ride ride)
+    {
+        await _context.Rides.AddAsync(ride);        
+    }
+
+    public void Update(Ride ride)
+    {
+        _context.Rides.Update(ride);
+    }
 }
