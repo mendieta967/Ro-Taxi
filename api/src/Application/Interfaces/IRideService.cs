@@ -11,6 +11,7 @@ namespace Application.Interfaces;
 
 public interface IRideService
 {
-    Task<List<Ride>> GetAll(UserRole role, int userId);
+    Task<List<Ride>> GetAll(int userId);
     Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request);
+    Task Cancel(int userId, int rideId);
 }

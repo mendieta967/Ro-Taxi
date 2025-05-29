@@ -6,6 +6,7 @@ using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -28,16 +29,10 @@ namespace Web.Controllers
         public async Task<ActionResult<Task<List<Ride>>>> GetAll()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var roleString = User.FindFirst(ClaimTypes.Role)!.Value;
-
-            if (!Enum.TryParse<UserRole>(roleString, ignoreCase: true, out var role))
-            {
-                return BadRequest(new { Error = "Invalid user role." });
-            }
 
             try
             {
-                var rides = await _rideService.GetAll(role, userId);
+                var rides = await _rideService.GetAll(userId);
                 return Ok(rides);
             }
             catch (Exception ex) 
@@ -48,13 +43,13 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] RideCreateRequest request)
+        public async Task<ActionResult<Ride>> Create([FromBody] RideCreateRequest request)
         {
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             try
             {
                 var ride = await _rideService.CreateScheduleRide(userId, request);
-                return Ok(ride);
+                return Created("",ride);
             } 
             catch (NotFoundException ex)
             {
@@ -63,6 +58,31 @@ namespace Web.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new {Error =  ex.Message});
+            }
+        }
+        
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Cancel([FromRoute] int rideId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            try
+            {
+                await _rideService.Cancel(userId, rideId);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
             }
         }
     }
