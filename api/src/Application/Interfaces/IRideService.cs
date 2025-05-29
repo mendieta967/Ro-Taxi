@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Models.Requests;
+using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -10,5 +11,6 @@ namespace Application.Interfaces;
 
 public interface IRideService
 {
-    public Task<List<Ride>> GetAll(UserRole role, int userId);
+    Task<List<Ride>> GetAll(UserRole role, int userId);
+    Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request);
 }

@@ -12,5 +12,8 @@ public interface IRideRepository
     public Task<List<Ride>> GetAll();
     public Task<List<Ride>> GetAllByPasseger(int id);
     public Task<List<Ride>> GetAllByDriver(int id);
-    
+    public Task Create(Ride ride);
+    void Update(Ride ride);
+
+
 }

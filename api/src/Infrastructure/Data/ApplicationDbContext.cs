@@ -12,6 +12,8 @@ namespace Infrastructure.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Ride> Rides { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -42,19 +44,7 @@ namespace Infrastructure.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.AccountStatus)
                 .HasConversion<string>();
-
-            modelBuilder.Entity<Ride>()
-                .HasOne(r => r.OriginFavoritePlace)
-                .WithMany() 
-                .HasForeignKey(r => r.OriginFavoritePlaceId)
-                .OnDelete(DeleteBehavior.Restrict); 
-
-            modelBuilder.Entity<Ride>()
-                .HasOne(r => r.DestinationFavoritePlace)
-                .WithMany()
-                .HasForeignKey(r => r.DestinationFavoritePlaceId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+ 
             modelBuilder.Entity<Ride>()
                 .HasOne(r => r.Passeger)
                 .WithMany()

@@ -1,6 +1,8 @@
 ﻿using Application.Interfaces;
+using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/ride")]
     [ApiController]
     public class RideController : ControllerBase
     {
@@ -22,7 +24,7 @@ namespace Web.Controllers
 
 
         [Authorize]
-        [HttpGet("rides")]
+        [HttpGet]
         public async Task<ActionResult<Task<List<Ride>>>> GetAll()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -41,6 +43,26 @@ namespace Web.Controllers
             catch (Exception ex) 
             {
                 return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] RideCreateRequest request)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            try
+            {
+                var ride = await _rideService.CreateScheduleRide(userId, request);
+                return Ok(ride);
+            } 
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new {Error =  ex.Message});
             }
         }
     }
