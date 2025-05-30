@@ -63,7 +63,7 @@ namespace Web.Controllers
         
 
         [Authorize]
-        [HttpDelete("{id}")]
+        [HttpDelete("{rideId}")]
         public async Task<IActionResult> Cancel([FromRoute] int rideId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
