@@ -17,49 +17,49 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
   } = useAuth();
   const { theme } = useContext(ThemeContext);
   const passengerLinks = [
-    { icon: <Home />, label: "Inicio", to: "/home" },
-    { icon: <User />, label: "Perfil", to: "/perfil" },
+    { icon: <Home />, label: "Inicio", to: "/app/home" },
+    { icon: <User />, label: "Perfil", to: "/app/perfil" },
     {
       icon: <Clock />,
       label: "Mis Viajes",
-      to: "/mis-viajes",
+      to: "/app/mis-viajes",
     },
-    { icon: <CreditCard />, label: "Pagos", to: "/pagos" },
+    { icon: <CreditCard />, label: "Pagos", to: "/app/pagos" },
     {
       icon: <Settings />,
       label: "Configuración",
-      to: "/configuracion",
+      to: "/app/configuracion",
     },
   ];
   const driverLinks = [
-    { icon: <Home />, label: "Inicio", to: "/home" },
-    { icon: <User />, label: "Perfil", to: "/perfil" },
+    { icon: <Home />, label: "Inicio", to: "/app/home" },
+    { icon: <User />, label: "Perfil", to: "/app/perfil" },
     {
       icon: <Clock />,
       label: "Mis Viajes",
-      to: "/mis-viajes",
+      to: "/app/mis-viajes",
     },
-    { icon: <CreditCard />, label: "Chat", to: "/chat" },
-    { icon: <CreditCard />, label: "Vehiculos", to: "/vehiculos" },
+    { icon: <CreditCard />, label: "Chat", to: "/app/chat" },
+    { icon: <CreditCard />, label: "Vehiculos", to: "/app/vehiculos" },
     {
       icon: <Settings />,
       label: "Configuración",
-      to: "/configuracion",
+      to: "/app/configuracion",
     },
   ];
   const adminLinks = [
-    { icon: <Home />, label: "Inicio", to: "/home" },
-    { icon: <User />, label: "Perfil", to: "/perfil" },
+    { icon: <Home />, label: "Inicio", to: "/app/home" },
+    { icon: <User />, label: "Perfil", to: "/app/perfil" },
     {
       icon: <Locate />,
       label: "Ubicaciones",
-      to: "/ubicaciónes",
+      to: "/app/ubicaciónes",
     },
 
     {
       icon: <Settings />,
       label: "Configuración",
-      to: "/configuracion",
+      to: "/app/configuracion",
     },
   ];
 
@@ -124,13 +124,27 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
             theme === "dark" ? "bg-gray-900" : "bg-yellow-500"
           } rounded-lg p-4`}
         >
-          <p className={`font-medium  text-center ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
+          <p
+            className={`font-medium  text-center ${
+              theme === "dark" ? "text-yellow-500" : "text-gray-900"
+            }`}
+          >
             ¿Necesitas ayuda?
           </p>
-          <p className={`text-sm text-center opacity-90 mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-800'}`}>
+          <p
+            className={`text-sm text-center opacity-90 mt-1 ${
+              theme === "dark" ? "text-gray-400" : "text-gray-800"
+            }`}
+          >
             Contáctanos al soporte
           </p>
-          <button className={`mt-3 w-full  font-medium px-3 py-2 rounded-lg text-sm transition-colors ${theme === 'dark' ? 'bg-yellow-500 hover:bg-yellow-400' : ' bg-gray-900 hover:bg-gray-800 text-yellow-500'}`}>
+          <button
+            className={`mt-3 w-full  font-medium px-3 py-2 rounded-lg text-sm transition-colors ${
+              theme === "dark"
+                ? "bg-yellow-500 hover:bg-yellow-400"
+                : " bg-gray-900 hover:bg-gray-800 text-yellow-500"
+            }`}
+          >
             Contactar
           </button>
         </div>

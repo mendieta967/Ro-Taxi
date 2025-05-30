@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import Form from "../../../components/common/Form";
 import { registerUser } from "../../../services/auth";
-import { useNavigate } from "react-router-dom";
 
 const Register = ({ onSwitch }) => {
   const nameRef = useRef(null);
@@ -12,7 +11,6 @@ const Register = ({ onSwitch }) => {
 
   const [userType, setUserType] = useState("");
 
-  const navigate = useNavigate();
   const [errors, setErrors] = useState({
     name: false,
     email: false,
@@ -119,13 +117,15 @@ const Register = ({ onSwitch }) => {
 
     resetForm();
     setUserType("");
+    onSwitch();
 
     try {
       const res = await registerUser(formData);
+      console.log("Respuesta del servidor:", res);
+
       if (res.status === 201) {
         alert("Usuario registrado con éxito");
         resetForm();
-        navigate("/login");
       }
     } catch (error) {
       alert("Error al registrar usuario");

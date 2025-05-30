@@ -29,7 +29,7 @@ const SettingsApp = () => {
   const handleLogaut = async () => {
     try {
       await logout();
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.log(error);
     }
@@ -163,7 +163,9 @@ const SettingsApp = () => {
             } shadow-xl transition-all duration-300 hover:shadow-yellow-500/10`}
           >
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold">{translate("Notificaciones")}</h2>
+              <h2 className="text-xl font-bold">
+                {translate("Notificaciones")}
+              </h2>
             </div>
             <p
               className={`${
@@ -188,13 +190,15 @@ const SettingsApp = () => {
                     <Bell className="text-yellow-500" size={20} />
                   </div>
                   <div>
-                    <p className="font-medium">{translate("Notificaciones Push")}</p>
+                    <p className="font-medium">
+                      {translate("Notificaciones Push")}
+                    </p>
                     <p
                       className={`${
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
                       } text-sm`}
                     >
-                     {translate("Recibe notificaciones en tu dispositivo")}
+                      {translate("Recibe notificaciones en tu dispositivo")}
                     </p>
                   </div>
                 </div>
@@ -232,7 +236,9 @@ const SettingsApp = () => {
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
                       } text-sm`}
                     >
-                      {translate("Reproduce sonidos para notificaciones importantes")}
+                      {translate(
+                        "Reproduce sonidos para notificaciones importantes"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -262,13 +268,18 @@ const SettingsApp = () => {
                     <Mail className="text-yellow-500" size={20} />
                   </div>
                   <div>
-                    <p className="font-medium"> {translate("Correos Electrónicos")}</p>
+                    <p className="font-medium">
+                      {" "}
+                      {translate("Correos Electrónicos")}
+                    </p>
                     <p
                       className={`${
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
                       } text-sm`}
                     >
-                     {translate("Recibe actualizaciones por correo electrónico")}
+                      {translate(
+                        "Recibe actualizaciones por correo electrónico"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -297,7 +308,9 @@ const SettingsApp = () => {
             } shadow-xl transition-all duration-300 hover:shadow-yellow-500/10`}
           >
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold">{translate("Privacidad y Seguridad")}</h2>
+              <h2 className="text-xl font-bold">
+                {translate("Privacidad y Seguridad")}
+              </h2>
             </div>
             <p
               className={`${
@@ -322,13 +335,17 @@ const SettingsApp = () => {
                     <Shield className="text-yellow-500" size={20} />
                   </div>
                   <div>
-                    <p className="font-medium">{translate("Autenticación de dos factores")}</p>
+                    <p className="font-medium">
+                      {translate("Autenticación de dos factores")}
+                    </p>
                     <p
                       className={`${
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
                       } text-sm`}
                     >
-                      {translate("Añade una capa extra de seguridad a tu cuenta")}
+                      {translate(
+                        "Añade una capa extra de seguridad a tu cuenta"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -356,7 +373,9 @@ const SettingsApp = () => {
                     <MapPin className="text-yellow-500" size={20} />
                   </div>
                   <div>
-                    <p className="font-medium">{translate("Compartir datos de ubicación")}</p>
+                    <p className="font-medium">
+                      {translate("Compartir datos de ubicación")}
+                    </p>
                     <p
                       className={`${
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
@@ -392,13 +411,15 @@ const SettingsApp = () => {
                     <Clock className="text-yellow-500" size={20} />
                   </div>
                   <div>
-                    <p className="font-medium">{translate("Historial de sesiones")}</p>
+                    <p className="font-medium">
+                      {translate("Historial de sesiones")}
+                    </p>
                     <p
                       className={`${
                         theme === "dark" ? "text-gray-400" : "text-zinc-600"
                       } text-sm`}
                     >
-                        {translate("Ver y gestionar tus sesiones activas")}
+                      {translate("Ver y gestionar tus sesiones activas")}
                     </p>
                   </div>
                 </div>
@@ -424,7 +445,9 @@ const SettingsApp = () => {
             } shadow-xl transition-all duration-300 hover:shadow-yellow-500/10`}
           >
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold">{translate("Información Legal")}</h2>
+              <h2 className="text-xl font-bold">
+                {translate("Información Legal")}
+              </h2>
             </div>
             <p
               className={`${
@@ -440,7 +463,9 @@ const SettingsApp = () => {
                   theme === "dark" ? "border-zinc-700" : "border-yellow-500"
                 } hover:bg-zinc-800/20 px-3 rounded-lg transition-all duration-200`}
               >
-                <p className="font-medium">{translate("Términos de Servicio")}</p>
+                <p className="font-medium">
+                  {translate("Términos de Servicio")}
+                </p>
                 <button
                   className={`px-4 py-2 ${
                     theme === "dark" ? "bg-zinc-800" : "bg-yellow-500"
@@ -457,7 +482,9 @@ const SettingsApp = () => {
                   theme === "dark" ? "border-zinc-700" : "border-yellow-500"
                 } hover:bg-zinc-800/20 px-3 rounded-lg transition-all duration-200`}
               >
-                <p className="font-medium">{translate("Política de Privacidad")}</p>
+                <p className="font-medium">
+                  {translate("Política de Privacidad")}
+                </p>
                 <button
                   className={`px-4 py-2 ${
                     theme === "dark" ? "bg-zinc-800" : "bg-yellow-500"
@@ -472,7 +499,9 @@ const SettingsApp = () => {
               <div
                 className={`flex items-center justify-between py-4 hover:bg-zinc-800/20 px-3 rounded-lg transition-all duration-200`}
               >
-                <p className="font-medium">{translate("Licencias de Terceros")}</p>
+                <p className="font-medium">
+                  {translate("Licencias de Terceros")}
+                </p>
                 <button
                   className={`px-4 py-2 ${
                     theme === "dark" ? "bg-zinc-800" : "bg-yellow-500"

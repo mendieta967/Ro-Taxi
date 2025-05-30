@@ -4,11 +4,11 @@ function PassengerLayout() {
   return (
     <div>
       <nav>
-        <NavLink to="home"></NavLink>
-        <NavLink to="perfil"></NavLink>
-        <NavLink to="configuracion"></NavLink>
-        <NavLink to="mis-viajes"></NavLink>
-        <NavLink to="pagos"></NavLink>
+        <NavLink to="/app/home"></NavLink>
+        <NavLink to="/app/perfil"></NavLink>
+        <NavLink to="/app/configuracion"></NavLink>
+        <NavLink to="/app/mis-viajes"></NavLink>
+        <NavLink to="/app/pagos"></NavLink>
       </nav>
       <main>
         <Outlet /> {/* Aquí se renderizan las páginas hijas */}

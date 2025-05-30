@@ -1,10 +1,11 @@
-import LandingNavBar from "../../components/landingNavBar/LandingNavBar";
 import Button from "../../components/common/Button";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   return (
     <div>
-      <LandingNavBar />
+      {/* <LandingNavBar /> /> */}
       <section className="pt-45 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-center px-4">
         <div className="flex flex-col items-center">
           <img
@@ -30,6 +31,7 @@ const LandingPage = () => {
           <Button
             variant="outline"
             className="px-8 py-3 text-base cursor-pointer"
+            onClick={() => navigate("/login")}
           >
             Soy conductor
           </Button>
