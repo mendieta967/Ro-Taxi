@@ -18,6 +18,13 @@ const apiClient = {
       },
       body: JSON.stringify(body),
     }),
+  delete: (url) =>
+      request(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
 };
 
 const request = async (url, options) => {

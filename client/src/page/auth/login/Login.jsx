@@ -3,13 +3,11 @@ import Form from "../../../components/common/Form";
 import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { linkGithubProvider } from "../../../services/auth";
 import { useAuth } from "../../../context/auth";
-import { useNavigate } from "react-router-dom";
 
 const Login = ({ onSwitch }) => {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const [errors, setErrors] = useState({
@@ -58,7 +56,6 @@ const Login = ({ onSwitch }) => {
     console.log("Login del usuario:", formData);
     try {
       await login(formData);
-      navigate("/home", { replace: true });
     } catch (error) {
       alert("Correo o contraseña incorrectos");
       console.error("Error al intentar iniciar sesión:", error);
@@ -83,6 +80,11 @@ const Login = ({ onSwitch }) => {
           refs={{ email: emailRef, password: passwordRef }}
           submitText="Iniciar sesión"
         />
+        <div className="text-center mt-2">
+          <button className="cursor-pointer text-zinc-600 hover:underline">
+            ¿Has olvidado la contraseña?
+          </button>
+        </div>
 
         <div className="text-center my-6">
           <p className="text-gray-300 mb-2">Continuar con:</p>

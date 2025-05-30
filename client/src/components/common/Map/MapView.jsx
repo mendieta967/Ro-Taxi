@@ -9,6 +9,8 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { createRide } from "../../../services/ride";
+
 
 // Iconos personalizados para origen y destino
 const originIcon = new L.Icon({
@@ -230,10 +232,35 @@ const MapView = ({ cancel }) => {
     getRoute();
   }, [origin, destination]);
 
-  const handleSubmit = () => {
-    alert(
-      `Origen: ${origin.lat}, ${origin.lng}, ${origin.short_name}\nDestino: ${destination.lat}, ${destination.lng}, ${destination.short_name}`
-    );
+  const handleScheduleRide = async () =>{
+    try {
+      if (!origin || !destination) {
+        alert("Por favor, seleccione origen y destino");
+        return;
+      }
+
+      if (!inputValues.date || !inputValues.time) {
+        alert("Por favor, seleccione fecha y hora");
+        return;
+      }
+
+      const rideData = {
+        originAddress: inputValues.origin,
+        originLat: origin.lat,
+        originLng: origin.lng,
+        destinationAddress: inputValues.destination,
+        destinationLat: destination.lat,
+        destinationLng: destination.lng,
+        scheduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z"  // Combina fecha y hora
+      };
+
+      await createRide(rideData);
+      console.log("Viaje programado exitosamente!", rideData);
+      alert("Viaje programado exitosamente!");
+    } catch (error) {
+      console.error("Error al programar viaje:", error);
+      alert("Error al programar viaje. Por favor, inténtelo de nuevo.");
+    }
   };
 
   return (
@@ -248,7 +275,7 @@ const MapView = ({ cancel }) => {
         activeInput={activeInput}
         handleSearchResults={handleSearchResults}
         searchResults={searchResults}
-        handleSubmit={handleSubmit}
+        handleScheduleRide={handleScheduleRide}
         currentLocation={currentLocation}
         cancel={cancel}
       />

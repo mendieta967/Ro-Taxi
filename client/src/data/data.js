@@ -408,25 +408,7 @@ export const trips = [
   },
 ];
 
-// Viaje programado de ejemplo
-export const scheduledTrip = [
-  {
-    id: 1,
-    date: "Mañana, 8:00 AM",
-    from: "Casa",
-    to: "Aeropuerto",
-    price: "Estimado: $25.00",
-    status: "programados",
-  },
-  {
-    id: 2,
-    date: "Mañana, 8:00 AM",
-    from: "Casa",
-    to: "Aeropuerto",
-    price: "Estimado: $25.00",
-    status: "programados",
-  },
-];
+
 
 //Datos de ejemplo modal order taxi
 

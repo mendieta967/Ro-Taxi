@@ -17,11 +17,13 @@ import VehiculosDriver from "../page/driver/misVehiculos/VehiculosDriver";
 import ProtectedRoute from "../utils/ProtectedRoute";
 import Ubicaciones from "../page/admin/ubicacion/Ubicaciones";
 import NotFound from "../page/notFound/NotFound";
+import RecoverPassword from "../page/auth/recoverPassword/recoverPassword";
+import LandingPage from "../page/landing/LandingPage";
 import { Historial, Home } from "./CommonRoute";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/app",
     element: <PassengerLayout />,
     children: [
       // Redirección automática desde "/"
@@ -107,9 +109,11 @@ const router = createBrowserRouter([
     ],
   },
 
+  { path: "/", element: <LandingPage /> },
   { path: "complete-account", element: <CompleteAccount /> },
   { path: "login", element: <AuthPage /> },
   { path: "*", element: <NotFound /> },
+  { path: "/recuperar", element: <RecoverPassword /> },
 ]);
 
 const AppRoute = () => {

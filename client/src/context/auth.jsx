@@ -29,8 +29,10 @@ export default function AuthContextProvider({ children }) {
       console.log(error);
       setUser(null);
     } finally {
-      setLoading(false);
-      setTimeout(() => setProgress(0), 500);
+      setTimeout(() => {
+        setLoading(false);
+        setTimeout(() => setProgress(0), 300);
+      }, 150);
     }
   };
 
@@ -38,7 +40,7 @@ export default function AuthContextProvider({ children }) {
     try {
       setLoading(true);
       await loginUser(formData);
-      fetchUser();
+      await fetchUser();
     } catch (error) {
       alert(error.response.data.message);
     } finally {
@@ -65,7 +67,7 @@ export default function AuthContextProvider({ children }) {
   if (loading) return <Loader progress={progress} />;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, progress }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

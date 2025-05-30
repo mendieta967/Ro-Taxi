@@ -3,6 +3,7 @@ import Login from "./login/Login";
 import Register from "./register/Register";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/auth";
+import Loader from "../../components/common/Loader";
 
 const AuthPage = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -11,9 +12,11 @@ const AuthPage = () => {
     ? "url('/rosario.jpg')"
     : "url('/rosario2.jpg')";
 
-  const { user } = useAuth();
+  const { user, progress, loading } = useAuth();
 
-  if (user) return <Navigate to="/" replace />;
+  if (loading) return <Loader progress={progress} />;
+
+  if (user) return <Navigate to="/app/home" replace />;
 
   return (
     <div
