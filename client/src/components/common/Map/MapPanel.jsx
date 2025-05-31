@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import MapSearch from "./MapSearch";
 import MapSearchResult from "./MapSearchResult";
-import Modal from "../../ui/Modal"
+import Modal from "../../ui/Modal";
+import { useTranslate } from "../../../hooks/useTranslate";
 
 const MapPanel = ({
   handleSelect,
@@ -82,6 +83,7 @@ const MapPanel = ({
     handleSearchResults,
   ]);
   const [showModal, setShowModal] = useState(false);
+  const translate = useTranslate();
 
   return (
     <div className="absolute overflow-hidden z-[1100] top-0 bottom-0 left-6 my-10 w-[370px] max-w-[90vw] rounded-2xl bg-[#181B21] shadow-xl p-5 ">
@@ -89,7 +91,7 @@ const MapPanel = ({
         {/* Input Origen */}
         <MapSearch
           type="origin"
-          title="Origen"
+          title={translate("Origen")}
           ref={inputOriginRef}
           activeInput={activeInput}
           handleActiveInput={handleActiveInput}
@@ -99,7 +101,7 @@ const MapPanel = ({
         {/* Input Destino */}
         <MapSearch
           type="destination"
-          title="Destino"
+          title={translate("Destino")}
           ref={inputDestinationRef}
           activeInput={activeInput}
           handleActiveInput={handleActiveInput}
@@ -129,7 +131,7 @@ const MapPanel = ({
             className="text-yellow-400 font-semibold mb-1 text-sm block tracking-wide"
             htmlFor="date"
           >
-            Fecha
+            {translate("Fecha")}
           </label>
           <div className="relative">
             <span className="absolute left-3 top-3 text-yellow-400 text-xl">
@@ -168,7 +170,7 @@ const MapPanel = ({
             className="text-yellow-400 font-semibold mb-1 text-sm block tracking-wide"
             htmlFor="time"
           >
-            Hora
+            {translate("Hora")}
           </label>
           <div className="relative">
             <span className="absolute left-3 top-3 text-yellow-400 text-xl">
@@ -200,47 +202,46 @@ const MapPanel = ({
           </div>
         </div>
 
-
         {/* Botón Programar viaje */}
         <div className="mt-auto w-full flex flex-col gap-2">
           <button
             onClick={() => setShowModal(true)}
             className="mt-auto w-full py-3 rounded-xl bg-yellow-400 text-[#23262F] font-medium text-base hover:bg-yellow-300 cursor-pointer transition-all"
           >
-            Programar viaje
+            {translate("Programar Viaje")}
           </button>
           <button
             onClick={cancel}
             className="mt-auto w-full py-3 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-medium text-base cursor-pointer transition-all"
           >
-            Cancelar
+            {translate("Cancelar")}
           </button>
         </div>
         {showModal && (
-
-    <Modal  onClose={() => setShowModal(false)}>
-    <h2 className="text-xl text-center font-semibold text-yellow-500">¿Confirmar programación del viaje?</h2>
-    <div className="flex justify-center  gap-4 mt-4">
-      <button
-        onClick={() => {
-          handleScheduleRide();  // llama tu función
-          cancel();
-          setShowModal(false);  // cierra el modal
-        }}
-        className="px-4 cursor-pointer py-2 rounded bg-yellow-400 text-black hover:bg-yellow-300 transition-all"
-      >
-        Confirmar
-      </button>
-      <button
-        onClick={() => setShowModal(false)}
-        className="px-4 cursor-pointer py-2 rounded bg-zinc-700 text-white hover:bg-zinc-600 transition-all"
-      >
-        Cancelar
-      </button>
-    </div>
-  </Modal>
-)}
-
+          <Modal onClose={() => setShowModal(false)}>
+            <h2 className="text-xl text-center font-semibold text-yellow-500">
+              {translate("¿Confirmar programación del viaje?")}
+            </h2>
+            <div className="flex justify-center  gap-4 mt-4">
+              <button
+                onClick={() => {
+                  handleScheduleRide(); // llama tu función
+                  cancel();
+                  setShowModal(false); // cierra el modal
+                }}
+                className="px-4 cursor-pointer py-2 rounded bg-yellow-400 text-black hover:bg-yellow-300 transition-all"
+              >
+                {translate("Confirmar")}
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 cursor-pointer py-2 rounded bg-zinc-700 text-white hover:bg-zinc-600 transition-all"
+              >
+                {translate("Cancelar")}
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     </div>
   );

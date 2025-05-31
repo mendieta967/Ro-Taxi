@@ -22,7 +22,7 @@ const HistorialPassenger = () => {
   const [trips, setTrips] = useState(initialTrips);
   const [scheduledTrips, setScheduledTrips] = useState([]); //viajes programados
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [abrirModal, setAbrirModal] = useState(false)
+  const [abrirModal, setAbrirModal] = useState(false);
   const [newTrip, setNewTrip] = useState({
     from: "",
     to: "",
@@ -41,22 +41,18 @@ const HistorialPassenger = () => {
         );
         setScheduledTrips(scheduledTrips);
         console.log(scheduledTrips);
-       
       } catch (error) {
         console.error("Error fetching rides:", error);
       }
     };
     fetchRides();
- 
   }, []);
   //filtrado de los viajes programados
   const filteredScheduledTrips = scheduledTrips.filter((trip) =>
     `${trip.originAddress} ${trip.destinationAddress} ${trip.scheduledAt}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
-      
   );
-
 
   const filteredTrips = trips.filter((trip) =>
     `${trip.from} ${trip.to} ${trip.date} ${trip.driver}`
@@ -128,7 +124,6 @@ const HistorialPassenger = () => {
     setShowScheduleModal(false);
   };
 
-  
   return (
     <MainLayout>
       <div
@@ -288,7 +283,8 @@ const HistorialPassenger = () => {
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       />
-                      Hora: {new Date(trip.scheduledAt).toLocaleTimeString()}
+                      {translate("Hora")}:{" "}
+                      {new Date(trip.scheduledAt).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
@@ -308,31 +304,30 @@ const HistorialPassenger = () => {
                 </div>
                 {abrirModal && (
                   <Modal onClose={() => setAbrirModal(false)}>
-    <div className="flex flex-col items-center p-6">
-      <h2 className="text-xl font-semibold mb-4 text-red-500">
-        ¿Estás seguro de cancelar el viaje?
-      </h2>
-      <div className="flex gap-4">
-        <button
-          onClick={() => handleDelete(trip.id)}
-          className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
-        >
-          Confirmar
-        </button>
-        <button
-          onClick={() => setAbrirModal(false)}
-          className="px-6 py-2 cursor-pointer bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
-        >
-          Cancelar
-        </button>
-      </div>
-    </div>
+                    <div className="flex flex-col items-center p-6">
+                      <h2 className="text-xl font-semibold mb-4 text-red-500">
+                        {translate("¿Estás seguro de cancelar el viaje?")}
+                      </h2>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => handleDelete(trip.id)}
+                          className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                        >
+                          {translate("Confirmar")}
+                        </button>
+                        <button
+                          onClick={() => setAbrirModal(false)}
+                          className="px-6 py-2 cursor-pointer bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
+                        >
+                          {translate("Cancelar")}
+                        </button>
+                      </div>
+                    </div>
                   </Modal>
-)}
+                )}
               </div>
             ))}
-            
-          
+
           {/* Trip History */}
           {(activeTab === "todos" || activeTab === "completados") &&
             filteredTrips.map((trip) => (
