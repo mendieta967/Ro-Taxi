@@ -1,28 +1,27 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { historailViajes, cardViajes } from "../../../data/data";
 import { MapPin, Clock, Star } from "lucide-react";
-import Modal from "../../../components/ui/Modal";
-import { modalOrderTaxi } from "../../../data/data";
-import { useState, useContext } from "react";
+//import Modal from "../../../components/ui/Modal";
+//import { modalOrderTaxi } from "../../../data/data";
+import {  useContext } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
+import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 //import { createRide } from "../../../services/ride";
 
 const HomePassenger = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("efectivo");
-  const [selectedCar, setSelectedCar] = useState("estandar");
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  //const [origin, setOrigin] = useState("");
-  //const [destination, setDestination] = useState("");
-
+ // const [showModal, setShowModal] = useState(false);
+ // const [paymentMethod, setPaymentMethod] = useState("efectivo");
+ // const [selectedCar, setSelectedCar] = useState("estandar");
+ // const [showRequestModal, setShowRequestModal] = useState(false);
+ // const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
-  const handleOrderTaxi = () => {
+ /*  const handleOrderTaxi = () => {
     setShowModal(true);
   };
 
@@ -31,7 +30,7 @@ const HomePassenger = () => {
     setShowRequestModal(true); // Mostrar el modal de búsqueda de taxi
 
     {
-      /* Formulario
+      Formulario
     // Crear el viaje
     const rideData = {
       originAddress: origin,
@@ -56,7 +55,7 @@ const HomePassenger = () => {
       console.error("Error creating ride:", error);
       // Mostrar mensaje de error al usuario
       alert("Error al crear el viaje. Por favor, inténtelo nuevamente.");
-    } */
+    } 
     }
     setTimeout(() => {
       setShowRequestModal(false); // Ocultar el modal de búsqueda
@@ -64,12 +63,15 @@ const HomePassenger = () => {
     }, 2000); // Simula 2 segundos de carga
   };
 
+
+  */
   return (
     <MainLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
         {/* Columna izquierda (Formulario + Mapa) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div>
+        <div className="lg:col-span-2 space-y-6">
+          {/* Encabezado */}
+          <div className="space-y-2">
             <h1
               className={`text-3xl font-bold ${
                 theme === "dark" ? "text-yellow-500" : "text-gray-900"
@@ -78,84 +80,24 @@ const HomePassenger = () => {
               !{translate("Hola")}, {user.userName.split(" ")[0]}!
             </h1>
             <p
-              className={`  ${
+              className={`text-lg ${
                 theme === "dark" ? "text-white" : "text-gray-800"
               }`}
             >
               {translate("¿A dónde quieres ir hoy?")}
             </p>
           </div>
-          {/* Formulario */}
+
+          {/* Contenedor principal */}
           <div
-            className={`p-6 rounded-xl space-y-6  ${
-              theme === "dark"
-                ? "bg-zinc-900"
-                : "bg-white border border-yellow-500"
+            className={`rounded-xl overflow-hidden ${
+              theme === "dark" ? "bg-zinc-900" : "bg-white border border-yellow-500"
             }`}
           >
-            {/* Inputs */}
-            <div className="space-y-4">
-              <div
-                className={`flex items-center gap-3  px-4 py-3 rounded-lg ${
-                  theme === "dark"
-                    ? "bg-zinc-800"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <MapPin
-                  className={`${
-                    theme === "dark" ? "text-yellow-500" : "text-gray-900"
-                  }`}
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder={translate("Mi ubicación actual")}
-                  className={`bg-transparent outline-none w-full ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  } placeholder:text-zinc-400`}
-                  // value={origin}
-                  // onChange={(e) => setOrigin(e.target.value)}
-                />
-              </div>
-              <div
-                className={`flex items-center gap-3  px-4 py-3 rounded-lg ${
-                  theme === "dark"
-                    ? "bg-zinc-800"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <MapPin
-                  className={`${
-                    theme === "dark" ? "text-yellow-500" : "text-gray-900"
-                  }`}
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder={translate("¿A dónde vas?")}
-                  className={`bg-transparent outline-none w-full ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  } placeholder:text-zinc-400`}
-                  // value={destination}
-                  // onChange={(e) => setDestination(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Mapa simulado */}
-            <div className="bg-zinc-700 h-64 rounded-lg grid place-items-center">
-              <div className="w-5 h-5 bg-yellow-500 rounded-full shadow-md"></div>
-            </div>
-
-            {/* Botón */}
-            <div className="flex items-center justify-center ">
-              <button
-                onClick={handleOrderTaxi}
-                className="w-full  bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-3 rounded-lg transition-colors cursor-pointer"
-              >
-                {translate("Solicitar Taxi")}
-              </button>
+        
+            {/* Mapa */}
+            <div className="bg-zinc-700 h-96 rounded-lg">
+              <MapOnly />
             </div>
           </div>
         </div>
@@ -291,7 +233,7 @@ const HomePassenger = () => {
         </div>
       </div>
 
-      {/* Modal Pedir taxi */}
+*/      {/* Modal Pedir taxi 
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
           <h2
@@ -308,7 +250,7 @@ const HomePassenger = () => {
           >
             {translate("Elige el tipo de coche para tu viaje")}
           </p>
-          {/* Opciones de vehículos */}
+          {/* Opciones de vehículos 
           <div className="space-y-3">
             {modalOrderTaxi.map((car) => (
               <div
@@ -361,7 +303,7 @@ const HomePassenger = () => {
             ))}
           </div>
 
-          {/* Método de pago */}
+          {/* Método de pago 
           <div className="mt-4 flex space-x-2">
             <button
               onClick={() => setPaymentMethod("efectivo")}
@@ -397,7 +339,7 @@ const HomePassenger = () => {
             {translate("final del viaje")}
           </p>
 
-          {/* Confirmar */}
+          {/* Confirmar 
           <button
             className="w-full cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-4 rounded"
             onClick={handlePedirAhora}
@@ -407,7 +349,7 @@ const HomePassenger = () => {
         </Modal>
       )}
 
-      {/* Modal de solicitud */}
+      {/* Modal de solicitud 
       {showRequestModal && (
         <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
@@ -422,7 +364,7 @@ const HomePassenger = () => {
         </div>
       )}
 
-      {/* Modal de confirmación */}
+      {/* Modal de confirmación
       {showConfirmationModal && (
         <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
           <div
@@ -524,7 +466,7 @@ const HomePassenger = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </MainLayout>
   );
 };

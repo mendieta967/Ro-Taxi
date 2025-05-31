@@ -1,6 +1,7 @@
 export const diccionario = {
   es: [
     { key: "Guardar tarjeta", value: "Guardar tarjeta" },
+    { key: "Hora", value: "Hora" },
     { key: "Platform Management", value: "Gestión de la Plataforma" },
     { key: "usuarios", value: "Usuarios" },
     { key: "conductores", value: "Conductores" },
@@ -259,7 +260,10 @@ export const diccionario = {
     { key: "Programar", value: "Programar" },
     { key: "Editar Viaje", value: "Editar Viaje" },
     { key: "Métodos de Pago Guardados", value: "Métodos de Pago Guardados" },
-    { key: "Selecciona tu método de pago predeterminado", value: "Selecciona tu método de pago predeterminado" },
+    {
+      key: "Selecciona tu método de pago predeterminado",
+      value: "Selecciona tu método de pago predeterminado",
+    },
     { key: "Agregar método de pago", value: "Agregar método de pago" },
     { key: "Historial de Pagos", value: "Historial de Pagos" },
     { key: "Revisa tus pagos recientes", value: "Revisa tus pagos recientes" },
@@ -270,29 +274,60 @@ export const diccionario = {
     { key: "Total", value: "Total" },
     { key: "Origen", value: "Origen" },
     { key: "Método de Pago", value: "Método de Pago" },
-    { key: "Historial Completo de Viajes", value: "Historial Completo de Viajes" },
+    {
+      key: "Historial Completo de Viajes",
+      value: "Historial Completo de Viajes",
+    },
     { key: "Añadir Nueva Tarjeta", value: "Añadir Nueva Tarjeta" },
-    { key: "Ingresa los detalles de tu tarjeta", value: "Ingresa los detalles de tu tarjeta" },
+    {
+      key: "Ingresa los detalles de tu tarjeta",
+      value: "Ingresa los detalles de tu tarjeta",
+    },
     { key: "Número de Tarjeta", value: "Número de Tarjeta" },
     { key: "Fecha de Expiración", value: "Fecha de Expiración" },
     { key: "Nombre en la Tarjeta", value: "Nombre en la Tarjeta" },
     { key: "País", value: "País" },
     { key: "Selecciona un país", value: "Selecciona un país" },
-{ key: "Guardar un país", value: "Guardar un país" },
-{ key: "Nombre completo", value: "Nombre completo" },
-{ key: "Por favor completa todos los campos", value: "Por favor completa todos los campos" },
-{ key: "Número de tarjeta inválido", value: "Número de tarjeta inválido" }
-
-
-  
-],
+    { key: "Guardar un país", value: "Guardar un país" },
+    { key: "Nombre completo", value: "Nombre completo" },
+    {
+      key: "Por favor completa todos los campos",
+      value: "Por favor completa todos los campos",
+    },
+    { key: "Número de tarjeta inválido", value: "Número de tarjeta inválido" },
+    {
+      key: "¿Confirmar programación del viaje?",
+      value: "¿Confirmar programación del viaje?",
+    },
+    { key: "Confirmar", value: "Confirmar" },
+    {
+      key: "¿Estás seguro de cancelar el viaje?",
+      value: "¿Estás seguro de cancelar el viaje?",
+    },
+  ],
   en: [
-    { key: "Por favor completa todos los campos", value: "Please fill out all fields" },
-{ key: "Número de tarjeta inválido", value: "Invalid card number" },
+    {
+      key: "¿Estás seguro de cancelar el viaje?",
+      value: "Are you sure you want to cancel the trip?",
+    },
+    { key: "Confirmar", value: "Confirm" },
+    {
+      key: "¿Confirmar programación del viaje?",
+      value: "Confirm trip booking?",
+    },
+    {
+      key: "Por favor completa todos los campos",
+      value: "Please fill out all fields",
+    },
+    { key: "Hora", value: "Time" },
+    { key: "Número de tarjeta inválido", value: "Invalid card number" },
     { key: "Guardar tarjeta", value: "Save Card" },
     { key: "Nombre completo", value: "Full Name" },
     { key: "Añadir Nueva Tarjeta", value: "Add New Card" },
-    { key: "Ingresa los detalles de tu tarjeta", value: "Enter your card details" },
+    {
+      key: "Ingresa los detalles de tu tarjeta",
+      value: "Enter your card details",
+    },
     { key: "Número de Tarjeta", value: "Card Number" },
     { key: "Fecha de Expiración", value: "Expiration Date" },
     { key: "Nombre en la Tarjeta", value: "Name on Card" },
@@ -553,7 +588,10 @@ export const diccionario = {
     { key: "Ver detalles", value: "View details" },
     { key: "Descargar Reporte", value: "Download Report" },
     { key: "Métodos de Pago Guardados", value: "Saved Payment Methods" },
-    { key: "Selecciona tu método de pago predeterminado", value: "Select your default payment method" },
+    {
+      key: "Selecciona tu método de pago predeterminado",
+      value: "Select your default payment method",
+    },
     { key: "Agregar método de pago", value: "Add payment method" },
     { key: "Historial de Pagos", value: "Payment History" },
     { key: "Revisa tus pagos recientes", value: "Review your recent payments" },
@@ -561,8 +599,6 @@ export const diccionario = {
     { key: "Detalles de viaje", value: "Trip Details" },
     { key: "Fecha y Hora", value: "Date and Time" },
     { key: "Ubicaciones", value: "Locations" },
-    { key: "Método de Pago", value: "Payment Method" }
-
-
+    { key: "Método de Pago", value: "Payment Method" },
   ],
 };
