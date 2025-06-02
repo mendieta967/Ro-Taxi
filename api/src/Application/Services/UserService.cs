@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Domain.Exceptions;
 using Domain.Enums;
 using Application.Models.Requests;
+using Application.Models.Parameters;
 
 namespace Application.Services;
 
@@ -22,10 +23,19 @@ public class UserService: IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<List<UserDto>> GetAll()
+    public async Task<PaginatedList<UserDto>> GetAll(PaginationParams pagination, UserFilterParams filter)
     {
-        var users = await _userRepository.GetAll();
-        return users.Select(user => new UserDto(user)).ToList();
+        UserRole? role = null;
+        if (!string.IsNullOrEmpty(filter.Role))
+        {
+            if (!Enum.TryParse<UserRole>(filter.Role, true, out var parsedRole))
+                throw new Exception("Invalid role filter.");
+            role = parsedRole;
+        }
+
+        var response = await _userRepository.GetAll(pagination.Page, pagination.PageSize, role, filter.Search);
+        var data = response.Data.Select(user => new UserDto(user)).ToList();
+        return new PaginatedList<UserDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
     }
 
     public async Task<UserDto> GetById(int id)

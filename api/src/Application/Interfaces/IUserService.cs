@@ -1,4 +1,5 @@
 ﻿using Application.Models;
+using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
 using System;
@@ -11,7 +12,7 @@ namespace Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<List<UserDto>> GetAll();
+    public Task<PaginatedList<UserDto>> GetAll(PaginationParams paginationParams, UserFilterParams filter);
     public Task<UserDto> GetById(int id);
     public Task Create(RegisterRequest registerRequest);
     public Task Create(GithubUserDto userData);

@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Models;
+using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
@@ -24,9 +25,12 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = nameof(UserRole.Admin))]
     [HttpGet]
-    public async Task<ActionResult<UserDto>> GetAll()
+    public async Task<ActionResult<PaginatedList<UserDto>>> GetAll(
+        [FromQuery] PaginationParams paginationParams,
+        [FromQuery] UserFilterParams userFilterParams
+        )
     {
-        return Ok(await _userService.GetAll());
+        return Ok(await _userService.GetAll(paginationParams, userFilterParams));
     }
 
     [Authorize]

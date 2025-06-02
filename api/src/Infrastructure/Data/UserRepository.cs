@@ -1,5 +1,8 @@
-﻿using Domain.Entities;
+﻿using Application.Models;
+using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,9 +19,30 @@ public class UserRepository: IUserRepository
     {
         _context = context;
     }
-    public async Task<List<User>> GetAll()
+    public async Task<PaginatedList<User>> GetAll(int pageNumber, int pageSize, UserRole? role, string? search)
     {
-        return await _context.Users.ToListAsync();
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(u => u.Name.Contains(search) || u.Email.Contains(search));
+        }
+
+        if (role is not null)
+        {
+            query = query.Where(u => u.Role == role);
+        }
+
+        var totalData = await query.CountAsync();
+
+        var data = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling((double)totalData / pageSize);
+
+        return new PaginatedList<User>(data, totalData, pageNumber, pageSize, totalPages);
     }
 
     public async Task<User?> GetById(int id)
