@@ -22,6 +22,7 @@ public class Ride
     public double DestinationLng { get; set; }
     public decimal EstimatedPrice { get; set; }
     public Payment? Payment { get; set; }
+    public int? PaymentMethodId {  get; set; }
     public int? Rating { get; set; }
     public DateTime RequestedAt { get; set; }
     public DateTime? ScheduledAt { get; set; }

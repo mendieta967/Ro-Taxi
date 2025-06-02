@@ -12,9 +12,9 @@ public class PaymentMethod
     public int Id { get; set; } 
     public int UserId { get; set; }
     public User User { get; set; }
-    public PaymentType Type { get; set; } 
-    public string Provider { get; set; }   
-    public string MaskedNumber { get; set; }
+    public PaymentType CardType { get; set; } 
+    public string ProviderToken { get; set; }   
+    public string Last4Digits { get; set; }
     public DateTime ExpirationDate { get; set; }
     public string? Token { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -66,6 +66,13 @@ public class RideService: IRideService
             ScheduledAt = request.ScheduledAt
         };
 
+        if (request.PaymentMethodId is not null)
+        {
+            var paymentMethod = await _paymentMethodRepository.GetById(userId, request.PaymentMethodId.Value);
+            if (paymentMethod is null) throw new NotFoundException("payment method not found");
+            ride.PaymentMethodId = request.PaymentMethodId;
+        }
+
         await _rideRepository.Create(ride);
         await _unitOfWork.SaveChangesAsync();
 
@@ -130,12 +137,33 @@ public class RideService: IRideService
     //    }        
     //}
 
+    public async Task Update(int userId, int rideId, RideCreateRequest request)
+    {
+        var ride = await _rideRepository.GetById(rideId);
+        if (ride is null) throw new NotFoundException("Ride not found");
+        if (ride.Status != RideStatus.Pending) throw new Exception("This ride cannot be cancel");
+        if (ride.PassegerId != userId) throw new ForbiddenAccessException("You do not have access to this ride.");
+        ride.OriginAddress = request.OriginAddress;
+        ride.OriginLat = request.OriginLat;
+        ride.OriginLng = request.OriginLng;
+        ride.DestinationAddress = request.DestinationAddress;
+        ride.DestinationLat = request.DestinationLat;
+        ride.DestinationLng = request.DestinationLng;
+        ride.ScheduledAt = request.ScheduledAt;
+
+        if(request.PaymentMethodId is not null)
+        {
+            var paymentMethod = await _paymentMethodRepository.GetById(userId, request.PaymentMethodId.Value);
+            if (paymentMethod is null) throw new NotFoundException("payment method not found");
+            ride.PaymentMethodId = request.PaymentMethodId;
+        }
+        
+        await _unitOfWork.SaveChangesAsync();
+    }
     public async Task Cancel(int userId, int rideId)
     {
         var ride = await _rideRepository.GetById(rideId);
         if (ride is null) throw new NotFoundException("Ride not found");
-         
-
         if (ride.Status != RideStatus.Pending && ride.Status != RideStatus.Accepted)
             throw new Exception("This ride cannot be cancel");
 
