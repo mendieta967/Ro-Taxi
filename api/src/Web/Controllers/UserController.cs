@@ -57,7 +57,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpPatch("/change-password")]
+    [HttpPatch("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePasswordRequest) 
     {
         try
