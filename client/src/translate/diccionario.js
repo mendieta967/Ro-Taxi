@@ -1,5 +1,10 @@
 export const diccionario = {
   es: [
+    { key: "Perfil", value: "Perfil" },
+    { key: "Inicio", value: "Inicio" },
+    { key: "Mis Viajes", value: "Mis Viajes" },
+    { key: "Pagos", value: "Pagos" },
+    { key: "Configuración", value: "Configuración" },
     { key: "Guardar tarjeta", value: "Guardar tarjeta" },
     { key: "Hora", value: "Hora" },
     { key: "Platform Management", value: "Gestión de la Plataforma" },
@@ -306,6 +311,11 @@ export const diccionario = {
     },
   ],
   en: [
+    { key: "Perfil", value: "Profile" },
+    { key: "Inicio", value: "Home" },
+    { key: "Mis Viajes", value: "My Trips" },
+    { key: "Pagos", value: "Payments" },
+    { key: "Configuración", value: "Settings" },
     {
       key: "¿Estás seguro de cancelar el viaje?",
       value: "Are you sure you want to cancel the trip?",

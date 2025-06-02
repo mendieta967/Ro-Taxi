@@ -4,6 +4,7 @@ import MainLayout from "../../components/layout/MainLayout";
 import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
 import { useAuth } from "../../context/auth";
 import { getUser } from "../../services/user";
+import { newPassword } from "../../services/auth";
 import { ThemeContext } from "../../context/ThemeContext";
 import {useTranslate} from '../../hooks/useTranslate'
 
@@ -77,7 +78,6 @@ const PerfilApp = () => {
       name: "currentPassword",
       label: translate("Contraseña Actual"),
       type: "password",
-      value: user?.password,
       placeholder: "********",
       required: true,
       icon: <Lock className="text-zinc-500" size={16} />,
@@ -100,19 +100,39 @@ const PerfilApp = () => {
     },
   ];
 
-  const handlePasswordSubmit = (data, resetForm) => {
+  const handlePasswordSubmit = async (data, resetForm) => {
     if (data.newPassword !== data.confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
     console.log("Datos de seguridad:", data);
+
+    try{
+
+      // El backend espera un objeto ChangePasswordRequest
+    const changePasswordRequest = {
+      oldPassword:  data.currentPassword,
+      newPassword: data.newPassword
+    };
+
+    await newPassword(changePasswordRequest);
+    alert("Contraseña cambiada exitosamente");
     resetForm();
+      
+    }
+    catch(error){
+      console.log("Error al cambiar la contraseña")
+      console.log(error)
+    }
   };
+
+
+
 
   const handleFormSubmit = (data, resetForm) => {
     console.log("Datos del formulario:", data);
-    resetForm();
-  };
+    resetForm()
+  }
 
   return (
     <MainLayout>

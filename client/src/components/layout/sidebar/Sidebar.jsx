@@ -11,54 +11,56 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/auth";
 import { useContext } from "react";
 import { ThemeContext } from "../../../context/ThemeContext";
+import { useTranslate } from "../../../hooks/useTranslate";
 const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
   const {
     user: { role },
   } = useAuth();
   const { theme } = useContext(ThemeContext);
+  const translate = useTranslate();
   const passengerLinks = [
-    { icon: <Home />, label: "Inicio", to: "/app/home" },
-    { icon: <User />, label: "Perfil", to: "/app/perfil" },
+    { icon: <Home />, label: translate("Inicio"), to: "/app/home" },
+    { icon: <User />, label: translate("Perfil"), to: "/app/perfil" },
     {
       icon: <Clock />,
-      label: "Mis Viajes",
+      label: translate("Mis Viajes"),
       to: "/app/mis-viajes",
     },
-    { icon: <CreditCard />, label: "Pagos", to: "/app/pagos" },
+    { icon: <CreditCard />, label: translate("Pagos"), to: "/app/pagos" },
     {
       icon: <Settings />,
-      label: "Configuración",
+      label: translate("Configuración"),
       to: "/app/configuracion",
     },
   ];
   const driverLinks = [
-    { icon: <Home />, label: "Inicio", to: "/app/home" },
-    { icon: <User />, label: "Perfil", to: "/app/perfil" },
+    { icon: <Home />, label: translate("Inicio"), to: "/app/home" },
+    { icon: <User />, label: translate("Perfil"), to: "/app/perfil" },
     {
       icon: <Clock />,
-      label: "Mis Viajes",
+      label: translate("Mis Viajes"),
       to: "/app/mis-viajes",
     },
-    { icon: <CreditCard />, label: "Chat", to: "/app/chat" },
-    { icon: <CreditCard />, label: "Vehiculos", to: "/app/vehiculos" },
+    { icon: <CreditCard />, label: translate("Chat"), to: "/app/chat" },
+    { icon: <CreditCard />, label: translate("Vehiculos"), to: "/app/vehiculos" },
     {
       icon: <Settings />,
-      label: "Configuración",
+      label: translate("Configuración"),
       to: "/app/configuracion",
     },
   ];
   const adminLinks = [
-    { icon: <Home />, label: "Inicio", to: "/app/home" },
-    { icon: <User />, label: "Perfil", to: "/app/perfil" },
+    { icon: <Home />, label: translate("Inicio"), to: "/app/home" },
+    { icon: <User />, label: translate("Perfil"), to: "/app/perfil" },
     {
       icon: <Locate />,
-      label: "Ubicaciones",
+      label: translate("Ubicaciones"),
       to: "/app/ubicaciónes",
     },
 
     {
       icon: <Settings />,
-      label: "Configuración",
+      label: translate("Configuración"),
       to: "/app/configuracion",
     },
   ];
