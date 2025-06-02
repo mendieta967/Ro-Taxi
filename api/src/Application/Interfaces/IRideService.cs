@@ -13,5 +13,6 @@ public interface IRideService
 {
     Task<List<Ride>> GetAll(int userId);
     Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request);
+    Task Update(int userId, int rideId, RideCreateRequest request);
     Task Cancel(int userId, int rideId);
 }

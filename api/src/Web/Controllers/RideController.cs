@@ -60,7 +60,31 @@ namespace Web.Controllers
                 return BadRequest(new {Error =  ex.Message});
             }
         }
-        
+
+        [Authorize]
+        [HttpPut("{rideId}")]
+        public async Task<IActionResult> Update([FromRoute] int rideId, [FromBody] RideCreateRequest rideCreateRequest)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            try
+            {
+                await _rideService.Update(userId, rideId, rideCreateRequest);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
 
         [Authorize]
         [HttpDelete("{rideId}")]
