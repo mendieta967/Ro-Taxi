@@ -77,7 +77,7 @@ const HomePassenger = () => {
                 theme === "dark" ? "text-yellow-500" : "text-gray-900"
               }`}
             >
-              !{translate("Hola")}, {user.userName.split(" ")[0]}!
+              ¡{translate("Hola")}, {user.userName.split(" ")[0]}!
             </h1>
             <p
               className={`text-lg ${

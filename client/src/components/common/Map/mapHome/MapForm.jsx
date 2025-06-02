@@ -90,21 +90,49 @@ const MapForm = ({
   const [selectedCar, setSelectedCar] = useState("estandar");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
 
   const translate = useTranslate();
   const {theme} = useContext(ThemeContext);
 
-  const handlePedirTaxi = async () =>{
-    handleConfirm()
+  const handlePedirTaxi = async () => {
+    // Aquí ya sabemos que los inputs están completos porque el modal solo se muestra si lo están
+    
+    // Primero cerramos el modal actual
     setShowModal(false);
+    
+    // Luego confirmamos el viaje
+    handleConfirm();
+    
+    // Mostrar el modal de solicitud
     setShowRequestModal(true);
-
-    setTimeout(() =>{
+    
+    // Después de 2 segundos, mostrar el modal de confirmación
+    setTimeout(() => {
       setShowRequestModal(false);
       setShowConfirmationModal(true);
+    }, 2000);
+  }
 
-    },2000)
+  const handleCancel = () => {
+    // Mostrar el modal de confirmación de cancelación
+    setShowCancelConfirmation(true);
+  }
+
+  const handleConfirmCancel = () => {
+    // Limpiar los inputs usando el estado directamente
+    inputValues.origin = '';
+    inputValues.destination = '';
+    
+    // Limpiar la consola
+    console.clear();
+    
+    // Cerrar todos los modales
+    setShowCancelConfirmation(false);
+    setShowConfirmationModal(false);
+    setShowRequestModal(false);
+    setShowModal(false);
   }
 
     return (
@@ -174,10 +202,18 @@ const MapForm = ({
         <div className="flex justify-center gap-4 mt-auto">
         
           <button
-            onClick={() => setShowModal(true)}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg transition-colors font-semibold"
+            onClick={() => {
+              if (!inputValues.origin || !inputValues.destination) {
+                alert('Por favor, complete tanto el origen como el destino');
+                return;
+              }
+              setShowModal(true);
+            }}
+            className={`bg-yellow-500 hover:bg-yellow-400 cursor-pointer text-black px-6 py-2 rounded-lg transition-colors font-semibold ${
+              !inputValues.origin || !inputValues.destination ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Confirmar
+            {translate("Confirmar")}
           </button>
         </div>
         {/* Modal Pedir taxi */}
@@ -379,12 +415,50 @@ const MapForm = ({
                 {translate("Contactar")}
               </button>
               <button
-                onClick={() => setShowConfirmationModal(false)}
+                onClick={() => handleCancel()}
                 className="flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer"
               >
-                {translate("Cerrar")}
+                {translate("Cancelar")}
               </button>
             </div>
+
+            {/* Modal de confirmación de cancelación */}
+            {showCancelConfirmation && (
+              <Modal onClose={() => setShowCancelConfirmation(false)}>
+                <h2
+                  className={`${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  } text-xl font-bold`}
+                >
+                  {translate("Confirmar Cancelación")}
+                </h2>
+                <p
+                  className={`${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  } text-sm mb-4`}
+                >
+                  {translate("¿Estás seguro que deseas cancelar tu viaje?")}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowCancelConfirmation(false)}
+                    className={`flex-1 py-2 rounded-lg cursor-pointer ${
+                      theme === "dark"
+                        ? "bg-zinc-800 hover:bg-zinc-700"
+                        : "bg-gray-200 hover:bg-gray-300"
+                    }`}
+                  >
+                    {translate("Cancelar")}
+                  </button>
+                  <button
+                    onClick={handleConfirmCancel}
+                    className={`flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer`}
+                  >
+                    {translate("Confirmar")}
+                  </button>
+                </div>
+              </Modal>
+            )}
 
             <div
               className={`p-3 rounded-lg text-sm ${

@@ -4,6 +4,9 @@ export const getCurrentUser = () => apiClient.get("me");
 export const loginUser = (data) => apiClient.post("login", data);
 export const registerUser = (data) => apiClient.post("register", data);
 export const logoutUser = () => apiClient.post("logout");
+export const newPassword = (data) => apiClient.patch("user/change-password", data);
+
+
 
 export const completeAccount = (data) =>
   apiClient.put("complete-account", data);
