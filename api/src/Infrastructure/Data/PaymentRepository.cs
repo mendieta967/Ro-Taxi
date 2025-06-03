@@ -23,6 +23,11 @@ public class PaymentRepository: IPaymentRepository
         return await _context.Payments.ToListAsync();
     }
 
+    public async Task<Payment?> GetByRideId(int rideId)
+    {
+        return await _context.Payments.FirstOrDefaultAsync(p => p.RideId == rideId);
+    }
+
     public async Task Create(Payment payment)
     {
         await _context.Payments.AddAsync(payment);
