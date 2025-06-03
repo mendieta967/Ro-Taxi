@@ -19,7 +19,7 @@ public class RideRepository : IRideRepository
         _context = context;
     }
 
-    public async Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search)
+    public async Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search, DateOnly? date)
     {
         var query = _context.Rides
             .Include(r => r.Passeger)
@@ -33,6 +33,16 @@ public class RideRepository : IRideRepository
         if(status != null)
             query = query.Where(r => r.Status == status);
 
+        if (date != null)
+        {
+            var start = date.Value.ToDateTime(TimeOnly.MinValue);
+            var end = date.Value.ToDateTime(TimeOnly.MaxValue);
+            query = query.Where(r =>
+                 (r.RequestedAt >= start && r.RequestedAt <= end) ||
+                 (r.ScheduledAt >= start && r.ScheduledAt <= end) ||
+                 (r.StartedAt >= start && r.StartedAt <= end));
+        }
+          
         if(!string.IsNullOrEmpty(search))
             query = query.Where(r => 
                 r.OriginAddress.Contains(search) || 

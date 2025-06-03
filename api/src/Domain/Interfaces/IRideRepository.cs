@@ -11,7 +11,7 @@ namespace Domain.Interfaces;
 
 public interface IRideRepository
 {
-    public Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search);
+    public Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search, DateOnly? date);
     Task<Ride?> GetById(int rideId);
     public Task Create(Ride ride);
     void Update(Ride ride);

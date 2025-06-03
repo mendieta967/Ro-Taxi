@@ -10,4 +10,5 @@ public class RideFilterParams
 {
     public string? Status { get; set; }
     public string? Search { get; set; }
+    public DateOnly? Date {  get; set; }
 }
