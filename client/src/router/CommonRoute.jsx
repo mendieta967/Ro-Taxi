@@ -5,30 +5,33 @@ import HistorialDriver from "../page/driver/historial/HistorialDriver";
 import HomePassenger from "../page/passenger/home/HomePassenger";
 import HomeDriver from "../page/driver/home/HomeDriver";
 import HomeSuperAdmin from "../page/admin/home/HomeSuperAdmin";
-import ChatDriver from "../page/driver/chat/ChatDriver";
+import { UseRole } from "../utils/enuns";
+
 
 export const Home = () => {
   const {
     user: { role },
   } = useAuth();
-  if (role === "Client") return <HomePassenger />;
-  if (role === "Driver") return <HomeDriver />;
-  if (role === "Admin") return <HomeSuperAdmin />;
+  if (role === UseRole.CLIENT) return <HomePassenger />;
+  if (role === UseRole.DRIVER) return <HomeDriver />;
+  if (role === UseRole.ADMIN) return <HomeSuperAdmin />;
 };
 
 export const Perfil = () => {
   const {
     user: { role },
   } = useAuth();
-  if (role === "Client") return <PerfilApp />;
-  if (role === "Driver") return <PerfilApp />;
-  if (role === "Admin") return <PerfilApp />;
+  if (role === UseRole.CLIENT) return <PerfilApp />;
+  if (role === UseRole.DRIVER) return <PerfilApp />;
+  if (role === UseRole.ADMIN) return <PerfilApp />;
 };
 
 export const Historial = () => {
   const {
     user: { role },
   } = useAuth();
-  if (role === "Client") return <HistorialPassenger />;
-  if (role === "Driver") return <HistorialDriver />;
+  if (role === UseRole.CLIENT) return <HistorialPassenger />;
+  if (role === UseRole.DRIVER) return <HistorialDriver />;
 };
+
+

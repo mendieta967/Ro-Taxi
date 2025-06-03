@@ -190,7 +190,7 @@ export const diccionario = {
     { key: "Salir", value: "Salir" },
     { key: "Ruta", value: "Ruta" },
     { key: "Duración", value: "Duración" },
-    { key: "Todos", value: "All" },
+    { key: "Todos", value: "Todos" },
     {
       key: "Buscar por dirección o fecha",
       value: "Buscar por dirección o fecha",
