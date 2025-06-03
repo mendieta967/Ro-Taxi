@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Models;
+using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
@@ -31,21 +32,25 @@ public class RideService : IRideService
         _paymentMethodRepository = paymentMethodRepository;
     }
     
-    public async Task<List<Ride>> GetAll(int userId)
+    public async Task<PaginatedList<Ride>> GetAll(int userId, PaginationParams pagination, RideFilterParams filter)
     {
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
 
-        if (user.Role == UserRole.Client)
+        RideStatus? status = null;
+        if (!string.IsNullOrEmpty(filter.Status))
         {
-            return await _rideRepository.GetAllByPasseger(userId);
-        }
-        else if (user.Role == UserRole.Driver)
-        {
-            return await _rideRepository.GetAllByDriver(userId);
+            if (!Enum.TryParse<RideStatus>(filter.Status, true, out var parsedStatus))
+                throw new Exception("Invalid role filter.");
+            status = parsedStatus;
         }
 
-        return await _rideRepository.GetAll();
+        if (user.Role == UserRole.Admin)
+        {
+            return await _rideRepository.GetAll(null, pagination.Page, pagination.PageSize, status, filter.Search);
+        }
+
+        return await _rideRepository.GetAll(userId, pagination.Page, pagination.PageSize, status, filter.Search);
     }
     public async Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request)
     {

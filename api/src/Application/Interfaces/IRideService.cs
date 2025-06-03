@@ -1,4 +1,6 @@
-﻿using Application.Models.Requests;
+﻿using Application.Models;
+using Application.Models.Parameters;
+using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
 using System;
@@ -11,7 +13,7 @@ namespace Application.Interfaces;
 
 public interface IRideService
 {
-    Task<List<Ride>> GetAll(int userId);
+    Task<PaginatedList<Ride>> GetAll(int userId, PaginationParams pagination, RideFilterParams filter);
     Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request);
     Task Update(int userId, int rideId, RideUpdateRequest request);
     Task Cancel(int userId, int rideId);

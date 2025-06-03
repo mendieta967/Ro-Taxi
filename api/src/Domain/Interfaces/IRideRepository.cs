@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Models;
+using Domain.Entities;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,7 @@ namespace Domain.Interfaces;
 
 public interface IRideRepository
 {
-    public Task<List<Ride>> GetAll();
-    public Task<List<Ride>> GetAllByPasseger(int id);
-    public Task<List<Ride>> GetAllByDriver(int id);
+    public Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search);
     Task<Ride?> GetById(int rideId);
     public Task Create(Ride ride);
     void Update(Ride ride);

@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
@@ -26,13 +27,15 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<Task<List<Ride>>>> GetAll()
+        public async Task<ActionResult<Task<List<Ride>>>> GetAll(
+            [FromQuery] PaginationParams pagination, 
+            [FromQuery] RideFilterParams filter)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             try
             {
-                var rides = await _rideService.GetAll(userId);
+                var rides = await _rideService.GetAll(userId, pagination, filter);
                 return Ok(rides);
             }
             catch (Exception ex) 
