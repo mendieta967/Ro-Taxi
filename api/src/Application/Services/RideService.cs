@@ -47,10 +47,10 @@ public class RideService : IRideService
 
         if (user.Role == UserRole.Admin)
         {
-            return await _rideRepository.GetAll(null, pagination.Page, pagination.PageSize, status, filter.Search);
+            return await _rideRepository.GetAll(null, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date);
         }
 
-        return await _rideRepository.GetAll(userId, pagination.Page, pagination.PageSize, status, filter.Search);
+        return await _rideRepository.GetAll(userId, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date);
     }
     public async Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request)
     {
