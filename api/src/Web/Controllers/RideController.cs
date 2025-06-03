@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
@@ -26,13 +27,15 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<Task<List<Ride>>>> GetAll()
+        public async Task<ActionResult<Task<List<Ride>>>> GetAll(
+            [FromQuery] PaginationParams pagination, 
+            [FromQuery] RideFilterParams filter)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             try
             {
-                var rides = await _rideService.GetAll(userId);
+                var rides = await _rideService.GetAll(userId, pagination, filter);
                 return Ok(rides);
             }
             catch (Exception ex) 
@@ -62,13 +65,13 @@ namespace Web.Controllers
         }
 
         [Authorize]
-        [HttpPut("{rideId}")]
-        public async Task<IActionResult> Update([FromRoute] int rideId, [FromBody] RideCreateRequest rideCreateRequest)
+        [HttpPatch("{rideId}")]
+        public async Task<IActionResult> Update([FromRoute] int rideId, [FromBody] RideUpdateRequest rideUpdateRequest)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             try
             {
-                await _rideService.Update(userId, rideId, rideCreateRequest);
+                await _rideService.Update(userId, rideId, rideUpdateRequest);
                 return NoContent();
             }
             catch (NotFoundException ex)
@@ -109,5 +112,12 @@ namespace Web.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpPost("calculate-price")]
+        public ActionResult<decimal> CalculatePrice([FromBody] CalculatePriceRequest calculatePriceRequest)
+        {
+            return Ok(new { EstimatedPrice = _rideService.CalculatePrice(calculatePriceRequest) });
+        }
+
     }
 }

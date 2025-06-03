@@ -10,6 +10,7 @@ namespace Domain.Interfaces;
 public interface IPaymentRepository
 {
     Task<List<Payment>> GetAll();
+    Task<Payment?> GetByRideId(int rideId);
     Task Create(Payment payment);
     void Update(Payment payment);
 }
