@@ -59,6 +59,7 @@ function SetViewOnClick({ coords }) {
 
 const MapView = ({ cancel }) => {
   const [position, setPosition] = useState(null);
+  const [metodoPago, setMetodoPago] = useState(null);
   const [origin, setOrigin] = useState(null);
   const [destination, setDestination] = useState(null);
   const [inputValues, setInputValues] = useState({
@@ -232,7 +233,7 @@ const MapView = ({ cancel }) => {
     getRoute();
   }, [origin, destination]);
 
-  const handleScheduleRide = async () =>{
+  const handleScheduleRide = async (metodoPagoSeleccionado) =>{
     try {
       if (!origin || !destination) {
         alert("Por favor, seleccione origen y destino");
@@ -251,12 +252,13 @@ const MapView = ({ cancel }) => {
         destinationAddress: inputValues.destination,
         destinationLat: destination.lat,
         destinationLng: destination.lng,
-        scheduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z"  // Combina fecha y hora
+        scheduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z",  // Combina fecha y hora
+        metodoPago: metodoPagoSeleccionado,
       };
-
       await createRide(rideData);
       console.log("Viaje programado exitosamente!", rideData);
       alert("Viaje programado exitosamente!");
+      window.location.reload();
     } catch (error) {
       console.error("Error al programar viaje:", error);
       alert("Error al programar viaje. Por favor, inténtelo de nuevo.");
@@ -277,6 +279,8 @@ const MapView = ({ cancel }) => {
         searchResults={searchResults}
         handleScheduleRide={handleScheduleRide}
         currentLocation={currentLocation}
+        metodoPago={metodoPago}
+        setMetodoPago={setMetodoPago}
         cancel={cancel}
       />
 

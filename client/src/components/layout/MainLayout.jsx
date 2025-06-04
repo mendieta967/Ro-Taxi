@@ -6,7 +6,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 const MainLayout = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-const { theme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -22,7 +22,11 @@ const { theme } = useContext(ThemeContext);
   };
 
   return (
-    <div className={`h-screen flex bg-background overflow-hidden relative bg-gradient-to-b ${theme === 'dark' ? 'from-gray-900 to-gray-800' : 'bg-white'} `}>
+    <div
+      className={`h-screen flex  overflow-hidden relative bg-gradient-to-b ${
+        theme === "dark" ? "from-gray-900 to-gray-800" : "bg-white"
+      } `}
+    >
       <Sidebar
         isMobile={isMobile}
         isOpen={isSidebarOpen}
@@ -30,7 +34,7 @@ const { theme } = useContext(ThemeContext);
       />
       <div className="flex-1 flex flex-col">
         <Navbar isMobile={isMobile} />
-        <main className="flex-1 p-4 md:p-6 bg-background overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6  overflow-y-auto">
           <div className="max-w-7xl mx-auto animate-fade-in">{children}</div>
         </main>
       </div>

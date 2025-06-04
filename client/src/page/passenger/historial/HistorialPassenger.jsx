@@ -3,10 +3,11 @@ import { Clock, MapPin, Navigation, Search } from "lucide-react";
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
-import { trips as initialTrips } from "../../../data/data";
+import { trips } from "../../../data/data";
 import MapView from "../../../components/common/Map/MapView";
 import { getRides } from "../../../services/ride";
 import { deleteRide } from "../../../services/ride";
+import { editRide } from "../../../services/ride";
 import Modal from "../../../components/ui/Modal";
 
 const HistorialPassenger = () => {
@@ -17,26 +18,27 @@ const HistorialPassenger = () => {
   const [ratings, setRatings] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(null);
-  const [editingData, setEditingData] = useState({ from: "", to: "" });
   const [showDetails, setShowDetails] = useState(null);
-  const [trips, setTrips] = useState(initialTrips);
   const [scheduledTrips, setScheduledTrips] = useState([]); //viajes programados
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [abrirModal, setAbrirModal] = useState(false);
-  const [newTrip, setNewTrip] = useState({
+
+  const [editingData, setEditingData] = useState({
     from: "",
     to: "",
     date: "",
     time: "",
+    metodoPago: "",
   });
 
+  //mostramos los viajes programados
   useEffect(() => {
     const fetchRides = async () => {
       try {
         const response = await getRides();
         console.log("Response:", response); // Ver la estructura real de la respuesta
         // Verificar si la respuesta tiene datos y es un array "Pending"
-        const scheduledTrips = response.filter(
+        const scheduledTrips = response.data.filter(
           (ride) => ride?.status === "Pending"
         );
         setScheduledTrips(scheduledTrips);
@@ -47,24 +49,15 @@ const HistorialPassenger = () => {
     };
     fetchRides();
   }, []);
+
   //filtrado de los viajes programados
   const filteredScheduledTrips = scheduledTrips.filter((trip) =>
-    `${trip.originAddress} ${trip.destinationAddress} ${trip.scheduledAt}`
+    `${trip.originAddress} ${trip.destinationAddress} ${trip.scheduledAt} ${trip.payment} ${trip.estimatedPrice}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  const filteredTrips = trips.filter((trip) =>
-    `${trip.from} ${trip.to} ${trip.date} ${trip.driver}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
-
-  const handleEdit = (trip) => {
-    setIsEditing(trip.id);
-    setEditingData({ from: trip.from, to: trip.to });
-  };
-
+  //elimino los viajes programados terminado
   const handleDelete = async (riderId) => {
     try {
       console.log("Deleting ride with ID:", riderId);
@@ -72,7 +65,7 @@ const HistorialPassenger = () => {
 
       const response = await getRides();
       console.log("Response:", response); // Ver la estructura real de la respuesta
-      const newScheduledTrips = response.filter(
+      const newScheduledTrips = response.data.filter(
         (ride) => ride?.status === "Pending"
       );
       setScheduledTrips(newScheduledTrips);
@@ -83,45 +76,72 @@ const HistorialPassenger = () => {
     }
   };
 
-  const handleSave = (id) => {
-    const tripToUpdate = trips.find((trip) => trip.id === id);
+  //filtrado de los viajes completados
+  const filteredTrips = trips.filter((trip) =>
+    `${trip.from} ${trip.to} ${trip.date} ${trip.driver}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
-    if (tripToUpdate) {
-      const updatedTrips = trips.map((trip) =>
-        trip.id === id
-          ? { ...trip, from: editingData.from, to: editingData.to }
-          : trip
-      );
-      setTrips(updatedTrips);
+  //editamos los viajes programados
+  const handleEdit = (riderId) => {
+    const editeRide = scheduledTrips.find((trip) => trip.id === riderId);
+
+    if (editeRide) {
+      //perseamos la fecha y hora
+      const fechaHora = new Date(editeRide.scheduledAt);
+      const formattedDate = fechaHora.toISOString().split("T")[0]; // "2025-06-03"
+      const formattedTime = fechaHora.toTimeString().slice(0, 5); // "14:30"
+      console.log(formattedDate);
+      console.log(formattedTime);
+
+      setEditingData({
+        id: editeRide.id,
+        from: editeRide.originAddress,
+        to: editeRide.destinationAddress,
+        date: formattedDate,
+        time: formattedTime,
+      });
+      setIsEditing(true);
     } else {
-      const updatedScheduledTrips = scheduledTrips.map((trip) =>
-        trip.id === id
-          ? { ...trip, from: editingData.from, to: editingData.to }
-          : trip
-      );
-      setScheduledTrips(updatedScheduledTrips);
+      console.log("No se encontro el viaje");
+    }
+  };
+
+  //guardamos los viajes programados
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    if (!editingData) {
+      console.warn("No hay datos para editar");
+      return;
     }
 
-    setIsEditing(null);
+    try {
+      const updatedRide = {
+        id: editingData.id,
+        originAddress: editingData.from,
+        destinationAddress: editingData.to,
+        scheduledAt: `${editingData.date}T${editingData.time}:00`,
+      };
+
+      await editRide(editingData.id, updatedRide);
+
+      // Actualizá el estado local
+      setScheduledTrips((prevTrips) =>
+        prevTrips.map((trip) =>
+          trip.id === editingData.id ? { ...trip, ...updatedRide } : trip
+        )
+      );
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error(`Error updating ride with ID ${editingData.id}:`, error);
+    }
   };
 
   const handleDetails = (trip) => {
     setShowDetails(trip);
-  };
-
-  const handleScheduleTrip = () => {
-    const newScheduledTrip = {
-      id: scheduledTrips.length + 1,
-      from: newTrip.from,
-      to: newTrip.to,
-      date: `${newTrip.date} ${newTrip.time}`,
-      price: "$50.00", // Example price
-      status: "programados",
-    };
-
-    setScheduledTrips([...scheduledTrips, newScheduledTrip]);
-    setNewTrip({ from: "", to: "", date: "", time: "" });
-    setShowScheduleModal(false);
   };
 
   return (
@@ -223,7 +243,7 @@ const HistorialPassenger = () => {
                       {translate("Tu próximo viaje")}
                     </p>
                     <div
-                      className={`flex items-center gap-2 text-sm ${
+                      className={`flex items-center mt-2 gap-2 text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
@@ -243,7 +263,7 @@ const HistorialPassenger = () => {
                       {trip.originAddress}
                     </div>
                     <div
-                      className={`flex items-center gap-2 text-sm ${
+                      className={`flex items-center mt-5 gap-2 text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
@@ -262,16 +282,33 @@ const HistorialPassenger = () => {
                       </span>
                       {trip.destinationAddress}
                     </div>
+
                     <p
                       className={`font-semibold mt-4 ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      {translate("Fecha")}:{" "}
-                      {new Date(trip.scheduledAt).toLocaleDateString()}
+                      {translate("Metodo de pago")}:
+                    </p>
+                    <p
+                      className={`font-semibold mt-4 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Tarifa")}:
                     </p>
                   </div>
                   <div className="flex flex-col items-end">
+                    <div className="mb-3">
+                      <p
+                        className={`font-semibold mt-4 ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-900"
+                        }`}
+                      >
+                        {translate("Fecha")}:{" "}
+                        {new Date(trip.scheduledAt).toLocaleDateString()}
+                      </p>
+                    </div>
                     <div
                       className={`flex items-center gap-1 text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
@@ -290,7 +327,7 @@ const HistorialPassenger = () => {
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
                   <button
-                    onClick={() => handleEdit(trip)}
+                    onClick={() => handleEdit(trip.id)}
                     className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded transition-colors duration-200 cursor-pointer"
                   >
                     {translate("Editar")}
@@ -355,9 +392,7 @@ const HistorialPassenger = () => {
                     className={`font-semibold ${
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
-                  >
-                    {trip.price}
-                  </span>
+                  ></span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin
@@ -437,136 +472,13 @@ const HistorialPassenger = () => {
                 </div>
               </div>
             ))}
-          {/* Schedule Trip Modal 
-          {showScheduleModal && (
-            {<div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
-              <div
-                className={`p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
-                  theme === "dark" ? "bg-zinc-800" : "bg-white"
-                }`}
-              >
-                <h3
-                  className={` text-center text-lg font-bold ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-900"
-                  }`}
-                >
-                  {translate("Programar Nuevo Viaje")}
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <label
-                      htmlFor="origin"
-                      className={`font-semibold text-sm  mb-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Origen")}
-                    </label>
-                    <input
-                      id="origin"
-                      type="text"
-                      value={newTrip.from}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, from: e.target.value })
-                      }
-                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-                        theme === "dark"
-                          ? "bg-zinc-800 text-white border border-zinc-700 "
-                          : "bg-white text-zinc-900 border border-yellow-500"
-                      }`}
-                      placeholder="Ciudad de origen"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="destination"
-                      className={`font-semibold text-sm  mb-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Destino")}
-                    </label>
-                    <input
-                      id="destination"
-                      type="text"
-                      value={newTrip.to}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, to: e.target.value })
-                      }
-                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-                        theme === "dark"
-                          ? "bg-zinc-800 text-white border border-zinc-700 "
-                          : "bg-white text-zinc-900 border border-yellow-500"
-                      }`}
-                      placeholder="Ciudad de destino"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="date"
-                      className={`font-semibold text-sm  mb-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Fecha")}
-                    </label>
-                    <input
-                      id="date"
-                      type="date"
-                      value={newTrip.date}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, date: e.target.value })
-                      }
-                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
-                        theme === "dark"
-                          ? "bg-zinc-800 text-white border border-zinc-700 "
-                          : "bg-white text-zinc-900 border border-yellow-500"
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="time"
-                      className={`font-semibold text-sm  mb-1 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Hora")}
-                    </label>
-                    <input
-                      id="time"
-                      type="time"
-                      value={newTrip.time}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, time: e.target.value })
-                      }
-                      className={`w-full p-2   rounded border focus:outline-none focus:border-yellow-500 transition-colors ${
-                        theme === "dark"
-                          ? "bg-zinc-800 text-white border-zinc-700 "
-                          : "bg-white text-zinc-900 border-yellow-500"
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-4 pt-2">
-                  <button
-                    onClick={() => setShowScheduleModal(false)}
-                    className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
-                  >
-                    {translate("Cancelar")}
-                  </button>
-                  <button
-                    onClick={handleScheduleTrip}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
-                  >
-                    {translate("Programar")}
-                  </button>
-                </div>
-              </div>*/}
 
           {/* Modal Edit Form */}
           {isEditing && (
-            <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
+            <form
+              onSubmit={handleSave}
+              className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm"
+            >
               <div
                 className={` p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
                   theme === "dark"
@@ -593,11 +505,14 @@ const HistorialPassenger = () => {
                     </label>
                     <input
                       id="origin"
-                      type="text"
                       value={editingData.from}
                       onChange={(e) =>
-                        setEditingData({ ...editingData, from: e.target.value })
+                        setEditingData({
+                          ...editingData,
+                          from: e.target.value,
+                        })
                       }
+                      type="text"
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
                         theme === "dark"
                           ? "bg-zinc-800 text-white border border-zinc-700 "
@@ -617,12 +532,15 @@ const HistorialPassenger = () => {
                     </label>
                     <input
                       id="destination"
-                      type="text"
                       value={editingData.to}
                       onChange={(e) =>
-                        setEditingData({ ...editingData, to: e.target.value })
+                        setEditingData({
+                          ...editingData,
+                          to: e.target.value,
+                        })
                       }
-                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                      type="text"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-yellow-500 transition-colors ${
                         theme === "dark"
                           ? "bg-zinc-800 text-white border border-zinc-700 "
                           : "bg-white text-zinc-900 border border-yellow-500"
@@ -630,23 +548,98 @@ const HistorialPassenger = () => {
                       placeholder={translate("Destino")}
                     />
                   </div>
+                  <div>
+                    <label
+                      htmlFor="date"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Fecha")}
+                    </label>
+                    <input
+                      id="date"
+                      value={editingData.date}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          date: e.target.value,
+                        })
+                      }
+                      type="date"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder={translate("Fecha")}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="time"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Hora")}
+                    </label>
+                    <input
+                      id="time"
+                      value={editingData.time}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          time: e.target.value,
+                        })
+                      }
+                      type="time"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder={translate("Hora")}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="metodoPago"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Metodo de Pago")}
+                    </label>
+                    <select
+                      id="metodoPago"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                    >
+                      <option value="">
+                        {translate("Seleccionar metodo de pago")}
+                      </option>
+                      <option value="efectivo">{translate("Efectivo")}</option>
+                      <option value="tarjeta">{translate("Tarjeta")}</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="flex justify-end gap-4 pt-2">
                   <button
-                    onClick={() => setIsEditing(null)}
+                    onClick={() => setIsEditing(false)}
                     className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
                   >
                     {translate("Cancelar")}
                   </button>
-                  <button
-                    onClick={() => handleSave(isEditing)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
-                  >
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors duration-200 cursor-pointer">
                     {translate("Guardar")}
                   </button>
                 </div>
               </div>
-            </div>
+            </form>
           )}
           {/* Modal Trip Details */}
           {showDetails && (
