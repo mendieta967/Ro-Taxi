@@ -38,7 +38,7 @@ const HistorialPassenger = () => {
         const response = await getRides();
         console.log("Response:", response); // Ver la estructura real de la respuesta
         // Verificar si la respuesta tiene datos y es un array "Pending"
-        const scheduledTrips = response.filter(
+        const scheduledTrips = response.data.filter(
           (ride) => ride?.status === "Pending"
         );
         setScheduledTrips(scheduledTrips);
@@ -65,7 +65,7 @@ const HistorialPassenger = () => {
 
       const response = await getRides();
       console.log("Response:", response); // Ver la estructura real de la respuesta
-      const newScheduledTrips = response.filter(
+      const newScheduledTrips = response.data.filter(
         (ride) => ride?.status === "Pending"
       );
       setScheduledTrips(newScheduledTrips);
@@ -85,11 +85,60 @@ const HistorialPassenger = () => {
 
   //editamos los viajes programados
   const handleEdit = (riderId) => {
-    setIsEditing(true);
+    const editeRide = scheduledTrips.find((trip) => trip.id === riderId);
+
+    if (editeRide) {
+      //perseamos la fecha y hora
+      const fechaHora = new Date(editeRide.scheduledAt);
+      const formattedDate = fechaHora.toISOString().split("T")[0]; // "2025-06-03"
+      const formattedTime = fechaHora.toTimeString().slice(0, 5); // "14:30"
+      console.log(formattedDate);
+      console.log(formattedTime);
+
+      setEditingData({
+        id: editeRide.id,
+        from: editeRide.originAddress,
+        to: editeRide.destinationAddress,
+        date: formattedDate,
+        time: formattedTime,
+      });
+      setIsEditing(true);
+    } else {
+      console.log("No se encontro el viaje");
+    }
   };
 
   //guardamos los viajes programados
-  const handleSave = async () => {};
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    if (!editingData) {
+      console.warn("No hay datos para editar");
+      return;
+    }
+
+    try {
+      const updatedRide = {
+        id: editingData.id,
+        originAddress: editingData.from,
+        destinationAddress: editingData.to,
+        scheduledAt: `${editingData.date}T${editingData.time}:00`,
+      };
+
+      await editRide(editingData.id, updatedRide);
+
+      // Actualizá el estado local
+      setScheduledTrips((prevTrips) =>
+        prevTrips.map((trip) =>
+          trip.id === editingData.id ? { ...trip, ...updatedRide } : trip
+        )
+      );
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error(`Error updating ride with ID ${editingData.id}:`, error);
+    }
+  };
 
   const handleDetails = (trip) => {
     setShowDetails(trip);
@@ -233,30 +282,33 @@ const HistorialPassenger = () => {
                       </span>
                       {trip.destinationAddress}
                     </div>
+
                     <p
                       className={`font-semibold mt-4 ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      {translate("Fecha")}:{" "}
-                      {new Date(trip.scheduledAt).toLocaleDateString()}
+                      {translate("Metodo de pago")}:
                     </p>
                     <p
                       className={`font-semibold mt-4 ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      {translate("Metodo de pago")}: {trip.payment}
-                    </p>
-                    <p
-                      className={`font-semibold mt-4 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Tarifa")}: {trip.estimatedPrice}
+                      {translate("Tarifa")}:
                     </p>
                   </div>
                   <div className="flex flex-col items-end">
+                    <div className="mb-3">
+                      <p
+                        className={`font-semibold mt-4 ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-900"
+                        }`}
+                      >
+                        {translate("Fecha")}:{" "}
+                        {new Date(trip.scheduledAt).toLocaleDateString()}
+                      </p>
+                    </div>
                     <div
                       className={`flex items-center gap-1 text-sm ${
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
@@ -340,9 +392,7 @@ const HistorialPassenger = () => {
                     className={`font-semibold ${
                       theme === "dark" ? "text-gray-400" : "text-gray-900"
                     }`}
-                  >
-                    {trip.price}
-                  </span>
+                  ></span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin
@@ -425,7 +475,10 @@ const HistorialPassenger = () => {
 
           {/* Modal Edit Form */}
           {isEditing && (
-            <form className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
+            <form
+              onSubmit={handleSave}
+              className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm"
+            >
               <div
                 className={` p-6 rounded-md space-y-4 shadow-xl max-w-md w-full mx-4 ${
                   theme === "dark"
@@ -452,6 +505,13 @@ const HistorialPassenger = () => {
                     </label>
                     <input
                       id="origin"
+                      value={editingData.from}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          from: e.target.value,
+                        })
+                      }
                       type="text"
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
                         theme === "dark"
@@ -472,6 +532,13 @@ const HistorialPassenger = () => {
                     </label>
                     <input
                       id="destination"
+                      value={editingData.to}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          to: e.target.value,
+                        })
+                      }
                       type="text"
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-yellow-500 transition-colors ${
                         theme === "dark"
@@ -482,7 +549,66 @@ const HistorialPassenger = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="metodoPago">
+                    <label
+                      htmlFor="date"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Fecha")}
+                    </label>
+                    <input
+                      id="date"
+                      value={editingData.date}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          date: e.target.value,
+                        })
+                      }
+                      type="date"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder={translate("Fecha")}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="time"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Hora")}
+                    </label>
+                    <input
+                      id="time"
+                      value={editingData.time}
+                      onChange={(e) =>
+                        setEditingData({
+                          ...editingData,
+                          time: e.target.value,
+                        })
+                      }
+                      type="time"
+                      className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
+                        theme === "dark"
+                          ? "bg-zinc-800 text-white border border-zinc-700 "
+                          : "bg-white text-zinc-900 border border-yellow-500"
+                      }`}
+                      placeholder={translate("Hora")}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="metodoPago"
+                      className={`font-semibold text-sm mb-2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
                       {translate("Metodo de Pago")}
                     </label>
                     <select
@@ -503,7 +629,7 @@ const HistorialPassenger = () => {
                 </div>
                 <div className="flex justify-end gap-4 pt-2">
                   <button
-                    onClick={() => setIsEditing(null)}
+                    onClick={() => setIsEditing(false)}
                     className="bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded transition-colors duration-200 cursor-pointer"
                   >
                     {translate("Cancelar")}
