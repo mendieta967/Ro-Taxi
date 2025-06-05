@@ -11,7 +11,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { createRide } from "../../../services/ride";
 
-
 // Iconos personalizados para origen y destino
 const originIcon = new L.Icon({
   iconUrl:
@@ -40,6 +39,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import MapPanel from "./MapPanel";
 import Loader from "../Loader";
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -59,7 +59,6 @@ function SetViewOnClick({ coords }) {
 
 const MapView = ({ cancel }) => {
   const [position, setPosition] = useState(null);
-  const [metodoPago, setMetodoPago] = useState(null);
   const [origin, setOrigin] = useState(null);
   const [destination, setDestination] = useState(null);
   const [inputValues, setInputValues] = useState({
@@ -233,7 +232,7 @@ const MapView = ({ cancel }) => {
     getRoute();
   }, [origin, destination]);
 
-  const handleScheduleRide = async (metodoPagoSeleccionado) =>{
+  const handleScheduleRide = async () => {
     try {
       if (!origin || !destination) {
         alert("Por favor, seleccione origen y destino");
@@ -252,8 +251,7 @@ const MapView = ({ cancel }) => {
         destinationAddress: inputValues.destination,
         destinationLat: destination.lat,
         destinationLng: destination.lng,
-        scheduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z",  // Combina fecha y hora
-        metodoPago: metodoPagoSeleccionado,
+        scheduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z", // Combina fecha y hora
       };
       await createRide(rideData);
       console.log("Viaje programado exitosamente!", rideData);
@@ -279,8 +277,6 @@ const MapView = ({ cancel }) => {
         searchResults={searchResults}
         handleScheduleRide={handleScheduleRide}
         currentLocation={currentLocation}
-        metodoPago={metodoPago}
-        setMetodoPago={setMetodoPago}
         cancel={cancel}
       />
 

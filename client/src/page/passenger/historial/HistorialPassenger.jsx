@@ -295,7 +295,7 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      {translate("Tarifa")}:
+                      {translate("Tarifa")}: {trip.estimatedPrice}
                     </p>
                   </div>
                   <div className="flex flex-col items-end">

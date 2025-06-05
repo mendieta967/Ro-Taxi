@@ -6,20 +6,24 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import {
   generarResumenViaje,
   imprimirResumen,
-} from "../../../components/ui/printUtils";
+} from "../../../components/ui/PrintUtils";
 import { dataAdmin } from "../../../data/data";
 import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
+import { getAll } from "../../../services/user";
 import Form from "../../../components/common/Form";
 
 const HomeSuperAdmin = () => {
+  const [usuarios, setUsuarios] = useState([]);
+  const [conductores, setConductores] = useState([]);
+  const [pasajeros, setPasajeros] = useState([]);
+
   const [activeTab, setActiveTab] = useState("usuarios");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [showModalConductor, setShowModalConductor] = useState(false);
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
-  const [conductores, setConductores] = useState(dataAdmin.conductores);
   const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
@@ -34,10 +38,81 @@ const HomeSuperAdmin = () => {
   let displayedData = [];
   let headers = [];
 
-  if (activeTab === "usuarios") {
-    displayedData = [...conductores, ...dataAdmin.pasajeros];
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await getAll();
+        console.log("=== DEBUGGING RESPONSE ===");
+        console.log("Full response:", response);
+        console.log("Response data:", response.data);
 
-    headers = [ 
+        if (response?.data) {
+          // Primero veamos los datos raw
+          console.log("Raw users data:", response.data);
+
+          // Veamos los roles únicos que tenemos
+          const uniqueRoles = [
+            ...new Set(response.data.map((user) => user.role)),
+          ];
+          console.log("Unique roles found:", uniqueRoles);
+
+          const formattedUsuarios = response.data.map((user) => {
+            console.log("Processing user:", user);
+            return {
+              id: user.id,
+              nombre: user.name,
+              email: user.email,
+              dni: user.dni,
+              rol: user.role, // Mantener el rol original
+              estado: user.accountStatus,
+              fechaCreated: new Date(user.createdAt).toLocaleDateString(
+                "es-AR"
+              ),
+            };
+          });
+
+          console.log("Formatted usuarios:", formattedUsuarios);
+
+          // Separar por roles con debugging
+          const conductoresData = formattedUsuarios.filter((u) => {
+            console.log(
+              `Checking user ${u.nombre} with role ${u.rol} - is Driver?`,
+              u.rol === "Driver"
+            );
+            return u.rol === "Driver";
+          });
+
+          const pasajerosData = formattedUsuarios.filter((u) => {
+            console.log(
+              `Checking user ${u.nombre} with role ${u.rol} - is Client?`,
+              u.rol === "Client"
+            );
+            return u.rol === "Client";
+          });
+
+          console.log("=== FINAL RESULTS ===");
+          console.log("Conductores (Drivers):", conductoresData);
+          console.log("Pasajeros (Clients):", pasajerosData);
+          console.log("Total usuarios:", formattedUsuarios);
+
+          setConductores(conductoresData);
+          setPasajeros(pasajerosData);
+          setUsuarios(formattedUsuarios);
+        } else {
+          console.log("No data in response");
+        }
+      } catch (error) {
+        console.error("Error al obtener usuarios:", error);
+      }
+    };
+
+    fetchUsuarios();
+  }, []);
+
+  // Configurar datos y headers según la pestaña activa
+  if (activeTab === "usuarios") {
+    displayedData = usuarios;
+    headers = [
       translate("id"),
       translate("Nombre"),
       translate("Email"),
@@ -47,7 +122,7 @@ const HomeSuperAdmin = () => {
       translate("Fecha registro"),
     ];
   } else if (activeTab === "conductores") {
-    displayedData = conductores.filter((u) => u.rol === "Conductor");
+    displayedData = conductores;
     headers = [
       translate("id"),
       translate("Nombre"),
@@ -57,13 +132,12 @@ const HomeSuperAdmin = () => {
       translate("Acciones"),
     ];
   } else if (activeTab === "pasajeros") {
-    displayedData = dataAdmin.pasajeros.filter((u) => u.rol === "Pasajero");
+    displayedData = pasajeros;
     headers = [
       translate("id"),
       translate("Nombre"),
       translate("DNI"),
       translate("Email"),
-      translate("Dirección"),
       translate("Estado"),
       translate("Acciones"),
     ];
@@ -100,17 +174,20 @@ const HomeSuperAdmin = () => {
     if (["usuarios", "conductores", "pasajeros"].includes(activeTab)) {
       return (
         item.dni?.toLowerCase().includes(searchTerm) ||
-        item.nombre?.toLowerCase().includes(searchTerm)
+        item.nombre?.toLowerCase().includes(searchTerm) ||
+        item.email?.toLowerCase().includes(searchTerm)
       );
     } else if (activeTab === "vehiculos") {
       return (
         item.patente?.toLowerCase().includes(searchTerm) ||
-        item.marca?.toLowerCase().includes(searchTerm)
+        item.marca?.toLowerCase().includes(searchTerm) ||
+        item.modelo?.toLowerCase().includes(searchTerm)
       );
     } else if (activeTab === "viajes") {
       return (
         item.fecha?.toLowerCase().includes(searchTerm) ||
-        item.origen?.toLowerCase().includes(searchTerm)
+        item.origen?.toLowerCase().includes(searchTerm) ||
+        item.destino?.toLowerCase().includes(searchTerm)
       );
     }
     return false;
@@ -120,6 +197,9 @@ const HomeSuperAdmin = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const totalPages = Math.ceil(filteredData.length / usersPerPage);
   const currentData = filteredData.slice(indexOfFirstUser, indexOfLastUser);
+
+  console.log("CurrentData:", currentData);
+  console.log("CurrentData length:", currentData.length);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -138,6 +218,7 @@ const HomeSuperAdmin = () => {
   const handleClickVehiculo = () => {
     setShowModalVehiculo(true);
   };
+
   const conductorFields = [
     {
       name: "name",
@@ -185,6 +266,7 @@ const HomeSuperAdmin = () => {
       ],
     },
   ];
+
   const vehiculoFields = [
     {
       name: "marca",
@@ -240,22 +322,24 @@ const HomeSuperAdmin = () => {
     const newConductor = {
       ...data,
       nombre: data.name,
-      id: conductores.length + 1, // or better: use uuid
-      rol: "Conductor",
+      id: usuarios.length + 1,
+      rol: "Driver",
       estado: "Activo",
-      fecha: new Date().toLocaleDateString("es-AR"), // format example: "21/5/2025"
+      fechaCreated: new Date().toLocaleDateString("es-AR"),
     };
 
     setConductores((prev) => [...prev, newConductor]);
+    setUsuarios((prev) => [...prev, newConductor]);
 
-    resetForm(); // Clear the form
-    setShowModalConductor(false); // Close modal
+    resetForm();
+    setShowModalConductor(false);
     setShowModal(false);
   };
+
   const handleSubmitVehiculo = (data, resetForm) => {
     const newVehiculo = {
       ...data,
-      id: vehiculos.length + 1, // or better: use uuid
+      id: vehiculos.length + 1,
       estado: "Activo",
       patente: data.patente,
       marca: data.marca,
@@ -265,8 +349,8 @@ const HomeSuperAdmin = () => {
       conductor: data.conductor,
     };
     setVehiculos((prev) => [...prev, newVehiculo]);
-    resetForm(); // Clear the form
-    setShowModalVehiculo(false); // Close modal
+    resetForm();
+    setShowModalVehiculo(false);
     setShowModal(false);
   };
 
@@ -312,9 +396,23 @@ const HomeSuperAdmin = () => {
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
-               {translate(tab).charAt(0).toUpperCase() + translate(tab).slice(1)}
+                {translate(tab).charAt(0).toUpperCase() +
+                  translate(tab).slice(1)}
               </button>
             ))}
+          </div>
+
+          {/* Mostrar estadísticas por pestaña con debugging */}
+          <div className="text-sm text-gray-500 mt-2">
+            {activeTab === "usuarios" && `Total: ${usuarios.length} usuarios`}
+            {activeTab === "conductores" &&
+              `Total: ${conductores.length} conductores`}
+            {activeTab === "pasajeros" &&
+              `Total: ${pasajeros.length} pasajeros`}
+            {activeTab === "vehiculos" &&
+              `Total: ${vehiculos.length} vehículos`}
+            {activeTab === "viajes" &&
+              `Total: ${dataAdmin.viajes.length} viajes`}
           </div>
         </div>
 
@@ -352,8 +450,7 @@ const HomeSuperAdmin = () => {
                     ? "Buscar viaje por fecha u origen..."
                     : "Buscar usuario por N° documento o nombre..."
                 )}
-/>              
-              
+              />
             </div>
             <button
               onClick={handleClick}
@@ -363,6 +460,14 @@ const HomeSuperAdmin = () => {
               {translate("Agregar")}
             </button>
           </div>
+
+          {/* Información de paginación */}
+          <div className="mb-4 text-sm text-gray-500">
+            Mostrando {indexOfFirstUser + 1} -{" "}
+            {Math.min(indexOfLastUser, filteredData.length)} de{" "}
+            {filteredData.length} resultados
+          </div>
+
           {showModal && (
             <Modal onClose={() => setShowModal(false)}>
               <div className="flex flex-col gap-4">
@@ -412,6 +517,7 @@ const HomeSuperAdmin = () => {
               />
             </Modal>
           )}
+
           <div className="overflow-x-auto">
             <table
               className={
@@ -436,269 +542,297 @@ const HomeSuperAdmin = () => {
                     : "bg-white divide-y divide-yellow-500"
                 }
               >
-                {currentData.map((item, index) => (
-                  <tr
-                    key={`${activeTab}-${item.id}-${index}`}
-                    className={
-                      theme === "dark"
-                        ? "hover:bg-zinc-800 transition"
-                        : "hover:bg-yellow-200 transition"
-                    }
-                  >
-                    {/* Usuario */}
-                    {activeTab === "usuarios" && (
-                      <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.nombre}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.email}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">{item.rol}</td>
-                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
-                        <td className="px-6 py-4 font-semibold">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item?.estado === "Activo"
-                                ? "bg-green-600"
-                                : item?.estado === "Inactivo"
-                                ? "bg-yellow-500"
-                                : item?.estado === "Cancelado"
-                                ? "bg-red-600"
-                                : "bg-gray-600"
-                            }`}
-                          >
-                            {item?.estado ?? "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.fecha}
-                        </td>
-                      </>
-                    )}
-
-                    {/* Conductores */}
-                    {activeTab === "conductores" && (
-                      <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.nombre}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.email}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item?.estado === "Activo"
-                                ? "bg-green-600"
-                                : item?.estado === "Inactivo"
-                                ? "bg-yellow-600"
-                                : item?.estado === "Cancelado"
-                                ? "bg-red-600"
-                                : "bg-gray-600"
-                            }`}
-                          >
-                            {item?.estado ?? "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
-                            <Pencil size={16} />
-                          </button>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Pasajeros */}
-                    {activeTab === "pasajeros" && (
-                      <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.nombre}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">{item.dni}</td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.email}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.direccion}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item?.estado === "Activo"
-                                ? "bg-green-600"
-                                : item?.estado === "Inactivo"
-                                ? "bg-yellow-600"
-                                : item?.estado === "Cancelado"
-                                ? "bg-red-600"
-                                : "bg-gray-600"
-                            }`}
-                          >
-                            {item?.estado ?? "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
-                            <Pencil size={16} />
-                          </button>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Vehículos */}
-                    {activeTab === "vehiculos" && (
-                      <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.patente ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.marca ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.modelo ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.anio ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.color ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item?.conductor ?? "N/A"}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item?.estado === "Activo"
-                                ? "bg-green-600"
-                                : item?.estado === "Inactivo"
-                                ? "bg-yellow-600"
-                                : item?.estado === "Cancelado"
-                                ? "bg-red-600"
-                                : "bg-gray-600"
-                            }`}
-                          >
-                            {item?.estado ?? "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 flex items-center gap-2">
-                          <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
-                            <Pencil size={16} />
-                          </button>
-                        </td>
-                      </>
-                    )}
-
-                    {/* Viajes */}
-                    {activeTab === "viajes" && (
-                      <>
-                        <td className="px-6 py-4 font-semibold text-yellow-500">
-                          {item.id}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.fecha}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.origen}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.destino}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.pasajero}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.conductor}
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              item.estado === "Completado"
-                                ? "bg-green-600"
-                                : item.estado === "En curso"
-                                ? "bg-yellow-500"
-                                : item.estado === "Cancelado"
-                                ? "bg-red-600"
-                                : "bg-gray-600"
-                            }`}
-                          >
-                            {item?.estado ?? "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 font-semibold">
-                          {item.importe}
-                        </td>
-                        <button
-                          onClick={() =>
-                            imprimirResumen(generarResumenViaje(item))
-                          }
-                          className="px-6 py-4 cursor-pointer text-yellow-500"
-                        >
-                          <FileText className="w-5 h-5" />
-                        </button>
-                      </>
-                    )}
+                {currentData.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={headers.length}
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      No hay datos para mostrar en la pestaña "{activeTab}"
+                    </td>
                   </tr>
-                ))}
+                ) : (
+                  currentData.map((item, index) => (
+                    <tr
+                      key={`${activeTab}-${item.id}-${index}`}
+                      className={
+                        theme === "dark"
+                          ? "hover:bg-zinc-800 transition"
+                          : "hover:bg-yellow-200 transition"
+                      }
+                    >
+                      {/* Usuario */}
+                      {activeTab === "usuarios" && (
+                        <>
+                          <td className="px-6 py-4 font-semibold text-yellow-500">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.nombre}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.email}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.rol}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.dni}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                item?.estado === "Active"
+                                  ? "bg-green-600"
+                                  : item?.estado === "Inactivo"
+                                  ? "bg-yellow-500"
+                                  : item?.estado === "Cancelado"
+                                  ? "bg-red-600"
+                                  : "bg-gray-600"
+                              }`}
+                            >
+                              {item?.estado ?? "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.fechaCreated}
+                          </td>
+                        </>
+                      )}
+
+                      {/* Conductores */}
+                      {activeTab === "conductores" && (
+                        <>
+                          <td className="px-6 py-4 font-semibold text-yellow-500">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.nombre}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.dni}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.email}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                item?.estado === "Active"
+                                  ? "bg-green-600"
+                                  : item?.estado === "Inactivo"
+                                  ? "bg-yellow-600"
+                                  : item?.estado === "Cancelado"
+                                  ? "bg-red-600"
+                                  : "bg-gray-600"
+                              }`}
+                            >
+                              {item?.estado ?? "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 flex items-center gap-2">
+                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                              <Pencil size={16} />
+                            </button>
+                          </td>
+                        </>
+                      )}
+
+                      {/* Pasajeros */}
+                      {activeTab === "pasajeros" && (
+                        <>
+                          <td className="px-6 py-4 font-semibold text-yellow-500">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.nombre}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.dni}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.email}
+                          </td>
+
+                          <td className="px-6 py-4 font-semibold">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                item?.estado === "Active"
+                                  ? "bg-green-600"
+                                  : item?.estado === "Inactivo"
+                                  ? "bg-yellow-600"
+                                  : item?.estado === "Cancelado"
+                                  ? "bg-red-600"
+                                  : "bg-gray-600"
+                              }`}
+                            >
+                              {item?.estado ?? "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 flex items-center gap-2">
+                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                              <Pencil size={16} />
+                            </button>
+                          </td>
+                        </>
+                      )}
+
+                      {/* Vehículos */}
+                      {activeTab === "vehiculos" && (
+                        <>
+                          <td className="px-6 py-4 font-semibold text-yellow-500">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.patente ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.marca ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.modelo ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.anio ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.color ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item?.conductor ?? "N/A"}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                item?.estado === "Activo"
+                                  ? "bg-green-600"
+                                  : item?.estado === "Inactivo"
+                                  ? "bg-yellow-600"
+                                  : item?.estado === "Cancelado"
+                                  ? "bg-red-600"
+                                  : "bg-gray-600"
+                              }`}
+                            >
+                              {item?.estado ?? "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 flex items-center gap-2">
+                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                              <Pencil size={16} />
+                            </button>
+                          </td>
+                        </>
+                      )}
+
+                      {/* Viajes */}
+                      {activeTab === "viajes" && (
+                        <>
+                          <td className="px-6 py-4 font-semibold text-yellow-500">
+                            {item.id}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.fecha}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.origen}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.destino}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.pasajero}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.conductor}
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                                item.estado === "Completado"
+                                  ? "bg-green-600"
+                                  : item.estado === "En curso"
+                                  ? "bg-yellow-500"
+                                  : item.estado === "Cancelado"
+                                  ? "bg-red-600"
+                                  : "bg-gray-600"
+                              }`}
+                            >
+                              {item?.estado ?? "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-semibold">
+                            {item.importe}
+                          </td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() =>
+                                imprimirResumen(generarResumenViaje(item))
+                              }
+                              className="cursor-pointer text-yellow-500 hover:text-yellow-600"
+                            >
+                              <FileText className="w-5 h-5" />
+                            </button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        <div className="flex justify-center mt-6 space-x-2">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={
-              theme === "dark"
-                ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
-                : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"
-            }
-          >
-            «
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => (
+        {/* Paginación mejorada */}
+        {totalPages > 0 && (
+          <div className="flex justify-center mt-6 space-x-2">
             <button
-              key={i}
-              onClick={() => handlePageChange(i + 1)}
-              className={`px-3 py-1 rounded cursor-pointer ${
-                currentPage === i + 1
-                  ? theme === "dark"
-                    ? "bg-zinc-800 text-white font-semibold"
-                    : "bg-yellow-500 text-black font-semibold"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded transition cursor-pointer ${
+                currentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
                   : theme === "dark"
-                  ? "bg-zinc-800/10 hover:bg-zinc-800/20 text-white"
-                  : "bg-yellow-500 hover:bg-yellow-800 text-gray-900"
+                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
               }`}
             >
-              {i + 1}
+              «
             </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={
-              theme === "dark"
-                ? "bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded disabled:opacity-30 cursor-pointer"
-                : "bg-yellow-500 hover:bg-yellow-800 text-gray-900 px-3 py-1 rounded  cursor-pointer"
-            }
-          >
-            »
-          </button>
-        </div>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => handlePageChange(i + 1)}
+                className={`px-3 py-1 rounded cursor-pointer transition ${
+                  currentPage === i + 1
+                    ? theme === "dark"
+                      ? "bg-yellow-500 text-gray-900 font-semibold"
+                      : "bg-yellow-600 text-white font-semibold"
+                    : theme === "dark"
+                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded transition cursor-pointer ${
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : theme === "dark"
+                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+              }`}
+            >
+              »
+            </button>
+          </div>
+        )}
       </div>
     </MainLayout>
   );

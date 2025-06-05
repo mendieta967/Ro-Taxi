@@ -17,8 +17,6 @@ const MapPanel = ({
   handleScheduleRide,
   currentLocation,
   cancel,
-  metodoPago,
-  setMetodoPago,
   mapLoading, // Agregamos el estado de loading
 }) => {
   function getDistance(lat1, lon1, lat2, lon2) {
@@ -84,13 +82,10 @@ const MapPanel = ({
     currentLocation,
     handleSearchResults,
   ]);
+
   const [showModal, setShowModal] = useState(false);
-
-
   const translate = useTranslate();
 
-
-  
   return (
     <div className="absolute overflow-hidden z-[1100] top-0 bottom-0 left-6 my-10 w-[370px] max-w-[90vw] rounded-2xl bg-[#181B21] shadow-xl p-5 ">
       <div className="relative h-full flex flex-col gap-3 items-start">
@@ -103,7 +98,6 @@ const MapPanel = ({
           handleActiveInput={handleActiveInput}
           handleInputChange={handleInputChange}
           value={inputValues.origin}
-          
         />
         {/* Input Destino */}
         <MapSearch
@@ -225,65 +219,60 @@ const MapPanel = ({
           </button>
         </div>
         {showModal && (
-         <Modal onClose={() => setShowModal(false)}>
-          <div className="p-6 bg-white dark:bg-zinc-900 rounded-xl shadow-lg max-w-md mx-auto">
-     {/* Título */}
-     <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-yellow-400 mb-6">
-       Seleccione el método de pago
-     </h1>
- 
-     {/* Selector de método de pago */}
-     <div className="mb-6">
-       <label
-         htmlFor="metodoPago"
-         className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-       >
-         Método de pago
-       </label>
-       <select
-         name="metodoPago"
-         id="metodoPago"
-         value={metodoPago || "efectivo"} 
-         onChange={(e) => setMetodoPago(e.target.value)}
-         className="w-full p-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-yellow-100 dark:bg-zinc-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-       >
-         <option value="efectivo">Efectivo</option>
-         <option value="tarjeta">Tarjeta</option>
-       </select>
-     </div>
- 
-     {/* Tarifa */}
-     <div className="mb-6 text-center">
-       <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-         La tarifa es de:{" "}
-         <span className="text-yellow-500 font-bold">$</span>
-       </h2>
-     </div>
- 
-     {/* Botones */}
-     <div className="flex justify-center gap-4">
-       <button
-         onClick={() => {
-           handleScheduleRide(metodoPago);
-           cancel();
-           setShowModal(false);
-           
-         }}
-         className="px-6 py-2 cursor-pointer rounded-lg bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition-all shadow hover:shadow-md"
-       >
-         {translate("Confirmar")}
-       </button>
-       <button
-         onClick={() => setShowModal(false)}
-         className="px-6 py-2 cursor-pointer rounded-lg bg-zinc-700 text-white font-semibold hover:bg-zinc-600 transition-all shadow hover:shadow-md"
-       >
-         {translate("Cancelar")}
-       </button>
-     </div>
-          </div>
-         </Modal>
- 
-    
+          <Modal onClose={() => setShowModal(false)}>
+            <div className="p-6 bg-white dark:bg-zinc-900 rounded-xl shadow-lg max-w-md mx-auto">
+              {/* Título */}
+              <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-yellow-400 mb-6">
+                Seleccione el método de pago
+              </h1>
+
+              {/* Selector de método de pago */}
+              <div className="mb-6">
+                <label
+                  htmlFor="metodoPago"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Método de pago
+                </label>
+                <select
+                  name="metodoPago"
+                  id="metodoPago"
+                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-yellow-100 dark:bg-zinc-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                >
+                  <option value="efectivo">Efectivo</option>
+                  <option value="tarjeta">Tarjeta</option>
+                </select>
+              </div>
+
+              {/* Tarifa */}
+              <div className="mb-6 text-center">
+                <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                  La tarifa es de:{" "}
+                  <span className="text-yellow-500 font-bold">$</span>
+                </h2>
+              </div>
+
+              {/* Botones */}
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    handleScheduleRide();
+                    cancel();
+                    setShowModal(false);
+                  }}
+                  className="px-6 py-2 cursor-pointer rounded-lg bg-yellow-400 text-black font-semibold hover:bg-yellow-300 transition-all shadow hover:shadow-md"
+                >
+                  {translate("Confirmar")}
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-6 py-2 cursor-pointer rounded-lg bg-zinc-700 text-white font-semibold hover:bg-zinc-600 transition-all shadow hover:shadow-md"
+                >
+                  {translate("Cancelar")}
+                </button>
+              </div>
+            </div>
+          </Modal>
         )}
       </div>
     </div>
