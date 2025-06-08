@@ -18,17 +18,18 @@ const HomeSuperAdmin = () => {
   const [conductores, setConductores] = useState([]);
   const [pasajeros, setPasajeros] = useState([]);
 
-  const [activeTab, setActiveTab] = useState("usuarios");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [showModal, setShowModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("usuarios");
   const [showModalConductor, setShowModalConductor] = useState(false);
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
   const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
+
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
-
-  const usersPerPage = 10;
 
   useEffect(() => {
     setSearch("");
@@ -41,10 +42,8 @@ const HomeSuperAdmin = () => {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await getAll();
-        console.log("=== DEBUGGING RESPONSE ===");
+        const response = await getAll(search, currentPage);
         console.log("Full response:", response);
-        console.log("Response data:", response.data);
 
         if (response?.data) {
           // Primero veamos los datos raw
@@ -57,7 +56,6 @@ const HomeSuperAdmin = () => {
           console.log("Unique roles found:", uniqueRoles);
 
           const formattedUsuarios = response.data.map((user) => {
-            console.log("Processing user:", user);
             return {
               id: user.id,
               nombre: user.name,
@@ -75,18 +73,12 @@ const HomeSuperAdmin = () => {
 
           // Separar por roles con debugging
           const conductoresData = formattedUsuarios.filter((u) => {
-            console.log(
-              `Checking user ${u.nombre} with role ${u.rol} - is Driver?`,
-              u.rol === "Driver"
-            );
+            u.rol === "Driver";
             return u.rol === "Driver";
           });
 
           const pasajerosData = formattedUsuarios.filter((u) => {
-            console.log(
-              `Checking user ${u.nombre} with role ${u.rol} - is Client?`,
-              u.rol === "Client"
-            );
+            u.rol === "Client";
             return u.rol === "Client";
           });
 
@@ -98,6 +90,8 @@ const HomeSuperAdmin = () => {
           setConductores(conductoresData);
           setPasajeros(pasajerosData);
           setUsuarios(formattedUsuarios);
+          setTotalPages(response.data.totalPages);
+          setCurrentPage(response.data.pageNumber);
         } else {
           console.log("No data in response");
         }
@@ -107,7 +101,7 @@ const HomeSuperAdmin = () => {
     };
 
     fetchUsuarios();
-  }, []);
+  }, [search, currentPage]);
 
   // Configurar datos y headers según la pestaña activa
   if (activeTab === "usuarios") {
@@ -192,14 +186,6 @@ const HomeSuperAdmin = () => {
     }
     return false;
   });
-
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const totalPages = Math.ceil(filteredData.length / usersPerPage);
-  const currentData = filteredData.slice(indexOfFirstUser, indexOfLastUser);
-
-  console.log("CurrentData:", currentData);
-  console.log("CurrentData length:", currentData.length);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -460,14 +446,6 @@ const HomeSuperAdmin = () => {
               {translate("Agregar")}
             </button>
           </div>
-
-          {/* Información de paginación */}
-          <div className="mb-4 text-sm text-gray-500">
-            Mostrando {indexOfFirstUser + 1} -{" "}
-            {Math.min(indexOfLastUser, filteredData.length)} de{" "}
-            {filteredData.length} resultados
-          </div>
-
           {showModal && (
             <Modal onClose={() => setShowModal(false)}>
               <div className="flex flex-col gap-4">
@@ -542,7 +520,7 @@ const HomeSuperAdmin = () => {
                     : "bg-white divide-y divide-yellow-500"
                 }
               >
-                {currentData.length === 0 ? (
+                {filteredData.length === 0 ? (
                   <tr>
                     <td
                       colSpan={headers.length}
@@ -552,7 +530,7 @@ const HomeSuperAdmin = () => {
                     </td>
                   </tr>
                 ) : (
-                  currentData.map((item, index) => (
+                  filteredData.map((item, index) => (
                     <tr
                       key={`${activeTab}-${item.id}-${index}`}
                       className={
