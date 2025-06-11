@@ -77,9 +77,32 @@ public class UserController : ControllerBase
         catch (Exception ex) 
         {
             return BadRequest(new { Error = ex.Message });
-        }
+        }        
+    }
 
-        
+    [Authorize]
+    [HttpPut("{userId}")]
+    public async Task<ActionResult<UserDto>> Update([FromBody] UserUpdateRequest updateRequest, int userId)
+    {
+        var authUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        try
+        {
+            UserDto user = await _userService.Update(updateRequest, authUserId, userId);
+            return Ok(user);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (ForbiddenAccessException ex)
+        {
+            return StatusCode(403, new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new {Error = ex.Message});
+        }
     }
 
 }

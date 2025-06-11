@@ -18,9 +18,11 @@ namespace Application.Services;
 public class UserService: IUserService
 {
     private readonly IUserRepository _userRepository;
-    public UserService(IUserRepository userRepository)
+    private readonly IUnitOfWork _unitOfWork;
+    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<PaginatedList<UserDto>> GetAll(PaginationParams pagination, UserFilterParams filter)
@@ -100,4 +102,27 @@ public class UserService: IUserService
         user.Password = new PasswordHasher<User>().HashPassword(user, changePasswordRequest.NewPassword);
         await _userRepository.Update(user);
     }
+    
+    public async Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
+    {
+        var user = await _userRepository.GetById(paramUserId);
+
+        if (user == null) throw new NotFoundException("user not found");
+
+        var authUser = authUserId != paramUserId ? await _userRepository.GetById(authUserId) : user;        
+
+        if(authUser.Id != paramUserId && authUser.Role != UserRole.Admin)        
+            throw new ForbiddenAccessException("You do not have access to this user.");
+
+        user.Name = request.Name;
+        user.Email = request.Email;
+        user.Dni = request.Dni;
+        user.Genre = request.Genre;
+
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+        return new UserDto(user);
+    }
+
+
 }

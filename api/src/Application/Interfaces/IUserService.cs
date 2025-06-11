@@ -12,10 +12,11 @@ namespace Application.Interfaces;
 
 public interface IUserService
 {
-    public Task<PaginatedList<UserDto>> GetAll(PaginationParams paginationParams, UserFilterParams filter);
-    public Task<UserDto> GetById(int id);
-    public Task Create(RegisterRequest registerRequest);
-    public Task Create(GithubUserDto userData);
-    public Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId);
-    public Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId);
+    Task<PaginatedList<UserDto>> GetAll(PaginationParams paginationParams, UserFilterParams filter);
+    Task<UserDto> GetById(int id);
+    Task Create(RegisterRequest registerRequest);
+    Task Create(GithubUserDto userData);
+    Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId);
+    Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId);
+    Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
 }
