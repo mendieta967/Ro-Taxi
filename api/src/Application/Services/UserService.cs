@@ -89,7 +89,8 @@ public class UserService: IUserService
         user.Genre = completeAccountRequest.Genre;
         user.Role = completeAccountRequest.Role;
         user.AccountStatus = AccountStatus.Active;
-        await _userRepository.Update(user);
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId)
@@ -100,7 +101,8 @@ public class UserService: IUserService
         if (result != PasswordVerificationResult.Success) throw new NotFoundException("Old password is invalid");
 
         user.Password = new PasswordHasher<User>().HashPassword(user, changePasswordRequest.NewPassword);
-        await _userRepository.Update(user);
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
     }
     
     public async Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
@@ -119,10 +121,46 @@ public class UserService: IUserService
         user.Dni = request.Dni;
         user.Genre = request.Genre;
 
-        await _userRepository.Update(user);
+        _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();
         return new UserDto(user);
     }
 
+    public async Task ChangeStatus(int authUserId, int paramUserId)
+    {
+        var authUser = await _userRepository.GetById(authUserId);
+        var user = await _userRepository.GetById(paramUserId);
 
+        if (user == null || authUser == null) throw new NotFoundException("user not found");
+        if (authUser.Role != UserRole.Admin) throw new ForbiddenAccessException("You do not have access to this user.");
+        if (user.AccountStatus == AccountStatus.Deleted)
+            throw new ForbiddenAccessException("Cannot change status of a deleted account.");
+
+        user.AccountStatus = user.AccountStatus != AccountStatus.Active ? AccountStatus.Active : AccountStatus.Disabled;
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteAccount(int userId, ValidateUserRequest request)
+    {
+        var user = await _userRepository.GetById(userId);
+        if (user == null) throw new NotFoundException("user not found");
+
+        var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, request.Password);
+        if (result != PasswordVerificationResult.Success) throw new NotFoundException("Password is invalid");
+
+        user.AccountStatus = AccountStatus.Deleted;
+        user.Name = "Deleted User";
+        user.Email = "";
+        user.Dni = null;
+        user.Password = null;
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+        user.GithubId = null;
+        user.Genre = null;
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
 }

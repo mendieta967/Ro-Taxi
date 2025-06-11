@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data;
 
-public class UserRepository: IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
     public UserRepository(ApplicationDbContext context)
@@ -57,10 +57,9 @@ public class UserRepository: IUserRepository
         return user;
     }
 
-    public async Task Update(User user)
+    public void Update(User user)
     {
         _context.Users.Update(user);
-        await _context.SaveChangesAsync();
     }
 
     public async Task<bool> IsEmailOrDniTakenAsync(string email, string dni)
@@ -88,3 +87,4 @@ public class UserRepository: IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.GithubId == id);
     }
 }
+
