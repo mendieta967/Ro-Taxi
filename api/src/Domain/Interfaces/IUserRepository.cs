@@ -14,7 +14,7 @@ public interface IUserRepository
     public Task<PaginatedList<User>> GetAll(int currentPage, int pageSize, UserRole? role, string? search);
     public Task<User?> GetById(int id);
     public Task<User> Create(User user);
-    public Task Update(User user);
+    public void Update(User user);
     public Task<bool> IsEmailOrDniTakenAsync(string email, string dni);
     public Task<User?> GetByEmail(string email);
     public Task<User?> GetByDni(string dni);

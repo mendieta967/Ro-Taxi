@@ -24,10 +24,12 @@ public class AuthService: IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly AuthServiceOptions _options;
-    public AuthService(IUserRepository userRepository, IOptions<AuthServiceOptions> options)
+    private readonly IUnitOfWork _unitOfWork;
+    public AuthService(IUserRepository userRepository, IOptions<AuthServiceOptions> options, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _options = options.Value;
+        _unitOfWork = unitOfWork;
     }
     public async Task<AuthDto> Login(LoginRequest loginRequest)
     {
@@ -62,7 +64,8 @@ public class AuthService: IAuthService
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("Session not found");
         user.RefreshToken = null;
         user.RefreshTokenExpiryTime = null;
-        await _userRepository.Update(user);
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task<AuthDto?> LoginWithGithub(GithubUserDto userData)
@@ -73,7 +76,8 @@ public class AuthService: IAuthService
             if(user.Email != userData.Email)
             {
                 user.Email = userData.Email;
-                await _userRepository.Update(user);
+                _userRepository.Update(user);
+                await _unitOfWork.SaveChangesAsync();
             }
             return new AuthDto
             {
@@ -124,7 +128,8 @@ public class AuthService: IAuthService
         string token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         user.RefreshToken = token;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-        await _userRepository.Update(user);
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
         return token;
     }
 }

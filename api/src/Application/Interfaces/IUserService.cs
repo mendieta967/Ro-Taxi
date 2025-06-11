@@ -18,5 +18,7 @@ public interface IUserService
     Task Create(GithubUserDto userData);
     Task CompleteAccount(CompleteAccountRequest completeAccountRequest, int userId);
     Task ChangePassword(ChangePasswordRequest changePasswordRequest, int userId);
-    Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
+    Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId);
+    Task ChangeStatus(int authUserId, int paramUserId);
+    Task DeleteAccount(int userId, ValidateUserRequest request);
 }

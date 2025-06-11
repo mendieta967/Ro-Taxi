@@ -105,4 +105,47 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize]
+    [HttpPatch("{userId}")]
+    public async Task<IActionResult> ChangeStatus(int userId)
+    {
+        var authUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        try
+        {
+            await _userService.ChangeStatus(authUserId, userId);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (ForbiddenAccessException ex)
+        {
+            return StatusCode(403, new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("delete-account")]
+    public async Task<IActionResult> DeleteAccount([FromBody] ValidateUserRequest validateUserRequest)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        try
+        {
+            await _userService.DeleteAccount(userId, validateUserRequest);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
 }

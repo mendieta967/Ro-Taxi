@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Enums;
+namespace Application.Models.Requests;
 
-public enum AccountStatus
+public class ValidateUserRequest
 {
-    Pending,
-    Active,
-    Disabled,
-    Deleted
+    public string Password;
 }
