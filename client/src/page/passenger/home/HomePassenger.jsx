@@ -3,7 +3,7 @@ import { historailViajes, cardViajes } from "../../../data/data";
 import { MapPin, Clock, Star } from "lucide-react";
 //import Modal from "../../../components/ui/Modal";
 //import { modalOrderTaxi } from "../../../data/data";
-import {  useContext } from "react";
+import { useContext } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
@@ -11,17 +11,17 @@ import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 //import { createRide } from "../../../services/ride";
 
 const HomePassenger = () => {
- // const [showModal, setShowModal] = useState(false);
- // const [paymentMethod, setPaymentMethod] = useState("efectivo");
- // const [selectedCar, setSelectedCar] = useState("estandar");
- // const [showRequestModal, setShowRequestModal] = useState(false);
- // const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  
+  // const [showModal, setShowModal] = useState(false);
+  // const [paymentMethod, setPaymentMethod] = useState("efectivo");
+  // const [selectedCar, setSelectedCar] = useState("estandar");
+  // const [showRequestModal, setShowRequestModal] = useState(false);
+  // const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
- /*  const handleOrderTaxi = () => {
+  /*  const handleOrderTaxi = () => {
     setShowModal(true);
   };
 
@@ -91,10 +91,11 @@ const HomePassenger = () => {
           {/* Contenedor principal */}
           <div
             className={`rounded-xl overflow-hidden ${
-              theme === "dark" ? "bg-zinc-900" : "bg-white border border-yellow-500"
+              theme === "dark"
+                ? "bg-zinc-900"
+                : "bg-white border border-yellow-500"
             }`}
           >
-        
             {/* Mapa */}
             <div className="bg-zinc-700 h-96 rounded-lg">
               <MapOnly />
@@ -233,7 +234,7 @@ const HomePassenger = () => {
         </div>
       </div>
 
-*/      {/* Modal Pedir taxi 
+      {/* Modal Pedir taxi 
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
           <h2

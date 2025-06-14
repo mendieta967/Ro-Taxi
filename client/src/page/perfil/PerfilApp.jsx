@@ -5,8 +5,9 @@ import { Mail, IdCard, User, Venus, Lock } from "lucide-react";
 import { useAuth } from "../../context/auth";
 import { getUser } from "../../services/user";
 import { newPassword } from "../../services/auth";
+import { editUser } from "../../services/auth";
 import { ThemeContext } from "../../context/ThemeContext";
-import {useTranslate} from '../../hooks/useTranslate'
+import { useTranslate } from "../../hooks/useTranslate";
 
 const PerfilApp = () => {
   const {
@@ -107,54 +108,100 @@ const PerfilApp = () => {
     }
     console.log("Datos de seguridad:", data);
 
-    try{
-
+    try {
       // El backend espera un objeto ChangePasswordRequest
-    const changePasswordRequest = {
-      oldPassword:  data.currentPassword,
-      newPassword: data.newPassword
-    };
+      const changePasswordRequest = {
+        oldPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      };
 
-    await newPassword(changePasswordRequest);
-    alert("Contraseña cambiada exitosamente");
-    resetForm();
-      
-    }
-    catch(error){
-      console.log("Error al cambiar la contraseña")
-      console.log(error)
+      await newPassword(changePasswordRequest);
+      alert("Contraseña cambiada exitosamente");
+      resetForm();
+    } catch (error) {
+      console.log("Error al cambiar la contraseña");
+      console.log(error);
     }
   };
 
+  const handleFormSubmit = async (data) => {
+    try {
+      const userDate = {
+        name: data.nombre,
+        email: data.correo,
+        dni: data.dni,
+        genre: data.genero,
+      };
 
+      await editUser(userId, userDate);
 
+      // Mezclamos los datos nuevos con los existentes
+      setUser((prevUser) => ({
+        ...prevUser,
+        ...userDate,
+      }));
 
-  const handleFormSubmit = (data, resetForm) => {
-    console.log("Datos del formulario:", data);
-    resetForm()
-  }
+      console.log("Perfil actualizado exitosamente", userDate);
+      alert("Perfil actualizado exitosamente");
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error);
+      alert("Error al actualizar el perfil. Por favor intente nuevamente.");
+    }
+  };
 
   return (
     <MainLayout>
       <div className="space-y-6">
         {/* INFORMACIÓN PERSONAL */}
-        <div className={`p-6 rounded-md flex flex-col md:flex-row gap-6 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
+        <div
+          className={`p-6 rounded-md flex flex-col md:flex-row gap-6 ${
+            theme === "dark"
+              ? "bg-zinc-900"
+              : "bg-white border border-yellow-500"
+          }`}
+        >
           {/* Avatar */}
-          <div className={`flex flex-col items-center text-center  ${theme === 'dark' ? 'border border-zinc-700' : 'border border-yellow-500'} p-8 rounded-md`}>
-            <div className={`w-32 h-32  rounded-full flex items-center justify-center relative ${theme === 'dark' ? 'bg-zinc-800' : 'bg-yellow-500'} `}>
-              <User className={`w-20 h-20 ${theme === 'dark' ? 'text-yellow-500' : 'text-white'}`} />
+          <div
+            className={`flex flex-col items-center text-center  ${
+              theme === "dark"
+                ? "border border-zinc-700"
+                : "border border-yellow-500"
+            } p-8 rounded-md`}
+          >
+            <div
+              className={`w-32 h-32  rounded-full flex items-center justify-center relative ${
+                theme === "dark" ? "bg-zinc-800" : "bg-yellow-500"
+              } `}
+            >
+              <User
+                className={`w-20 h-20 ${
+                  theme === "dark" ? "text-yellow-500" : "text-white"
+                }`}
+              />
             </div>
-            <h2 className={`mt-4 font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} text-2xl`}>
+            <h2
+              className={`mt-4 font-semibold ${
+                theme === "dark" ? "text-yellow-500" : "text-gray-900"
+              } text-2xl`}
+            >
               {user?.name}
             </h2>
           </div>
 
           {/* Información */}
           <div className="flex-1 space-y-4">
-            <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>
+            <h2
+              className={`text-2xl font-bold ${
+                theme === "dark" ? "text-yellow-500" : "text-gray-900"
+              }`}
+            >
               {translate("Información Personal")}
             </h2>
-            <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
+            <p
+              className={`text-zinc-400 text-sm ${
+                theme === "dark" ? "text-zinc-400" : "text-gray-600"
+              }`}
+            >
               {translate("Actualiza tu información de perfil")}
             </p>
 
@@ -166,9 +213,25 @@ const PerfilApp = () => {
           </div>
         </div>
         {/* SEGURIDAD */}
-        <div className={`p-6 rounded-md space-y-4 ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white border border-yellow-500'}`}>
-          <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'}`}>{translate("Seguridad")}</h2>
-          <p className={`text-zinc-400 text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-gray-600'}`}>
+        <div
+          className={`p-6 rounded-md space-y-4 ${
+            theme === "dark"
+              ? "bg-zinc-900"
+              : "bg-white border border-yellow-500"
+          }`}
+        >
+          <h2
+            className={`text-2xl font-bold ${
+              theme === "dark" ? "text-yellow-500" : "text-gray-900"
+            }`}
+          >
+            {translate("Seguridad")}
+          </h2>
+          <p
+            className={`text-zinc-400 text-sm ${
+              theme === "dark" ? "text-zinc-400" : "text-gray-600"
+            }`}
+          >
             {translate("Gestiona la seguridad de tu cuenta")}
           </p>
 
