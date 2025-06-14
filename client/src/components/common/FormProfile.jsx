@@ -47,7 +47,7 @@ const FormProfile = ({
     const isValid = validate(formData);
 
     if (isValid) {
-      onSubmit({ ...formData, ...extraValues }, () => e.target.reset());
+      onSubmit({ ...formData, ...extraValues });
       setIsEditing(false);
     } else {
       console.log("Errores en el formulario", errors);
