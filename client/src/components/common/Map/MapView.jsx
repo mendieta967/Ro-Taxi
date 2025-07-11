@@ -95,6 +95,7 @@ const MapView = ({ cancel }) => {
         const response = await fetch(
           `https://nominatim.openstreetmap.org/reverse?${params}`
         );
+
         const data = await response.json();
         handleSelect(data);
       },

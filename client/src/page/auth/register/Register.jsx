@@ -158,7 +158,7 @@ const Register = ({ onSwitch }) => {
                 {["pasajero", "taxista"].map((type) => (
                   <label
                     key={type}
-                    className={`flex bg-yellow-50 items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
+                    className={`flex bg-yellow-50 text-black items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
                       userType === type
                         ? "bg-cyan-50 border-yellow-600 text-yellow-700 font-semibold"
                         : "border-gray-300 hover:border-yellow-400 hover:bg-cyan-50"

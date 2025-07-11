@@ -5,9 +5,7 @@ import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import { trips } from "../../../data/data";
 import MapView from "../../../components/common/Map/MapView";
-import { getRides } from "../../../services/ride";
-import { deleteRide } from "../../../services/ride";
-import { editRide } from "../../../services/ride";
+import { getRides, deleteRide, editRide } from "../../../services/ride";
 import Modal from "../../../components/ui/Modal";
 
 const HistorialPassenger = () => {
@@ -16,12 +14,16 @@ const HistorialPassenger = () => {
 
   const [activeTab, setActiveTab] = useState("todos");
   const [ratings, setRatings] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
+
   const [isEditing, setIsEditing] = useState(null);
   const [showDetails, setShowDetails] = useState(null);
   const [scheduledTrips, setScheduledTrips] = useState([]); //viajes programados
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [abrirModal, setAbrirModal] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [editingData, setEditingData] = useState({
     from: "",
@@ -35,20 +37,27 @@ const HistorialPassenger = () => {
   useEffect(() => {
     const fetchRides = async () => {
       try {
-        const response = await getRides();
-        console.log("Response:", response); // Ver la estructura real de la respuesta
-        // Verificar si la respuesta tiene datos y es un array "Pending"
+        const response = await getRides(searchTerm, currentPage);
+        console.log("Response:", response);
+
         const scheduledTrips = response.data.filter(
           (ride) => ride?.status === "Pending"
         );
         setScheduledTrips(scheduledTrips);
+        setTotalPages(response.totalPages);
+
+        // Solo actualiza si la página cambió realmente
+        if (response.pageNumber !== currentPage) {
+          setCurrentPage(response.pageNumber);
+        }
+
         console.log(scheduledTrips);
       } catch (error) {
         console.error("Error fetching rides:", error);
       }
     };
     fetchRides();
-  }, []);
+  }, [searchTerm, currentPage]);
 
   //filtrado de los viajes programados
   const filteredScheduledTrips = scheduledTrips.filter((trip) =>
@@ -76,6 +85,12 @@ const HistorialPassenger = () => {
     }
   };
 
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   //filtrado de los viajes completados
   const filteredTrips = trips.filter((trip) =>
     `${trip.from} ${trip.to} ${trip.date} ${trip.driver}`
@@ -98,10 +113,15 @@ const HistorialPassenger = () => {
       setEditingData({
         id: editeRide.id,
         from: editeRide.originAddress,
+        fromLat: editeRide.originLat,
+        fromLng: editeRide.originLng,
         to: editeRide.destinationAddress,
+        toLat: editeRide.destinationLat,
+        toLng: editeRide.destinationLng,
         date: formattedDate,
         time: formattedTime,
       });
+
       setIsEditing(true);
     } else {
       console.log("No se encontro el viaje");
@@ -121,7 +141,11 @@ const HistorialPassenger = () => {
       const updatedRide = {
         id: editingData.id,
         originAddress: editingData.from,
+        originLat: editingData.fromLat,
+        originLng: editingData.fromLng,
         destinationAddress: editingData.to,
+        destinationLat: editingData.toLat,
+        destinationLng: editingData.toLng,
         scheduledAt: `${editingData.date}T${editingData.time}:00`,
       };
 
@@ -809,6 +833,55 @@ const HistorialPassenger = () => {
             </div>
           )}
         </div>
+        {totalPages > 0 && (
+          <div className="flex justify-center mt-6 space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded transition cursor-pointer ${
+                currentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : theme === "dark"
+                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+              }`}
+            >
+              «
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => handlePageChange(i + 1)}
+                className={`px-3 py-1 rounded cursor-pointer transition ${
+                  currentPage === i + 1
+                    ? theme === "dark"
+                      ? "bg-yellow-500 text-gray-900 font-semibold"
+                      : "bg-yellow-600 text-white font-semibold"
+                    : theme === "dark"
+                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded transition cursor-pointer ${
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : theme === "dark"
+                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+              }`}
+            >
+              »
+            </button>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
