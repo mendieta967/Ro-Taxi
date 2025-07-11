@@ -42,7 +42,11 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
       to: "/app/mis-viajes",
     },
     { icon: <CreditCard />, label: translate("Chat"), to: "/app/chat" },
-    { icon: <CreditCard />, label: translate("Vehiculos"), to: "/app/vehiculos" },
+    {
+      icon: <CreditCard />,
+      label: translate("Vehiculos"),
+      to: "/app/vehiculos",
+    },
     {
       icon: <Settings />,
       label: translate("Configuración"),

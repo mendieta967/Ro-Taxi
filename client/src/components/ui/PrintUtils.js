@@ -8,7 +8,7 @@ export const generarResumenViaje = (item) => {
       <p><strong>Pasajero:</strong> ${item.pasajero}</p>
       <p><strong>Conductor:</strong> ${item.conductor}</p>
       <p><strong>Estado:</strong> ${item.estado}</p>
-      <p><strong>Importe:</strong> $${item.importe}</p>
+      <p><strong>Importe:</strong> ${item.importe}</p>
     </div>
   `;
 };

@@ -408,8 +408,6 @@ export const trips = [
   },
 ];
 
-
-
 //Datos de ejemplo modal order taxi
 
 export const modalOrderTaxi = [

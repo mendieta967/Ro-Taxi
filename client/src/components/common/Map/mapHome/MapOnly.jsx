@@ -11,7 +11,6 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 //import { createRide } from "../../../services/ride";
 
-
 // Iconos personalizados para origen y destino
 const originIcon = new L.Icon({
   iconUrl:
@@ -83,6 +82,7 @@ const MapOnly = ({ cancel }) => {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         };
+        console.log("Ubicación del navegador:", coords); //
         setPosition(coords);
         setCurrentLocation(coords);
         const params = new URLSearchParams({
@@ -231,7 +231,8 @@ const MapOnly = ({ cancel }) => {
     getRoute();
   }, [origin, destination]);
 
- {/** const handleScheduleRide = async () =>{
+  {
+    /** const handleScheduleRide = async () =>{
     try {
       if (!origin || !destination) {
         alert("Por favor, seleccione origen y destino");
@@ -256,102 +257,107 @@ const MapOnly = ({ cancel }) => {
       alert("Error al programar viaje. Por favor, inténtelo de nuevo.");
     }
   };
-*/}
-
-const handleConfirm = () => {
-  if (origin && destination) {
-    // continuar con la lógica de confirmación, ejemplo:
-    console.log("Origen:", origin, "Destino:", destination);
-    // quizás: handleScheduleRide() u otra lógica
-  } else {
-    alert("Por favor seleccioná un origen y un destino.");
+*/
   }
-};
 
+  const handleConfirm = () => {
+    if (origin && destination) {
+      // continuar con la lógica de confirmación, ejemplo:
+      console.log("Origen:", origin, "Destino:", destination);
+      // quizás: handleScheduleRide() u otra lógica
+    } else {
+      alert("Por favor seleccioná un origen y un destino.");
+    }
+  };
 
   return (
-<div className="w-full h-screen flex flex-col md:flex-row">
-  {/* Columna/Formulario: arriba en móvil, izquierda en desktop */}
-  <div className="w-full md:w-[35%] h-[45%] md:h-full relative z-[1000] bg-white shadow-lg">
-    <MapForm
-      handleSelect={handleSelect}
-      inputOriginRef={inputOriginRef}
-      inputDestinationRef={inputDestinationRef}
-      inputValues={inputValues}
-      handleInputChange={handleInputChange}
-      handleActiveInput={handleActiveInput}
-      activeInput={activeInput}
-      handleSearchResults={handleSearchResults}
-      searchResults={searchResults}
-      handleConfirm={handleConfirm}
-      currentLocation={currentLocation}
-      cancel={cancel}
-    />
-  </div>
-
-  {/* Columna/Mapa: abajo en móvil, derecha en desktop */}
-  <div className="w-full md:w-[65%] h-[55%] md:h-full relative min-h-[200px]">
-    {mapLoading && <Loader />}
-
-    <MapContainer
-      center={position}
-      zoom={15}
-      className="w-full h-full"
-      zoomControl={false}
-      whenCreated={(mapInstance) => {
-        mapInstance.zoomControl.remove();
-      }}
-      onclick={null}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-        eventHandlers={{
-          load: () => setMapLoading(false),
-        }}
-      />
-
-      {origin && (
-        <Marker position={{ lat: origin.lat, lng: origin.lng }} icon={originIcon}>
-          <Popup>
-            <b>Origen</b>
-            <br />
-            {origin.short_name}
-            {origin.zone ? (
-              <span className="text-gray-400"> ({origin.zone})</span>
-            ) : null}
-          </Popup>
-        </Marker>
-      )}
-
-      {destination && (
-        <Marker position={{ lat: destination.lat, lng: destination.lng }} icon={destinationIcon}>
-          <Popup>
-            <b>Destino</b>
-            <br />
-            {destination.short_name}
-            {destination.zone ? (
-              <span className="text-gray-400"> ({destination.zone})</span>
-            ) : null}
-          </Popup>
-        </Marker>
-      )}
-
-      {origin && destination && routeCoords.length > 0 && (
-        <Polyline
-          positions={routeCoords}
-          color="#FFD600"
-          weight={6}
-          opacity={0.9}
+    <div className="w-full h-screen flex flex-col md:flex-row">
+      {/* Columna/Formulario: arriba en móvil, izquierda en desktop */}
+      <div className="w-full md:w-[35%] h-[45%] md:h-full relative z-[1000] bg-white shadow-lg">
+        <MapForm
+          handleSelect={handleSelect}
+          inputOriginRef={inputOriginRef}
+          inputDestinationRef={inputDestinationRef}
+          inputValues={inputValues}
+          handleInputChange={handleInputChange}
+          handleActiveInput={handleActiveInput}
+          activeInput={activeInput}
+          handleSearchResults={handleSearchResults}
+          searchResults={searchResults}
+          handleConfirm={handleConfirm}
+          currentLocation={currentLocation}
+          cancel={cancel}
         />
-      )}
+      </div>
 
-      <SetViewOnClick coords={position} />
-      <MapClickHandler onMapClick={handleMapClick} />
-    </MapContainer>
-  </div>
-</div>
+      {/* Columna/Mapa: abajo en móvil, derecha en desktop */}
+      <div className="w-full md:w-[65%] h-[55%] md:h-full relative min-h-[200px]">
+        {mapLoading && <Loader />}
 
+        <MapContainer
+          center={position}
+          zoom={15}
+          className="w-full h-full"
+          zoomControl={false}
+          whenCreated={(mapInstance) => {
+            mapInstance.zoomControl.remove();
+          }}
+          onclick={null}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+            eventHandlers={{
+              load: () => setMapLoading(false),
+            }}
+          />
+
+          {origin && (
+            <Marker
+              position={{ lat: origin.lat, lng: origin.lng }}
+              icon={originIcon}
+            >
+              <Popup>
+                <b>Origen</b>
+                <br />
+                {origin.short_name}
+                {origin.zone ? (
+                  <span className="text-gray-400"> ({origin.zone})</span>
+                ) : null}
+              </Popup>
+            </Marker>
+          )}
+
+          {destination && (
+            <Marker
+              position={{ lat: destination.lat, lng: destination.lng }}
+              icon={destinationIcon}
+            >
+              <Popup>
+                <b>Destino</b>
+                <br />
+                {destination.short_name}
+                {destination.zone ? (
+                  <span className="text-gray-400"> ({destination.zone})</span>
+                ) : null}
+              </Popup>
+            </Marker>
+          )}
+
+          {origin && destination && routeCoords.length > 0 && (
+            <Polyline
+              positions={routeCoords}
+              color="#FFD600"
+              weight={6}
+              opacity={0.9}
+            />
+          )}
+
+          <SetViewOnClick coords={position} />
+          <MapClickHandler onMapClick={handleMapClick} />
+        </MapContainer>
+      </div>
+    </div>
   );
 };
 
