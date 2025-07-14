@@ -1,22 +1,18 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities;
+namespace Application.Models.Requests;
 
-public class Vehicle
+public class VehicleCreateRequest
 {
-    public int Id { get; set; }
     public string LicensePlate { get; set; }
     public string Model { get; set; }
     public string Brand { get; set; }
     public string Color { get; set; }
     public string Year { get; set; }
-    public int? DriverId { get; set; }
-    public User? Driver {  get; set; }
-    public VehicleStatus Status { get; set; }
-    public DateTime CreatedAt { get; set; }
 }

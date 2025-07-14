@@ -14,6 +14,7 @@ namespace Infrastructure.Data
         public DbSet<Ride> Rides { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -51,6 +52,11 @@ namespace Infrastructure.Data
                 .HasForeignKey(r => r.PassegerId);
 
             modelBuilder.Entity<Ride>()
+                .HasOne(r => r.Driver)
+                .WithMany()
+                .HasForeignKey(r => r.DriverId);
+
+            modelBuilder.Entity<Vehicle>()
                 .HasOne(r => r.Driver)
                 .WithMany()
                 .HasForeignKey(r => r.DriverId);
