@@ -56,6 +56,7 @@ const Login = ({ onSwitch }) => {
     console.log("Login del usuario:", formData);
     try {
       await login(formData);
+      console.log(formData);
     } catch (error) {
       alert("Correo o contraseña incorrectos");
       console.error("Error al intentar iniciar sesión:", error);

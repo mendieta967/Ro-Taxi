@@ -18,22 +18,22 @@ const apiClient = {
       },
       body: JSON.stringify(body),
     }),
-    patch: (url, body) =>
-      request(url, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }),
-    
+  patch: (url, body) =>
+    request(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }),
+
   delete: (url) =>
-      request(url, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
+    request(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }),
 };
 
 const request = async (url, options) => {

@@ -1,70 +1,26 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { historailViajes, cardViajes } from "../../../data/data";
-import { MapPin, Clock, Star } from "lucide-react";
-//import Modal from "../../../components/ui/Modal";
-//import { modalOrderTaxi } from "../../../data/data";
-import { useContext } from "react";
+import { Clock, Star } from "lucide-react";
+import { useContext, useEffect } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
-//import { createRide } from "../../../services/ride";
+import { getRides } from "../../../services/ride";
 
 const HomePassenger = () => {
-  // const [showModal, setShowModal] = useState(false);
-  // const [paymentMethod, setPaymentMethod] = useState("efectivo");
-  // const [selectedCar, setSelectedCar] = useState("estandar");
-  // const [showRequestModal, setShowRequestModal] = useState(false);
-  // const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
-  /*  const handleOrderTaxi = () => {
-    setShowModal(true);
+  const getAllViajesProgramados = async () => {
+    const response = await getRides();
+    console.log(response);
   };
 
-  const handlePedirAhora = async () => {
-    setShowModal(false); // Cerrar el modal de selección de vehículo
-    setShowRequestModal(true); // Mostrar el modal de búsqueda de taxi
-
-    {
-      Formulario
-    // Crear el viaje
-    const rideData = {
-      originAddress: origin,
-      originLat: 0, // Reemplazá si tenés acceso a geolocalización
-      originLng: 0,
-      destinationAddress: destination,
-      destinationLat: 0,
-      destinationLng: 0,
-      scheduledAt: new Date().toISOString(),
-      paymentMethodId: paymentMethod === "efectivo" ? 0 : 1
-    };
-
-    try {
-      const res = await createRide(rideData);
-      console.log("Ride created:", res);
-      // Después de crear el viaje, mostrar el modal de confirmación
-      setTimeout(() => {
-        setShowRequestModal(false); // Ocultar el modal de búsqueda
-        setShowConfirmationModal(true); // Mostrar el modal de confirmación
-      }, 2000); // Simular un tiempo de espera de 2 segundos
-    } catch (error) {
-      console.error("Error creating ride:", error);
-      // Mostrar mensaje de error al usuario
-      alert("Error al crear el viaje. Por favor, inténtelo nuevamente.");
-    } 
-    }
-    setTimeout(() => {
-      setShowRequestModal(false); // Ocultar el modal de búsqueda
-      setShowConfirmationModal(true); // Mostrar el modal de confirmación
-    }, 2000); // Simula 2 segundos de carga
-  };
-
-
-  */
+  useEffect(() => {
+    getAllViajesProgramados();
+  }, []);
   return (
     <MainLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
@@ -233,8 +189,14 @@ const HomePassenger = () => {
           </div>
         </div>
       </div>
+    </MainLayout>
+  );
+};
 
-      {/* Modal Pedir taxi 
+export default HomePassenger;
+
+{
+  /* Modal Pedir taxi 
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
           <h2
@@ -467,9 +429,5 @@ const HomePassenger = () => {
             </div>
           </div>
         </div>
-      )} */}
-    </MainLayout>
-  );
-};
-
-export default HomePassenger;
+      )} */
+}
