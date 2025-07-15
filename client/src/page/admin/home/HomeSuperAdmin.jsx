@@ -8,9 +8,17 @@ import {
   imprimirResumen,
 } from "../../../components/ui/PrintUtils";
 import { dataAdmin } from "../../../data/data";
-import { Pencil, Plus, Search, FileText } from "lucide-react";
+import {
+  Pencil,
+  Plus,
+  Search,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { getAll } from "../../../services/user";
+import { getVehicles } from "../../../services/vehicle";
 import Form from "../../../components/common/Form";
 
 const HomeSuperAdmin = () => {
@@ -19,68 +27,56 @@ const HomeSuperAdmin = () => {
   const [pasajeros, setPasajeros] = useState([]);
 
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("usuarios");
   const [showModalConductor, setShowModalConductor] = useState(false);
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
-  const [vehiculos, setVehiculos] = useState(dataAdmin.vehiculos);
+  const [vehiculos, setVehiculos] = useState([]);
 
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
   useEffect(() => {
     setSearch("");
-    setCurrentPage(1);
   }, [activeTab]);
 
   let displayedData = [];
   let headers = [];
-
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await getAll(search, currentPage);
+        const response = await getAll(pageNumber, pageSize, search); // CAMBIO A 10 POR PÁGINA
         console.log("Full response:", response);
 
         if (response?.data) {
-          // Primero veamos los datos raw
-          console.log("Raw users data:", response.data);
+          console.log("USUARIOS TODOS", response.data);
 
-          // Veamos los roles únicos que tenemos
           const uniqueRoles = [
             ...new Set(response.data.map((user) => user.role)),
           ];
           console.log("Unique roles found:", uniqueRoles);
 
-          const formattedUsuarios = response.data.map((user) => {
-            return {
-              id: user.id,
-              nombre: user.name,
-              email: user.email,
-              dni: user.dni,
-              rol: user.role, // Mantener el rol original
-              estado: user.accountStatus,
-              fechaCreated: new Date(user.createdAt).toLocaleDateString(
-                "es-AR"
-              ),
-            };
-          });
+          const formattedUsuarios = response.data.map((user) => ({
+            id: user.id,
+            nombre: user.name,
+            email: user.email,
+            dni: user.dni,
+            rol: user.role,
+            estado: user.accountStatus,
+            fechaCreated: new Date(user.createdAt).toLocaleDateString("es-AR"),
+          }));
 
-          console.log("Formatted usuarios:", formattedUsuarios);
+          const conductoresData = formattedUsuarios.filter(
+            (u) => u.rol === "Driver"
+          );
 
-          // Separar por roles con debugging
-          const conductoresData = formattedUsuarios.filter((u) => {
-            u.rol === "Driver";
-            return u.rol === "Driver";
-          });
-
-          const pasajerosData = formattedUsuarios.filter((u) => {
-            u.rol === "Client";
-            return u.rol === "Client";
-          });
+          const pasajerosData = formattedUsuarios.filter(
+            (u) => u.rol === "Client"
+          );
 
           console.log("=== FINAL RESULTS ===");
           console.log("Conductores (Drivers):", conductoresData);
@@ -90,8 +86,7 @@ const HomeSuperAdmin = () => {
           setConductores(conductoresData);
           setPasajeros(pasajerosData);
           setUsuarios(formattedUsuarios);
-          setTotalPages(response.data.totalPages);
-          setCurrentPage(response.data.pageNumber);
+          setTotalPages(response.totalPages); // ← actualiza la cantidad de páginas
         } else {
           console.log("No data in response");
         }
@@ -101,7 +96,42 @@ const HomeSuperAdmin = () => {
     };
 
     fetchUsuarios();
-  }, [search, currentPage]);
+  }, [search, pageNumber]);
+
+  const handlePageChange = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPageNumber(newPage);
+    }
+  };
+
+  useEffect(() => {
+    const handleShowVehicle = async () => {
+      try {
+        const response = await getVehicles(search, pageNumber);
+        console.log("Vehiculos obtenidos del backend:", response);
+
+        const vehiculosMapeados = response.data.map((v) => ({
+          id: v.id,
+          patente: v.licensePlate,
+          marca: v.brand,
+          modelo: v.model,
+          color: v.color,
+          anio: v.year,
+          estado: v.status,
+          conductor: v.driver?.name || "Desconocido", // si lo tenés
+        }));
+
+        setVehiculos(vehiculosMapeados);
+        setTotalPages(response.totalPages);
+      } catch (error) {
+        console.log("Error al obtener vehículos:", error);
+      }
+    };
+
+    handleShowVehicle();
+  }, [search, pageNumber]);
 
   // Configurar datos y headers según la pestaña activa
   if (activeTab === "usuarios") {
@@ -186,12 +216,6 @@ const HomeSuperAdmin = () => {
     }
     return false;
   });
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
 
   const handleClick = () => {
     setShowModal(true);
@@ -682,7 +706,7 @@ const HomeSuperAdmin = () => {
                           <td className="px-6 py-4 font-semibold">
                             <span
                               className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                                item?.estado === "Activo"
+                                item?.estado === "Active"
                                   ? "bg-green-600"
                                   : item?.estado === "Inactivo"
                                   ? "bg-yellow-600"
@@ -765,49 +789,54 @@ const HomeSuperAdmin = () => {
         {totalPages > 0 && (
           <div className="flex justify-center mt-6 space-x-2">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              onClick={() => pageNumber > 1 && handlePageChange(pageNumber - 1)}
+              disabled={pageNumber === 1}
               className={`px-3 py-1 rounded transition cursor-pointer ${
-                currentPage === 1
+                pageNumber === 1
                   ? "opacity-50 cursor-not-allowed"
                   : theme === "dark"
                   ? "bg-zinc-800 hover:bg-zinc-700 text-white"
                   : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
               }`}
             >
-              «
+              <ChevronLeft size={18} />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 rounded cursor-pointer transition ${
-                  currentPage === i + 1
-                    ? theme === "dark"
-                      ? "bg-yellow-500 text-gray-900 font-semibold"
-                      : "bg-yellow-600 text-white font-semibold"
-                    : theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => {
+              const page = i + 1;
+              return (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-1 rounded cursor-pointer transition ${
+                    pageNumber === page
+                      ? theme === "dark"
+                        ? "bg-yellow-500 text-gray-900 font-semibold"
+                        : "bg-yellow-600 text-white font-semibold"
+                      : theme === "dark"
+                      ? "bg-zinc-800 hover:bg-zinc-700 text-white"
+                      : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                  }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
 
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() =>
+                pageNumber < totalPages && handlePageChange(pageNumber + 1)
+              }
+              disabled={pageNumber === totalPages}
               className={`px-3 py-1 rounded transition cursor-pointer ${
-                currentPage === totalPages
+                pageNumber === totalPages
                   ? "opacity-50 cursor-not-allowed"
                   : theme === "dark"
                   ? "bg-zinc-800 hover:bg-zinc-700 text-white"
                   : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
               }`}
             >
-              »
+              <ChevronRight size={18} />
             </button>
           </div>
         )}
