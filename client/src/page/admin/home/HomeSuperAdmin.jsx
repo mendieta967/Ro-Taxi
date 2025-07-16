@@ -122,7 +122,7 @@ const HomeSuperAdmin = () => {
           estado: v.status,
           conductor: v.driver?.name || "Desconocido", // si lo tenés
         }));
-
+        console.log(vehiculosMapeados);
         setVehiculos(vehiculosMapeados);
         setTotalPages(response.totalPages);
       } catch (error) {

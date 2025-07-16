@@ -1,5 +1,4 @@
 import React from "react";
-import { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 
 const Form = ({
@@ -11,7 +10,6 @@ const Form = ({
   extraValues = {},
   extraContent = null,
 }) => {
-  const theme = useContext(ThemeContext);
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target).entries());
@@ -27,13 +25,16 @@ const Form = ({
           id: field.name,
           name: field.name,
           required: field.required,
-          className: theme === 'dark' ? `w-full px-4 py-2 rounded-xl bg-gray-800 text-yellow-700 border ${
-            isError ? "border-red-500" : "border-gray-600"
-          } focus:outline-none focus:ring-2 focus:ring-yellow-500` : `w-full px-4 py-2 rounded-xl bg-white  text-gray-900 border ${
-            isError ? "border-red-500" : "border-yellow-500"
-          } focus:outline-none focus:ring-2 focus:ring-yellow-500`,
-          ...(refs[field.name] ? { ref: refs[field.name] } : {}),
           defaultValue: field.defaultValue || "",
+          className: `
+    w-full px-4 py-2 rounded-xl border
+    bg-white text-gray-900 border-yellow-500
+    dark:bg-zinc-800 dark:text-yellow-500 dark:border-yellow-500
+    focus:outline-none focus:ring-2 focus:ring-yellow-500
+    ${isError ? "border-red-500 dark:border-red-500" : ""}
+    transition-all
+  `,
+          ...(refs[field.name] ? { ref: refs[field.name] } : {}),
         };
 
         return (
@@ -41,7 +42,7 @@ const Form = ({
             {field.label && field.type !== "hidden" && (
               <label
                 htmlFor={field.name}
-                className={theme === 'dark' ? "text-sm font-semibold text-yellow-500 mb-1" : "text-sm font-semibold text-gray-900 mb-1"}
+                className={`mb-2 text-sm font-semibold text-gray-900 dark:text-yellow-500`}
               >
                 {field.label}
               </label>
