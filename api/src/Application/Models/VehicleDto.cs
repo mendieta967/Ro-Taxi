@@ -29,7 +29,7 @@ public class VehicleDto
         Brand = vehicle.Brand;
         Color = vehicle.Color;
         Year = vehicle.Year;
-        Driver = vehicle.Driver != null ? new UserDto(vehicle.Driver) : null;
+        Driver = new UserDto(vehicle.Driver);
         Status = vehicle.Status.ToString();
         CreatedAt = vehicle.CreatedAt;
 

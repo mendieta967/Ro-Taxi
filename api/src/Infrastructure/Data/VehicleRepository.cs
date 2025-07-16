@@ -21,14 +21,16 @@ public class VehicleRepository: IVehicleRepository
 
     public async Task<PaginatedList<Vehicle>> GetAll(int? driverId, int pageNumber, int pageSize)
     {
-        var query = _context.Vehicles.AsQueryable();
+        var query = _context.Vehicles.AsNoTracking().Include(v => v.Driver).AsQueryable();
 
-        if (driverId == null)
+        if (driverId.HasValue)
             query = query.Where(v => v.DriverId == driverId);
 
-        var totalData = await _context.Vehicles.CountAsync();
+        query = query.OrderBy(v => v.Id);
 
-        var data = await _context.Vehicles
+        var totalData = await query.CountAsync();
+
+        var data = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
