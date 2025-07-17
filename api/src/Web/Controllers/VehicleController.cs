@@ -24,15 +24,15 @@ public class VehicleController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<ActionResult<Task<List<Ride>>>> GetAll(
+    public async Task<IActionResult> GetAll(
             [FromQuery] PaginationParams pagination,
-            [FromQuery] RideFilterParams filter)
+            [FromQuery] VehicleFilterParams filter)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         try
         {
-            var vehicles = await _vehicleService.GetAll(userId, pagination);
+            var vehicles = await _vehicleService.GetAll(userId, pagination, filter);
             return Ok(vehicles);
         }
         catch (Exception ex)

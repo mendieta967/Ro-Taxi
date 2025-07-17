@@ -27,13 +27,13 @@ public class VehicleService: IVehicleService
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
     }
-    public async Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination)
+    public async Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination, VehicleFilterParams filter)
     {
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
         var response = user.Role == UserRole.Admin
-            ? await _vehicleRepository.GetAll(null, pagination.Page, pagination.PageSize)
-            : await _vehicleRepository.GetAll(userId, pagination.Page, pagination.PageSize);
+            ? await _vehicleRepository.GetAll(null, pagination.Page, pagination.PageSize, filter.LicensePlate)
+            : await _vehicleRepository.GetAll(userId, pagination.Page, pagination.PageSize, filter.LicensePlate);
 
         var data = response.Data.Select(vehicle => new VehicleDto(vehicle)).ToList();
         return new PaginatedList<VehicleDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
