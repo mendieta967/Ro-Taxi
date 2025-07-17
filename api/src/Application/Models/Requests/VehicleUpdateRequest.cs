@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Models.Requests;
 
-public class VehicleCreateRequest
+public class VehicleUpdateRequest
 {
     public string LicensePlate { get; set; }
     public string Model { get; set; }

@@ -9,5 +9,7 @@ namespace Domain.Enums;
 public enum VehicleStatus
 {
     Active,
-    Inactive
+    Inactive,
+    Revision,
+    Deleted
 }

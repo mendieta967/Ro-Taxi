@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Models;
 using Application.Models.Parameters;
 using Application.Models.Requests;
 using Application.Services;
@@ -53,6 +54,56 @@ public class VehicleController : ControllerBase
         catch (NotFoundException ex)
         {
             return NotFound(new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPut("{vehicleId}")]
+    public async Task<ActionResult<UserDto>> Update([FromBody] VehicleUpdateRequest updateRequest, int vehicleId)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        try
+        {
+            VehicleDto vehicle = await _vehicleService.Update(updateRequest, userId, vehicleId);
+            return Ok(vehicle);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (ForbiddenAccessException ex)
+        {
+            return StatusCode(403, new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("{vehicleId}")]
+    public async Task<ActionResult<UserDto>> Delete(int vehicleId)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        try
+        {
+            await _vehicleService.Delete(userId, vehicleId);
+            return NoContent(); 
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (ForbiddenAccessException ex)
+        {
+            return StatusCode(403, new { Error = ex.Message });
         }
         catch (Exception ex)
         {
