@@ -1,4 +1,5 @@
 ﻿using Application.Models;
+using Application.Models.Parameters;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -19,12 +20,15 @@ public class VehicleRepository: IVehicleRepository
         _context = context;
     }
 
-    public async Task<PaginatedList<Vehicle>> GetAll(int? driverId, int pageNumber, int pageSize)
+    public async Task<PaginatedList<Vehicle>> GetAll(int? driverId, int pageNumber, int pageSize, string? licensePlate)
     {
         var query = _context.Vehicles.AsNoTracking().Include(v => v.Driver).AsQueryable();
 
         if (driverId.HasValue)
             query = query.Where(v => v.DriverId == driverId);
+
+        if (!string.IsNullOrEmpty(licensePlate))
+            query = query.Where(v => v.LicensePlate.Contains(licensePlate));
 
         query = query.OrderBy(v => v.Id);
 

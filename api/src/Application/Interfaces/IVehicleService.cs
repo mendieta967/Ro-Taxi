@@ -12,7 +12,7 @@ namespace Application.Interfaces;
 
 public interface IVehicleService
 {
-    Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination);
+    Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination, VehicleFilterParams filter);
     Task<Vehicle> Create(int userId, VehicleCreateRequest request);
     Task<VehicleDto> Update(VehicleUpdateRequest request, int userId, int vehicleId);
     Task Delete(int userId, int vehicleId);
