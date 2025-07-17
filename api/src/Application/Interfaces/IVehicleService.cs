@@ -12,6 +12,8 @@ namespace Application.Interfaces;
 
 public interface IVehicleService
 {
-    public Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination);
-    public Task<Vehicle> Create(int userId, VehicleCreateRequest request);
+    Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination);
+    Task<Vehicle> Create(int userId, VehicleCreateRequest request);
+    Task<VehicleDto> Update(VehicleUpdateRequest request, int userId, int vehicleId);
+    Task Delete(int userId, int vehicleId);
 }
