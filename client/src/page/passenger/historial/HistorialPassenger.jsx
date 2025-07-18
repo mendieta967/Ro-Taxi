@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { Clock, MapPin, Navigation, Search } from "lucide-react";
+import Pagination from "../../../components/ui/Pagination";
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
@@ -22,8 +23,9 @@ const HistorialPassenger = () => {
   const [abrirModal, setAbrirModal] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPagesRider, setTotalPagesRider] = useState(1);
+  const [pageNumberRider, setPageNumberRider] = useState(1);
+  const pageSizeRider = 10;
 
   const [editingData, setEditingData] = useState({
     from: "",
@@ -37,19 +39,18 @@ const HistorialPassenger = () => {
   useEffect(() => {
     const fetchRides = async () => {
       try {
-        const response = await getRides(searchTerm, currentPage);
+        const response = await getRides(
+          pageNumberRider,
+          pageSizeRider,
+          searchTerm
+        );
         console.log("Response:", response);
 
         const scheduledTrips = response.data.filter(
           (ride) => ride?.status === "Pending"
         );
         setScheduledTrips(scheduledTrips);
-        setTotalPages(response.totalPages);
-
-        // Solo actualiza si la página cambió realmente
-        if (response.pageNumber !== currentPage) {
-          setCurrentPage(response.pageNumber);
-        }
+        setTotalPagesRider(response.totalPages);
 
         console.log(scheduledTrips);
       } catch (error) {
@@ -57,7 +58,7 @@ const HistorialPassenger = () => {
       }
     };
     fetchRides();
-  }, [searchTerm, currentPage]);
+  }, [pageNumberRider, searchTerm]);
 
   //filtrado de los viajes programados
   const filteredScheduledTrips = scheduledTrips.filter((trip) =>
@@ -85,10 +86,10 @@ const HistorialPassenger = () => {
     }
   };
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
+  const handlePageChange = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+    setPageNumberRider(newPage);
+    console.log("Página cambiada a:", newPage);
   };
 
   //filtrado de los viajes completados
@@ -101,7 +102,7 @@ const HistorialPassenger = () => {
   //editamos los viajes programados
   const handleEdit = (riderId) => {
     const editeRide = scheduledTrips.find((trip) => trip.id === riderId);
-
+    console.log("Viaje a editar:", editeRide);
     if (editeRide) {
       //perseamos la fecha y hora
       const fechaHora = new Date(editeRide.scheduledAt);
@@ -833,55 +834,11 @@ const HistorialPassenger = () => {
             </div>
           )}
         </div>
-        {totalPages > 0 && (
-          <div className="flex justify-center mt-6 space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded transition cursor-pointer ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : theme === "dark"
-                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-              }`}
-            >
-              «
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 rounded cursor-pointer transition ${
-                  currentPage === i + 1
-                    ? theme === "dark"
-                      ? "bg-yellow-500 text-gray-900 font-semibold"
-                      : "bg-yellow-600 text-white font-semibold"
-                    : theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded transition cursor-pointer ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : theme === "dark"
-                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-              }`}
-            >
-              »
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={pageNumberRider}
+          totalPages={totalPagesRider}
+          onPageChange={handlePageChange}
+        />
       </div>
     </MainLayout>
   );

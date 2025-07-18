@@ -1,34 +1,53 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
-import { Car, Plus, Edit, Trash2, Check, AlertCircle } from "lucide-react";
+import {
+  Car,
+  Plus,
+  Edit,
+  Trash2,
+  Check,
+  AlertCircle,
+  VenetianMaskIcon,
+} from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import Pagination from "../../../components/ui/Pagination";
 import { useTranslate } from "../../../hooks/useTranslate";
-import { createVehicles, getVehicles } from "../../../services/vehicle";
+import {
+  createVehicles,
+  getVehicles,
+  updateVehicles,
+  deleteVehicles,
+} from "../../../services/vehicle";
 
 const VehiculosDriver = () => {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
   const [showAddVehicle, setShowAddVehicle] = useState(false);
-  const [vehiculoEditando, setVehiculoEditando] = useState(null);
+
   const [mostrarModal, setMostrarModal] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPagesVehiculo, setTotalPagesVehiculo] = useState(1);
+  const [pageNumberVehiculo, setPageNumberVehiculo] = useState(1);
+  const pageSizeVehiculo = 10;
 
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
   const [patente, setPatente] = useState("");
   const [año, setAño] = useState("");
   const [color, setColor] = useState("");
-  const [estado, setEstado] = useState("");
+  const [estado, setEstado] = useState("Active");
   const [vehiculos, setVehiculos] = useState([]);
 
-  useEffect(() => {
-    setSearch("");
-    setCurrentPage(1);
-  }, []);
+  const [vehiculoEditando, setVehiculoEditando] = useState({
+    brand: "",
+    model: "",
+    licensePlate: "",
+    color: "",
+    year: "",
+    status: "Active",
+  });
 
   const handleSumbit = async (e) => {
     e.preventDefault();
@@ -51,12 +70,15 @@ const VehiculosDriver = () => {
       return;
     }
 
+    const estadoFinal = estado.trim() === "" ? "Active" : estado.trim();
+
     const nuevoVehiculo = {
       licensePlate: patente.trim(),
       model: modelo.trim(),
       brand: marca.trim(),
       color: color.trim(),
       year: año.toString().trim(),
+      status: estadoFinal,
     };
 
     try {
@@ -86,10 +108,15 @@ const VehiculosDriver = () => {
   useEffect(() => {
     const handleShowVehicle = async () => {
       try {
-        const response = await getVehicles(search, currentPage);
+        const response = await getVehicles(
+          pageNumberVehiculo,
+          pageSizeVehiculo,
+          search
+        );
         console.log("Vehiculos obtenidos del backend:", response);
 
         const vehiculosMapeados = response.data.map((v) => ({
+          id: v.id,
           brand: v.brand,
           model: v.model,
           licensePlate: v.licensePlate,
@@ -98,40 +125,86 @@ const VehiculosDriver = () => {
           status: v.status, // asegurate de que el backend devuelva esto
         }));
 
+        console.log(vehiculosMapeados);
         setVehiculos(vehiculosMapeados);
-        setTotalPages(response.totalPages);
+        setTotalPagesVehiculo(response.totalPages);
       } catch (error) {
         console.log("Error al obtener vehículos:", error);
       }
     };
 
     handleShowVehicle();
-  }, [search, currentPage]);
+  }, [pageNumberVehiculo, search]);
 
   const filterVehiculos = vehiculos.filter((v) =>
     v.licensePlate.toLowerCase().includes(search.toLowerCase())
   );
+  console.log("Vehiculos filtrados:", vehiculos);
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
+  const handlePageChangeVehiculo = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+    setPageNumberVehiculo(newPage);
+    console.log("Página cambiada a:", newPage);
   };
 
   const handleEditar = (vehiculo) => {
-    setVehiculoEditando(vehiculo);
+    console.log("Vehículo a editar:", vehiculo);
+    if (!vehiculo) {
+      console.warn("Vehículo no válido para editar");
+      return;
+    }
+
+    setVehiculoEditando({
+      id: vehiculo.id,
+      brand: vehiculo.brand,
+      model: vehiculo.model,
+      licensePlate: vehiculo.licensePlate,
+      color: vehiculo.color,
+      year: vehiculo.year.toString(),
+      status: vehiculo.status,
+    });
+
     setMostrarModal(true);
   };
-  const guardarCambios = () => {
-    const nuevosVehiculos = vehiculos.map((v) =>
-      v.patente === vehiculoEditando.patente ? vehiculoEditando : v
-    );
-    setVehiculos(nuevosVehiculos);
-    setMostrarModal(false);
+
+  const guardarCambios = async () => {
+    try {
+      const vehicleGuardado = {
+        id: vehiculoEditando.id,
+        brand: vehiculoEditando.brand,
+        model: vehiculoEditando.model,
+        licensePlate: vehiculoEditando.licensePlate,
+        color: vehiculoEditando.color,
+        year: vehiculoEditando.year,
+        status: vehiculoEditando.status,
+      };
+      console.log("Vehiculo guardado:", vehicleGuardado);
+      const response = await updateVehicles(
+        vehiculoEditando.id,
+        vehicleGuardado
+      );
+      console.log("Vehiculo editado con éxito", response);
+      setVehiculos(
+        vehiculos.map((v) =>
+          v.id === vehiculoEditando.id ? vehicleGuardado : v
+        )
+      );
+      console.log("Vehiculo guardado:", vehicleGuardado);
+      setMostrarModal(false);
+    } catch (error) {
+      console.log("Error al guardar cambios", error);
+    }
   };
 
-  const handleDelite = (patente) => {
-    setVehiculos(vehiculos.filter((v) => v.patente !== patente));
+  const handleDelite = async (id) => {
+    console.log("Vehículo a eliminar:", id);
+    try {
+      const response = await deleteVehicles(id);
+      console.log("Vehiculo eliminado con éxito", response);
+      setVehiculos(vehiculos.filter((v) => v.id !== id));
+    } catch (error) {
+      console.log("Error al eliminar vehiculo", error);
+    }
   };
 
   return (
@@ -165,130 +238,143 @@ const VehiculosDriver = () => {
           </div>
 
           <div className="space-y-6">
-            {filterVehiculos.map((vehiculo, index) => (
-              <div
-                key={index}
-                className={`backdrop-blur-md  rounded-2xl p-6 border shadow-xl hover:shadow-yellow-500/10 transition-all duration-300 ${
-                  theme === "dark"
-                    ? "bg-zinc-900 border-zinc-800/50"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex gap-4">
-                    <div
-                      className={`w-16 h-16  rounded-xl flex items-center justify-center ${
-                        theme === "dark"
-                          ? "bg-zinc-800 border border-zinc-800"
-                          : "bg-white border border-yellow-500"
-                      }`}
-                    >
-                      <Car size={32} className="text-yellow-500" />
-                    </div>
+            {filterVehiculos
+              .filter((vehiculo) => vehiculo.status !== "Deleted")
+              .map((vehiculo, index) => (
+                <div
+                  key={index}
+                  className={`backdrop-blur-md  rounded-2xl p-6 border shadow-xl hover:shadow-yellow-500/10 transition-all duration-300 ${
+                    theme === "dark"
+                      ? "bg-zinc-900 border-zinc-800/50"
+                      : "bg-white border border-yellow-500"
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex gap-4">
+                      <div
+                        className={`w-16 h-16  rounded-xl flex items-center justify-center ${
+                          theme === "dark"
+                            ? "bg-zinc-800 border border-zinc-800"
+                            : "bg-white border border-yellow-500"
+                        }`}
+                      >
+                        <Car size={32} className="text-yellow-500" />
+                      </div>
 
-                    <div>
-                      <h3 className="text-xl font-bold">{vehiculo.brand}</h3>
-                      <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-500">
-                        <p>
-                          <span
-                            className={`${
-                              theme === "dark"
-                                ? "text-yellow-500 font-semibold "
-                                : "text-gray-900 font-semibold"
-                            }`}
-                          >
-                            {translate("Modelo")}:{" "}
-                          </span>
-                          {vehiculo.model}
-                        </p>
-                        <p>
-                          <span
-                            className={`${
-                              theme === "dark"
-                                ? "text-yellow-500 font-semibold "
-                                : "text-gray-900 font-semibold"
-                            }`}
-                          >
-                            {translate("Patente")}:{" "}
-                          </span>
-                          {vehiculo.licensePlate}
-                        </p>
-                        <p>
-                          <span
-                            className={`${
-                              theme === "dark"
-                                ? "text-yellow-500 font-semibold "
-                                : "text-gray-900 font-semibold"
-                            }`}
-                          >
-                            {translate("Año")}:{" "}
-                          </span>{" "}
-                          {vehiculo.year}
-                        </p>
-                        <p>
-                          <span
-                            className={`${
-                              theme === "dark"
-                                ? "text-yellow-500 font-semibold "
-                                : "text-gray-900 font-semibold"
-                            }`}
-                          >
-                            {translate("Color")}:{" "}
-                          </span>{" "}
-                          {vehiculo.color}
-                        </p>
-                      </div>
-                      <div className="mt-3 flex items-center">
-                        {vehiculo.status === "Active" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600/30 text-green-500 border border-green-500">
-                            <Check size={12} className="mr-1" />
-                            Activo
-                          </span>
-                        )}
-                        {vehiculo.status === "revision" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-600/30 text-yellow-500 border border-yellow-500">
-                            <AlertCircle size={12} className="mr-1" />
-                            Revisión
-                          </span>
-                        )}
-                        {vehiculo.status === "inactivo" && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600/30 text-red-500 border border-red-500">
-                            <AlertCircle size={12} className="mr-1" />
-                            Inactivo
-                          </span>
-                        )}
+                      <div>
+                        <h3 className="text-xl font-bold">{vehiculo.brand}</h3>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm text-gray-500">
+                          <p>
+                            <span
+                              className={`${
+                                theme === "dark"
+                                  ? "text-yellow-500 font-semibold "
+                                  : "text-gray-900 font-semibold"
+                              }`}
+                            >
+                              {translate("Modelo")}:{" "}
+                            </span>
+                            {vehiculo.model}
+                          </p>
+                          <p>
+                            <span
+                              className={`${
+                                theme === "dark"
+                                  ? "text-yellow-500 font-semibold "
+                                  : "text-gray-900 font-semibold"
+                              }`}
+                            >
+                              {translate("Patente")}:{" "}
+                            </span>
+                            {vehiculo.licensePlate}
+                          </p>
+                          <p>
+                            <span
+                              className={`${
+                                theme === "dark"
+                                  ? "text-yellow-500 font-semibold "
+                                  : "text-gray-900 font-semibold"
+                              }`}
+                            >
+                              {translate("Año")}:{" "}
+                            </span>{" "}
+                            {vehiculo.year}
+                          </p>
+                          <p>
+                            <span
+                              className={`${
+                                theme === "dark"
+                                  ? "text-yellow-500 font-semibold "
+                                  : "text-gray-900 font-semibold"
+                              }`}
+                            >
+                              {translate("Color")}:{" "}
+                            </span>{" "}
+                            {vehiculo.color}
+                          </p>
+                        </div>
+                        <div className="mt-3 flex items-center">
+                          {vehiculo.status === "Active" && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600/30 text-green-500 border border-green-500">
+                              <Check size={12} className="mr-1" />
+                              Activo
+                            </span>
+                          )}
+                          {vehiculo.status === "Revision" && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-600/30 text-yellow-500 border border-yellow-500">
+                              <AlertCircle size={12} className="mr-1" />
+                              Revisión
+                            </span>
+                          )}
+                          {vehiculo.status === "Inactive" && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600/30 text-red-500 border border-red-500">
+                              <AlertCircle size={12} className="mr-1" />
+                              Inactivo
+                            </span>
+                          )}
+                          {vehiculo.status === "Deleted" && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-300 shadow-sm">
+                              <AlertCircle size={14} className="text-red-700" />
+                              Eliminado
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEditar(vehiculo)}
-                      className={`p-2 ${
-                        theme === "dark"
-                          ? "bg-zinc-800 hover:bg-zinc-700"
-                          : "bg-white border border-yellow-500 hover:bg-zinc-700"
-                      } rounded-lg transition-all duration-200 cursor-pointer`}
-                    >
-                      <Edit size={18} className="text-yellow-500" />
-                    </button>
-                    <button
-                      onClick={() => handleDelite(vehiculo.patente)}
-                      className={`p-2 ${
-                        theme === "dark"
-                          ? "bg-zinc-800 hover:bg-red-900/50"
-                          : "bg-white border border-red-500 hover:bg-zinc-700"
-                      } rounded-lg transition-all duration-200 cursor-pointer`}
-                    >
-                      <Trash2 size={18} className="text-red-500" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditar(vehiculo)}
+                        className={`p-2 ${
+                          theme === "dark"
+                            ? "bg-zinc-800 hover:bg-zinc-700"
+                            : "bg-white border border-yellow-500 hover:bg-zinc-700"
+                        } rounded-lg transition-all duration-200 cursor-pointer`}
+                      >
+                        <Edit size={18} className="text-yellow-500" />
+                      </button>
+                      <button
+                        onClick={() => handleDelite(vehiculo.id)}
+                        className={`p-2 ${
+                          theme === "dark"
+                            ? "bg-zinc-800 hover:bg-red-900/50"
+                            : "bg-white border border-red-500 hover:bg-zinc-700"
+                        } rounded-lg transition-all duration-200 cursor-pointer`}
+                      >
+                        <Trash2 size={18} className="text-red-500" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
+          {/* Formulario para editar vehículo (condicional) */}
           {mostrarModal && (
             <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
-              <div
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  guardarCambios();
+                }}
                 className={`rounded-2xl p-6 w-full max-w-lg shadow-lg  relative ${
                   theme === "dark"
                     ? "bg-zinc-900 border border-zinc-800/50 text-white"
@@ -317,7 +403,7 @@ const VehiculosDriver = () => {
                     onChange={(e) =>
                       setVehiculoEditando({
                         ...vehiculoEditando,
-                        marca: e.target.value,
+                        brand: e.target.value,
                       })
                     }
                   />
@@ -341,7 +427,7 @@ const VehiculosDriver = () => {
                     onChange={(e) =>
                       setVehiculoEditando({
                         ...vehiculoEditando,
-                        modelo: e.target.value,
+                        model: e.target.value,
                       })
                     }
                   />
@@ -364,7 +450,7 @@ const VehiculosDriver = () => {
                     onChange={(e) =>
                       setVehiculoEditando({
                         ...vehiculoEditando,
-                        patente: e.target.value,
+                        licensePlate: e.target.value,
                       })
                     }
                   />
@@ -387,7 +473,7 @@ const VehiculosDriver = () => {
                     onChange={(e) =>
                       setVehiculoEditando({
                         ...vehiculoEditando,
-                        año: e.target.value,
+                        year: e.target.value,
                       })
                     }
                   />
@@ -425,11 +511,11 @@ const VehiculosDriver = () => {
                     {translate("Estado")}
                   </label>
                   <select
-                    value={vehiculoEditando.estado}
+                    value={vehiculoEditando.status}
                     onChange={(e) =>
                       setVehiculoEditando({
                         ...vehiculoEditando,
-                        estado: e.target.value,
+                        status: e.target.value,
                       })
                     }
                     className={`block w-full cursor-pointer px-3 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200 ${
@@ -438,15 +524,15 @@ const VehiculosDriver = () => {
                         : "bg-white border border-yellow-500 "
                     }`}
                   >
-                    <option value="activo">{translate("Activo")}</option>
-                    <option value="revision">{translate("Revisión")}</option>
-                    <option value="inactivo">{translate("Inactivo")}</option>
+                    <option value="Active">{translate("Activo")}</option>
+                    <option value="Revision">{translate("Revisión")}</option>
+                    <option value="Inactive">{translate("Inactivo")}</option>
                   </select>
                 </div>
                 <div className="flex justify-center space-x-3 mt-5">
                   <button
                     className="flex cursor-pointer items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-yellow-500/20"
-                    onClick={guardarCambios}
+                    type="submit"
                   >
                     {translate("Guardar")}
                   </button>
@@ -457,7 +543,7 @@ const VehiculosDriver = () => {
                     {translate("Cancelar")}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           )}
 
@@ -598,9 +684,9 @@ const VehiculosDriver = () => {
                         : "border border-yellow-500 "
                     }`}
                   >
-                    <option value="activo">{translate("Activo")}</option>
-                    <option value="revision">{translate("Revisión")}</option>
-                    <option value="inactivo">{translate("Inactivo")}</option>
+                    <option value="Active">{translate("Activo")}</option>
+                    <option value="Revision">{translate("Revisión")}</option>
+                    <option value="Inactivo">{translate("Inactivo")}</option>
                   </select>
                 </div>
               </div>
@@ -622,55 +708,11 @@ const VehiculosDriver = () => {
           )}
 
           {/* Paginación mejorada */}
-          {totalPages > 0 && (
-            <div className="flex justify-center mt-6 space-x-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`px-3 py-1 rounded transition cursor-pointer ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                }`}
-              >
-                «
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 rounded cursor-pointer transition ${
-                    currentPage === i + 1
-                      ? theme === "dark"
-                        ? "bg-yellow-500 text-gray-900 font-semibold"
-                        : "bg-yellow-600 text-white font-semibold"
-                      : theme === "dark"
-                      ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                      : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded transition cursor-pointer ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                }`}
-              >
-                »
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={pageNumberVehiculo}
+            totalPages={totalPagesVehiculo}
+            onPageChange={handlePageChangeVehiculo}
+          />
         </div>
       </div>
     </MainLayout>
