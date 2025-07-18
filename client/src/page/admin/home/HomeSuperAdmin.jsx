@@ -1,4 +1,5 @@
 import MainLayout from "../../../components/layout/MainLayout";
+import Pagination from "../../../components/ui/Pagination";
 import Modal from "../../../components/ui/Modal";
 import FormProfile from "../../../components/common/FormProfile";
 import { ThemeContext } from "../../../context/ThemeContext";
@@ -8,14 +9,7 @@ import {
   imprimirResumen,
 } from "../../../components/ui/PrintUtils";
 import { dataAdmin } from "../../../data/data";
-import {
-  Pencil,
-  Plus,
-  Search,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { getAll } from "../../../services/user";
 import { getVehicles } from "../../../services/vehicle";
@@ -26,10 +20,17 @@ const HomeSuperAdmin = () => {
   const [conductores, setConductores] = useState([]);
   const [pasajeros, setPasajeros] = useState([]);
 
+  //Estados de mis usuarios
   const [search, setSearch] = useState("");
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
+
+  //Estado de mis vehiculos
+
+  const [totalPagesVehiculo, setTotalPagesVehiculo] = useState(1);
+  const [pageNumberVehiculo, setPageNumberVehiculo] = useState(1);
+  const pageSizeVehiculo = 10;
 
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("usuarios");
@@ -46,11 +47,14 @@ const HomeSuperAdmin = () => {
 
   let displayedData = [];
   let headers = [];
+
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
+        console.log("Fetch usuarios página:", pageNumber, "tamaño:", pageSize);
         const response = await getAll(pageNumber, pageSize, search); // CAMBIO A 10 POR PÁGINA
         console.log("Full response:", response);
+        console.log("Fetch usuarios página:", pageNumber, "tamaño:", pageSize);
 
         if (response?.data) {
           console.log("USUARIOS TODOS", response.data);
@@ -96,22 +100,23 @@ const HomeSuperAdmin = () => {
     };
 
     fetchUsuarios();
-  }, [search, pageNumber]);
+  }, [pageNumber, search]);
 
   const handlePageChange = (newPage) => {
     console.log("Cambiando a página:", newPage); // DEBUG
-
-    if (newPage >= 1 && newPage <= totalPages) {
-      setPageNumber(newPage);
-    }
+    setPageNumber(newPage);
+    console.log("Página cambiada a:", newPage);
   };
 
   useEffect(() => {
     const handleShowVehicle = async () => {
       try {
-        const response = await getVehicles(search, pageNumber);
+        const response = await getVehicles(
+          pageNumberVehiculo,
+          pageSizeVehiculo,
+          search
+        );
         console.log("Vehiculos obtenidos del backend:", response);
-
         const vehiculosMapeados = response.data.map((v) => ({
           id: v.id,
           patente: v.licensePlate,
@@ -124,14 +129,20 @@ const HomeSuperAdmin = () => {
         }));
         console.log(vehiculosMapeados);
         setVehiculos(vehiculosMapeados);
-        setTotalPages(response.totalPages);
+        setTotalPagesVehiculo(response.totalPages);
       } catch (error) {
         console.log("Error al obtener vehículos:", error);
       }
     };
 
     handleShowVehicle();
-  }, [search, pageNumber]);
+  }, [pageNumberVehiculo, search]);
+
+  const handlePageChangeVehiculo = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+    setPageNumberVehiculo(newPage);
+    console.log("Página cambiada a:", newPage);
+  };
 
   // Configurar datos y headers según la pestaña activa
   if (activeTab === "usuarios") {
@@ -707,12 +718,14 @@ const HomeSuperAdmin = () => {
                             <span
                               className={`px-3 py-1 rounded-full text-sm font-semibold ${
                                 item?.estado === "Active"
-                                  ? "bg-green-600"
-                                  : item?.estado === "Inactivo"
-                                  ? "bg-yellow-600"
-                                  : item?.estado === "Cancelado"
-                                  ? "bg-red-600"
-                                  : "bg-gray-600"
+                                  ? "bg-green-600 text-black"
+                                  : item?.estado === "Revision"
+                                  ? "bg-yellow-500 text-black"
+                                  : item?.estado === "Inactive"
+                                  ? "bg-red-600 text-black"
+                                  : item?.estado === "Deleted"
+                                  ? "bg-red-100 text-red-600 line-through italic border border-red-400"
+                                  : "bg-gray-600 text-black"
                               }`}
                             >
                               {item?.estado ?? "N/A"}
@@ -785,60 +798,21 @@ const HomeSuperAdmin = () => {
           </div>
         </div>
 
-        {/* Paginación mejorada */}
-        {totalPages > 0 && (
-          <div className="flex justify-center mt-6 space-x-2">
-            <button
-              onClick={() => pageNumber > 1 && handlePageChange(pageNumber - 1)}
-              disabled={pageNumber === 1}
-              className={`px-3 py-1 rounded transition cursor-pointer ${
-                pageNumber === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : theme === "dark"
-                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-              }`}
-            >
-              <ChevronLeft size={18} />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => {
-              const page = i + 1;
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 rounded cursor-pointer transition ${
-                    pageNumber === page
-                      ? theme === "dark"
-                        ? "bg-yellow-500 text-gray-900 font-semibold"
-                        : "bg-yellow-600 text-white font-semibold"
-                      : theme === "dark"
-                      ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                      : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() =>
-                pageNumber < totalPages && handlePageChange(pageNumber + 1)
-              }
-              disabled={pageNumber === totalPages}
-              className={`px-3 py-1 rounded transition cursor-pointer ${
-                pageNumber === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : theme === "dark"
-                  ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                  : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-              }`}
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
+        {/* Paginación mejorada usuarios*/}
+        {activeTab === "usuarios" && (
+          <Pagination
+            currentPage={pageNumber}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
+        {/* Paginación mejorada vehiculo*/}
+        {activeTab === "vehiculos" && (
+          <Pagination
+            currentPage={pageNumberVehiculo}
+            totalPages={totalPagesVehiculo}
+            onPageChange={handlePageChangeVehiculo}
+          />
         )}
       </div>
     </MainLayout>

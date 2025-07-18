@@ -1,12 +1,9 @@
 import apiClient from "../utils/api-client";
 
 export const getUser = (id) => apiClient.get(`user/${id}`);
-export const getAll = (pageNumber = 1, pageSize = 25, search = "") => {
-  let url = `user?pageNumber=${pageNumber}&pageSize=${pageSize}`;
-
-  if (search) {
-    url += `&search=${encodeURIComponent(search)}`;
-  }
-
-  return apiClient.get(url);
-};
+// services/user.js
+// ejemplo en services/user.js
+export const getAll = (pageNumber, pageSize, search = "") =>
+  apiClient.get(
+    `user?Page=${pageNumber}&PageSize=${pageSize}&Search=${search}`
+  );

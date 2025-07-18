@@ -1,26 +1,17 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { historailViajes, cardViajes } from "../../../data/data";
 import { Clock, Star } from "lucide-react";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
-import { getRides } from "../../../services/ride";
 
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
-  const getAllViajesProgramados = async () => {
-    const response = await getRides();
-    console.log(response);
-  };
-
-  useEffect(() => {
-    getAllViajesProgramados();
-  }, []);
   return (
     <MainLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
