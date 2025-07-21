@@ -220,33 +220,30 @@ public class RideService : IRideService
 
     public decimal CalculatePrice(CalculatePriceRequest request)
     {
-        decimal baseFare = 70m;           // Tarifa fija mínima
-        decimal pricePerKm = 120m;        // Tarifa por km
-        decimal pricePerMinute = 8m;      // Tarifa por minuto
-        double averageSpeedKmh = 25;      // Velocidad promedio estimada en ciudad
+        decimal baseFare = 600m;        // Tarifa inicial en BA
+        decimal pricePerBlock = 25m;    // Aproximadamente $25 por cuadra
+        decimal pricePerMinute = 50m;   // Precio por minuto
+        double averageSpeedKmh = 20;    // Velocidad urbana promedio
 
-        double DegreesToRadians(double degrees) => degrees * Math.PI / 180;
+        double toRad(double deg) => deg * Math.PI / 180;
 
-        double R = 6371; // km
-        double dLat = DegreesToRadians(request.DestLat - request.OriginLat);
-        double dLon = DegreesToRadians(request.DestLng - request.OriginLng);
-        double lat1 = DegreesToRadians(request.OriginLat);
-        double lat2 = DegreesToRadians(request.DestLat);
-
+        double R = 6371;
+        double dLat = toRad(request.DestLat - request.OriginLat);
+        double dLon = toRad(request.DestLng - request.OriginLng);
+        double lat1 = toRad(request.OriginLat), lat2 = toRad(request.DestLat);
         double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
                    Math.Cos(lat1) * Math.Cos(lat2) *
                    Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
         double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
         double distanceKm = R * c;
 
+        int blocks = (int)Math.Ceiling(distanceKm / 0.1);
         double estimatedTimeHours = distanceKm / averageSpeedKmh;
         decimal estimatedTimeMinutes = (decimal)(estimatedTimeHours * 60);
 
-        decimal price = baseFare + (decimal)distanceKm * pricePerKm + estimatedTimeMinutes * pricePerMinute;
-
+        decimal price = baseFare + (blocks * pricePerBlock) + (estimatedTimeMinutes * pricePerMinute);
         return Math.Round(price, 2);
     }
 
-    
+
 }
