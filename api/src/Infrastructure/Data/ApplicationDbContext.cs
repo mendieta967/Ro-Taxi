@@ -56,6 +56,9 @@ namespace Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(r => r.DriverId);
 
+            modelBuilder.Entity<Ride>()
+                 .HasIndex(r => new { r.Status, r.ScheduledAt });
+
             modelBuilder.Entity<Vehicle>()
                 .HasOne(r => r.Driver)
                 .WithMany()

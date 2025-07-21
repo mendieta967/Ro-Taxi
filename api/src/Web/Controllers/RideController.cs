@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Models;
 using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
@@ -27,7 +28,7 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<Task<List<Ride>>>> GetAll(
+        public async Task<ActionResult<Task<List<RideDto>>>> GetAll(
             [FromQuery] PaginationParams pagination, 
             [FromQuery] RideFilterParams filter)
         {
@@ -44,23 +45,50 @@ namespace Web.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<ActionResult<Ride>> Create([FromBody] RideCreateRequest request)
+        [Authorize(Roles = nameof(UserRole.Driver))]
+        [HttpGet("scheduled-for-driver")]
+        public async Task<ActionResult<Task<List<RideDto>>>> GetSchedulesForDriver(
+            [FromQuery] PaginationParams pagination,
+            [FromQuery] GetSchedulesForDriverRequest request)
         {
-            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
             try
             {
-                var ride = await _rideService.CreateScheduleRide(userId, request);
-                return Created("",ride);
-            } 
+                var rides = await _rideService.GetSchedulesForDriver(userId, pagination, request);
+                return Ok(rides);
+            }
             catch (NotFoundException ex)
             {
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
             {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<RideDto>> Create([FromBody] RideCreateRequest request)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            try
+            {
+                var ride = await _rideService.CreateScheduleRide(userId, request);
+                return Created($"/api/rides/{ride.Id}", ride);
+            } 
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (BadRequestException ex)
+            {
                 return BadRequest(new {Error =  ex.Message});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
             }
         }
 
@@ -88,6 +116,27 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Driver))]
+        [HttpPost("{rideId}/accept")]
+        public async Task<IActionResult> AcceptRide(int rideId)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _rideService.Accept(userId, rideId);
+                return NoContent(); 
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Error = ex.Message }); 
+            }
+        }
+
 
         [Authorize]
         [HttpDelete("{rideId}")]
@@ -110,6 +159,68 @@ namespace Web.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = nameof(UserRole.Driver))]
+        [HttpPost("{rideId}/complete")]
+        public async Task<IActionResult> CompleteRide(int rideId)
+        {
+            int driverId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _rideService.Complete(driverId, rideId);
+                return NoContent(); 
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = nameof(UserRole.Client))]
+        [HttpPost("{rideId}/rate")]
+        public async Task<IActionResult> CompleteRide(int rideId, [FromBody] int rating)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _rideService.RateRide(userId, rideId, rating);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Error = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
             }
         }
 

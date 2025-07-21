@@ -20,7 +20,6 @@ public class Ride
     public string DestinationAddress { get; set; }
     public double DestinationLat { get; set; }
     public double DestinationLng { get; set; }
-    public decimal EstimatedPrice { get; set; }
     public Payment? Payment { get; set; }
     public int? Rating { get; set; }
     public DateTime RequestedAt { get; set; }

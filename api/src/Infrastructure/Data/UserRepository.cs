@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
     }
     public async Task<PaginatedList<User>> GetAll(int pageNumber, int pageSize, UserRole? role, string? search)
     {
-        var query = _context.Users.AsQueryable();
+        var query = _context.Users.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -32,6 +32,8 @@ public class UserRepository : IUserRepository
         {
             query = query.Where(u => u.Role == role);
         }
+
+        query = query.OrderBy(v => v.Id);
 
         var totalData = await query.CountAsync();
 
