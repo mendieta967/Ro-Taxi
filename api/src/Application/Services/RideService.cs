@@ -32,7 +32,7 @@ public class RideService : IRideService
         _paymentMethodRepository = paymentMethodRepository;
     }
     
-    public async Task<PaginatedList<Ride>> GetAll(int userId, PaginationParams pagination, RideFilterParams filter)
+    public async Task<PaginatedList<RideDto>> GetAll(int userId, PaginationParams pagination, RideFilterParams filter)
     {
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
@@ -45,18 +45,38 @@ public class RideService : IRideService
             status = parsedStatus;
         }
 
-        if (user.Role == UserRole.Admin)
-        {
-            return await _rideRepository.GetAll(null, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date);
-        }
+        var response = user.Role == UserRole.Admin 
+            ? await _rideRepository.GetAll(null, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date)
+            : await _rideRepository.GetAll(userId, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date);
+        var data = response.Data.Select(ride => new RideDto(ride)).ToList();
 
-        return await _rideRepository.GetAll(userId, pagination.Page, pagination.PageSize, status, filter.Search, filter.Date);
+
+        return new PaginatedList<RideDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
     }
-    public async Task<Ride> CreateScheduleRide(int userId, RideCreateRequest request)
+
+    public async Task<PaginatedList<RideDto>> GetSchedulesForDriver(int userId, PaginationParams pagination, GetSchedulesForDriverRequest request)
     {
-        var user = _userRepository.GetById(userId);
+        var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
+
+        var response = await _rideRepository.GetSchedulesForDriver(pagination.Page, pagination.PageSize, request.DriverLat, request.DriverLng);
+        var data = response.Data.Select(ride => new RideDto(ride)).ToList();
+        return new PaginatedList<RideDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
+    }
+
+    public async Task<RideDto> CreateScheduleRide(int userId, RideCreateRequest request)
+    {
+        var user = await _userRepository.GetById(userId);
+        if (user is null) throw new NotFoundException("user not found");
+
+        var calculatedPrice = CalculatePrice(new CalculatePriceRequest { OriginLat = request.OriginLat, OriginLng = request.OriginLng, DestLat = request.DestinationLat, DestLng = request.DestinationLng });
+        if (Math.Abs(calculatedPrice - request.CalculatedPrice) > 0.01m)
+            throw new BadRequestException("error calculated price");
+
         var now = DateTime.UtcNow;
+
+        if (request.ScheduledAt.HasValue && request.ScheduledAt.Value <= now)
+            throw new BadRequestException("The scheduled date and time must be in the future.");
 
         await _unitOfWork.BeginTransactionAsync();
 
@@ -71,19 +91,17 @@ public class RideService : IRideService
                 OriginLng = request.OriginLng,
                 DestinationAddress = request.DestinationAddress,
                 DestinationLat = request.DestinationLat,
-                DestinationLng = request.DestinationLng,
-                EstimatedPrice = CalculatePrice(new CalculatePriceRequest { OriginLat = request.OriginLat, OriginLng = request.OriginLng, DestLat = request.DestinationLat, DestLng = request.DestinationLng }),
+                DestinationLng = request.DestinationLng,               
                 RequestedAt = now,
                 ScheduledAt = request.ScheduledAt
             };
             await _rideRepository.Create(ride);
-            await _unitOfWork.SaveChangesAsync();
 
             // payment
             var payment = new Payment
             {
-                RideId = ride.Id,
-                Amount = ride.EstimatedPrice,
+                Ride = ride,
+                Amount = calculatedPrice,
                 CreatedAt = now
             };
             if (request.PaymentMethodId is not null)
@@ -97,7 +115,8 @@ public class RideService : IRideService
             // save
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            return ride;
+            ride.Payment = payment;
+            return new RideDto(ride);
         }
         catch
         {
@@ -107,38 +126,29 @@ public class RideService : IRideService
     }
     public async Task Update(int userId, int rideId, RideUpdateRequest request)
     {
+
         var ride = await _rideRepository.GetById(rideId);
 
         if (ride is null) throw new NotFoundException("Ride not found");
         if (ride.Status != RideStatus.Pending) throw new Exception("This ride cannot be editing");
         if (ride.PassegerId != userId) throw new ForbiddenAccessException("You do not have access to this ride.");
+        if (request.ScheduledAt.HasValue && request.ScheduledAt.Value <= DateTime.UtcNow)
+            throw new BadRequestException("The scheduled date and time must be in the future.");
 
-        if (request.OriginAddress != null && request.OriginLat != null && request.OriginLng != null && 
-            request.DestinationAddress != null && request.DestinationLat != null && request.DestinationLng != null) 
-        {
-            ride.OriginAddress = request.OriginAddress;
-            ride.OriginLat = request.OriginLat.Value;
-            ride.OriginLng = request.OriginLng.Value;
-            ride.DestinationAddress = request.DestinationAddress;
-            ride.DestinationLat = request.DestinationLat.Value;
-            ride.DestinationLng = request.DestinationLng.Value;
+        if (request.ScheduledAt is not null) ride.ScheduledAt = request.ScheduledAt;        
 
-            ride.EstimatedPrice = CalculatePrice(new CalculatePriceRequest { OriginLat = request.OriginLat.Value, OriginLng = request.OriginLng.Value, DestLat = request.DestinationLat.Value, DestLng = request.DestinationLng.Value });
-            var payment = await _paymentRepository.GetByRideId(rideId);
-            payment.Amount = ride.EstimatedPrice;
-            _paymentRepository.Update(payment);
-        }
-        
-        if(request.ScheduledAt is not null) ride.ScheduledAt = request.ScheduledAt;
+        _rideRepository.Update(ride);
+        await _unitOfWork.SaveChangesAsync();
+    }
+    public async Task Accept(int userId, int rideId)
+    {
+        var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
+        if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("This ride cannot be accepted");
 
-        if (request.PaymentMethodId is not null)
-        {
-            var paymentMethod = await _paymentMethodRepository.GetById(userId, request.PaymentMethodId.Value);
-            if (paymentMethod is null) throw new NotFoundException("payment method not found");
-            var payment = await _paymentRepository.GetByRideId(rideId);
-            payment.PaymentMethodId = request.PaymentMethodId;
-            _paymentRepository.Update(payment);
-        }
+        ride.DriverId = userId;
+        ride.Status = RideStatus.InProgress;
+        ride.StartedAt = DateTime.UtcNow;
 
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
@@ -147,7 +157,7 @@ public class RideService : IRideService
     {
         var ride = await _rideRepository.GetById(rideId);
         if (ride is null) throw new NotFoundException("Ride not found");
-        if (ride.Status != RideStatus.Pending && ride.Status != RideStatus.Accepted)
+        if (ride.Status != RideStatus.Pending && ride.Status != RideStatus.InProgress)
             throw new Exception("This ride cannot be cancel");
 
         if (ride.Status == RideStatus.Pending)
@@ -166,14 +176,77 @@ public class RideService : IRideService
 
         await _unitOfWork.SaveChangesAsync();
     }
-    public decimal CalculatePrice(CalculatePriceRequest request)
-    {        
-        // Ejemplo simple usando distancia euclideana (NO es exacto, solo placeholder)
-        var distance = Math.Sqrt(
-            Math.Pow(request.DestLat - request.OriginLat, 2) + Math.Pow(request.DestLng - request.OriginLng, 2)
-        );
 
-        // Supongamos $150 por km estimado
-        return Math.Round((decimal)(distance * 111 * 150), 2);
+    public async Task Complete(int userId, int rideId)
+    {
+        var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
+
+        if (ride.DriverId != userId)
+            throw new UnauthorizedAccessException("This driver is not assigned to this ride");
+
+        if (ride.Status != RideStatus.InProgress)
+            throw new InvalidOperationException("Only rides in progress can be completed");
+
+        ride.Status = RideStatus.Completed;
+        ride.EndedAt = DateTime.UtcNow;
+
+        _rideRepository.Update(ride);
+        await _unitOfWork.SaveChangesAsync();
     }
+
+    public async Task RateRide(int userId, int rideId, int rating)
+    {
+        var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
+
+        if (ride.PassegerId != userId)
+            throw new UnauthorizedAccessException("This passenger is not associated with the ride");
+
+        if (ride.Status != RideStatus.Completed)
+            throw new InvalidOperationException("You can only rate completed rides");
+
+        if (rating < 1 || rating > 5)
+            throw new ArgumentException("Rating must be between 1 and 5");
+
+        if (ride.Rating != null)
+            throw new InvalidOperationException("this ride is already rated");
+        
+        ride.Rating = rating;
+
+        _rideRepository.Update(ride);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public decimal CalculatePrice(CalculatePriceRequest request)
+    {
+        decimal baseFare = 70m;           // Tarifa fija mínima
+        decimal pricePerKm = 120m;        // Tarifa por km
+        decimal pricePerMinute = 8m;      // Tarifa por minuto
+        double averageSpeedKmh = 25;      // Velocidad promedio estimada en ciudad
+
+        double DegreesToRadians(double degrees) => degrees * Math.PI / 180;
+
+        double R = 6371; // km
+        double dLat = DegreesToRadians(request.DestLat - request.OriginLat);
+        double dLon = DegreesToRadians(request.DestLng - request.OriginLng);
+        double lat1 = DegreesToRadians(request.OriginLat);
+        double lat2 = DegreesToRadians(request.DestLat);
+
+        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                   Math.Cos(lat1) * Math.Cos(lat2) *
+                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        double distanceKm = R * c;
+
+        double estimatedTimeHours = distanceKm / averageSpeedKmh;
+        decimal estimatedTimeMinutes = (decimal)(estimatedTimeHours * 60);
+
+        decimal price = baseFare + (decimal)distanceKm * pricePerKm + estimatedTimeMinutes * pricePerMinute;
+
+        return Math.Round(price, 2);
+    }
+
+    
 }

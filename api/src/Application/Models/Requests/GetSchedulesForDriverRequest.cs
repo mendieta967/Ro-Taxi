@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.Models.Requests;
 
-public class RideUpdateRequest
+public class GetSchedulesForDriverRequest
 {
-    public DateTime? ScheduledAt { get; set; }
+    public double DriverLat {  get; set; }
+    public double DriverLng { get; set; }
 }

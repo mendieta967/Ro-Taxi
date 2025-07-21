@@ -50,6 +50,8 @@ public class RideRepository : IRideRepository
                 r.Passeger.Name.Contains(search) || 
                 r.Driver.Name.Contains(search));
 
+        query = query.OrderBy(v => v.RequestedAt);
+
         var totalData = await query.CountAsync();
 
         var rides = await query                       
@@ -60,7 +62,35 @@ public class RideRepository : IRideRepository
         var totalPages = (int)Math.Ceiling((double)totalData / pageSize);
 
         return new PaginatedList<Ride>(rides, totalData, pageIndex, pageSize, totalPages);
-    } 
+    }
+
+    public async Task<PaginatedList<Ride>> GetSchedulesForDriver(int pageIndex, int pageSize, double driverLat, double driverLng)
+    {
+        var query = _context.Rides
+        .Include(r => r.Passeger)
+        .Include(r => r.Payment)
+        .Where(r => r.Status == RideStatus.Pending
+                    && r.ScheduledAt > DateTime.UtcNow
+                    && r.DriverId == null);
+
+        query = query.OrderBy(r =>
+            (r.OriginLat - driverLat) * (r.OriginLat - driverLat) +
+            (r.OriginLng - driverLng) * (r.OriginLng - driverLng)
+        );
+
+        var totalData = await query.CountAsync();
+
+        var rides = await query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling((double)totalData / pageSize);
+
+        return new PaginatedList<Ride>(rides, totalData, pageIndex, pageSize, totalPages);
+    }
+
+
     public async Task<Ride?> GetById(int rideId)
     {
         return await _context.Rides
@@ -68,6 +98,15 @@ public class RideRepository : IRideRepository
             .Include(r => r.Driver)
             .Include(r => r.Payment)
             .FirstOrDefaultAsync(r => r.Id == rideId);
+    }
+
+    public async Task<int> ExpireRides(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var expiredCount = await _context.Rides
+            .Where(r => r.ScheduledAt < now && r.Status == RideStatus.Pending)
+            .ExecuteUpdateAsync(s => s.SetProperty(r => r.Status, RideStatus.Expired), cancellationToken);
+        return expiredCount;
     }
 
     public async Task Create(Ride ride)

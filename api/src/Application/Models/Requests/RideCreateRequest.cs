@@ -16,4 +16,5 @@ public class RideCreateRequest
     public double DestinationLng { get; set; }
     public DateTime? ScheduledAt { get; set; }
     public int? PaymentMethodId { get; set; }
+    public decimal CalculatedPrice { get; set; }
 }

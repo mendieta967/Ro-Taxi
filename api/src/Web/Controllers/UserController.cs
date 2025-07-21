@@ -105,7 +105,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [Authorize]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     [HttpPatch("{userId}")]
     public async Task<IActionResult> ChangeStatus(int userId)
     {
