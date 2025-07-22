@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import MapSearch from "../MapSearch";
 import MapSearchResult from "../MapSearchResult";
+import ChatPassenger from "../../../../page/driver/chat/ChatPassenger";
 import Modal from "../../../ui/Modal";
 import { modalOrderTaxi } from "../../../../data/data";
 import { useTranslate } from "../../../../hooks/useTranslate";
@@ -90,23 +91,16 @@ const MapForm = ({
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   const translate = useTranslate();
   const { theme } = useContext(ThemeContext);
 
   const handlePedirTaxi = async () => {
-    // Aquí ya sabemos que los inputs están completos porque el modal solo se muestra si lo están
-
-    // Primero cerramos el modal actual
     setShowModal(false);
-
-    // Luego confirmamos el viaje
     handleConfirm();
-
-    // Mostrar el modal de solicitud
     setShowRequestModal(true);
 
-    // Después de 2 segundos, mostrar el modal de confirmación
     setTimeout(() => {
       setShowRequestModal(false);
       setShowConfirmationModal(true);
@@ -114,107 +108,118 @@ const MapForm = ({
   };
 
   const handleCancel = () => {
-    // Mostrar el modal de confirmación de cancelación
     setShowCancelConfirmation(true);
   };
 
   const handleConfirmCancel = () => {
-    // Limpiar los inputs usando el estado directamente
     inputValues.origin = "";
     inputValues.destination = "";
-
-    // Limpiar la consola
     console.clear();
-
-    // Cerrar todos los modales
     setShowCancelConfirmation(false);
     setShowConfirmationModal(false);
     setShowRequestModal(false);
     setShowModal(false);
   };
 
+  const handleShowChat = () => {
+    setShowConfirmationModal(false);
+    setShowChat(true);
+  };
   return (
-    <div className="w-full max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-y-auto p-6 bg-zinc-900  shadow-lg">
+    <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg rounded-lg">
       {/* Contenedor principal */}
-      <div className="flex flex-col h-80">
-        {/* Contenedor de Inputs */}
-        <div className="flex flex-col gap-4 mb-6">
-          {/* Input Origen */}
-          <div className="relative">
-            <MapSearch
-              type="origin"
-              title="Origen"
-              ref={inputOriginRef}
-              activeInput={activeInput}
-              handleActiveInput={handleActiveInput}
-              handleInputChange={handleInputChange}
-              value={inputValues.origin}
-            />
-            {activeInput === "origin" &&
-              (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
-                <div className="absolute z-10 top-full left-0 right-0 max-h-[240px] bg-zinc-900 rounded-lg shadow-lg border border-zinc-700 overflow-y-auto">
-                  {mapLoading ? (
-                    <div className="flex items-center justify-center h-16">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500"></div>
-                    </div>
-                  ) : (
-                    <MapSearchResult
-                      handleSelect={handleSelect}
-                      searchResults={searchResults}
-                    />
-                  )}
-                </div>
-              )}
+      <div className="flex flex-col h-full">
+        {/* Contenedor de Inputs o Chat */}
+        {showChat ? (
+          <div className="flex flex-col h-100 rounded-lg overflow-hidden border border-zinc-700">
+            <ChatPassenger />
           </div>
-
-          {/* Input Destino */}
-          <div className="relative">
-            <MapSearch
-              type="destination"
-              title="Destino"
-              ref={inputDestinationRef}
-              activeInput={activeInput}
-              handleActiveInput={handleActiveInput}
-              handleInputChange={handleInputChange}
-              value={inputValues.destination}
-            />
-            {activeInput === "destination" &&
-              (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
-                <div className="absolute z-10 top-full left-0 right-0 max-h-[240px] bg-zinc-900 rounded-lg shadow-lg border border-zinc-700 overflow-y-auto">
-                  {mapLoading ? (
-                    <div className="flex items-center justify-center h-16">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500"></div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {/* Inputs de dirección */}
+            <div className="space-y-4">
+              {/* Input Origen */}
+              <div className="relative">
+                <MapSearch
+                  type="origin"
+                  title="Origen"
+                  ref={inputOriginRef}
+                  activeInput={activeInput}
+                  handleActiveInput={handleActiveInput}
+                  handleInputChange={handleInputChange}
+                  value={inputValues.origin}
+                />
+                {activeInput === "origin" &&
+                  (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
+                    <div className="absolute z-20 top-full left-0 right-0 max-h-60 bg-zinc-900 rounded-md shadow-lg border border-zinc-700 overflow-y-auto mt-1">
+                      {mapLoading ? (
+                        <div className="flex items-center justify-center h-16">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500"></div>
+                        </div>
+                      ) : (
+                        <MapSearchResult
+                          handleSelect={handleSelect}
+                          searchResults={searchResults}
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <MapSearchResult
-                      handleSelect={handleSelect}
-                      searchResults={searchResults}
-                    />
                   )}
-                </div>
-              )}
-          </div>
-        </div>
+              </div>
 
-        {/* Contenedor de botones */}
-        <div className="flex justify-center gap-4 mt-auto">
-          <button
-            onClick={() => {
-              if (!inputValues.origin || !inputValues.destination) {
-                alert("Por favor, complete tanto el origen como el destino");
-                return;
-              }
-              setShowModal(true);
-            }}
-            className={`bg-yellow-500 hover:bg-yellow-400 cursor-pointer text-black px-6 py-2 rounded-lg transition-colors font-semibold ${
-              !inputValues.origin || !inputValues.destination
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-          >
-            {translate("Confirmar")}
-          </button>
-        </div>
+              {/* Input Destino */}
+              <div className="relative">
+                <MapSearch
+                  type="destination"
+                  title="Destino"
+                  ref={inputDestinationRef}
+                  activeInput={activeInput}
+                  handleActiveInput={handleActiveInput}
+                  handleInputChange={handleInputChange}
+                  value={inputValues.destination}
+                />
+                {activeInput === "destination" &&
+                  (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
+                    <div className="absolute z-20 top-full left-0 right-0 max-h-60 bg-zinc-900 rounded-md shadow-lg border border-zinc-700 overflow-y-auto mt-1">
+                      {mapLoading ? (
+                        <div className="flex items-center justify-center h-16">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500"></div>
+                        </div>
+                      ) : (
+                        <MapSearchResult
+                          handleSelect={handleSelect}
+                          searchResults={searchResults}
+                        />
+                      )}
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            {/* Botón de confirmación */}
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => {
+                  if (!inputValues.origin || !inputValues.destination) {
+                    alert(
+                      "Por favor, complete tanto el origen como el destino"
+                    );
+                    return;
+                  }
+                  setShowModal(true);
+                }}
+                disabled={!inputValues.origin || !inputValues.destination}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-300 ${
+                  !inputValues.origin || !inputValues.destination
+                    ? "bg-yellow-300 text-black opacity-60 cursor-not-allowed"
+                    : "bg-yellow-500 hover:bg-yellow-400 text-black"
+                }`}
+              >
+                {translate("Confirmar")}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Modal Pedir taxi */}
         {showModal && (
           <Modal onClose={() => setShowModal(false)}>
@@ -406,13 +411,14 @@ const MapForm = ({
 
               <div className="flex gap-3">
                 <button
+                  onClick={handleShowChat}
                   className={`flex-1 py-2 border rounded-lg cursor-pointer ${
                     theme === "dark"
                       ? "bg-zinc-800 border-zinc-700  hover:bg-zinc-800 "
                       : "bg-yellow-500 border border-yellow-600 hover:bg-yellow-400 "
                   }`}
                 >
-                  {translate("Contactar")}
+                  {translate("Confirmar")}
                 </button>
                 <button
                   onClick={() => handleCancel()}

@@ -1,5 +1,4 @@
 import MainLayout from "../../../components/layout/MainLayout";
-import { historailViajes } from "../../../data/data";
 import { Clock, Star } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../../../context/auth";
@@ -13,6 +12,7 @@ const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const [rideProximo, setRideProximo] = useState(null);
+  const [viajesRecientes, setViajesRecientes] = useState([]);
 
   const translate = useTranslate();
 
@@ -22,8 +22,8 @@ const HomePassenger = () => {
         const response = await getProgramados();
         console.log("Response:", response);
 
-        const scheduledTrips = response.data.filter(
-          (ride) => ride?.status === "Pending"
+        const scheduledTrips = response.data.filter((ride) =>
+          ["Completed", "InProgress"].includes(ride?.status)
         );
         console.log(scheduledTrips);
 
@@ -32,7 +32,12 @@ const HomePassenger = () => {
           (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
         );
         console.log(scheduledTrips);
+
+        // Tomar solo los 3 más recientes
+        const top3Trips = scheduledTrips.slice(0, 3);
+        console.log(top3Trips);
         // Guardar el más próximo
+        setViajesRecientes(top3Trips);
         setRideProximo(scheduledTrips[0] || null);
       } catch (error) {
         console.error("Error fetching rides:", error);
@@ -43,11 +48,11 @@ const HomePassenger = () => {
 
   return (
     <MainLayout>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna izquierda (Formulario + Mapa) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Encabezado */}
-          <div className="space-y-2">
+          <div>
             <h1
               className={`text-3xl font-bold ${
                 theme === "dark" ? "text-yellow-500" : "text-gray-900"
@@ -57,7 +62,7 @@ const HomePassenger = () => {
             </h1>
             <p
               className={`text-lg ${
-                theme === "dark" ? "text-white" : "text-gray-800"
+                theme === "dark" ? "text-zinc-300" : "text-gray-800"
               }`}
             >
               {translate("¿A dónde quieres ir hoy?")}
@@ -68,12 +73,11 @@ const HomePassenger = () => {
           <div
             className={`rounded-xl overflow-hidden ${
               theme === "dark"
-                ? "bg-zinc-900"
+                ? "bg-zinc-900 border border-zinc-800"
                 : "bg-white border border-yellow-500"
             }`}
           >
-            {/* Mapa */}
-            <div className="bg-zinc-700 h-96 rounded-lg">
+            <div className="h-113  rounded-lg overflow-hidden">
               <MapOnly />
             </div>
           </div>
@@ -81,83 +85,113 @@ const HomePassenger = () => {
 
         {/* Columna derecha (Viajes recientes) */}
         <div
-          className={`p-4 rounded-xl space-y-6 ${
+          className={`p-5 rounded-xl space-y-6 h-fit ${
             theme === "dark"
-              ? "bg-zinc-900"
+              ? "bg-zinc-900 border border-zinc-800"
               : "bg-white border border-yellow-500"
           }`}
         >
-          {/* Título */}
           <h2
-            className={`text-2xl font-bold  ${
+            className={`text-2xl font-bold ${
               theme === "dark" ? "text-yellow-500" : "text-gray-900"
             }`}
           >
             {translate("Viajes Recientes")}
           </h2>
 
-          {/* Lista de viajes */}
           <div className="space-y-4">
-            {historailViajes.map((viajes, id) => (
-              <div
-                key={id}
-                className={` p-4 rounded-lg flex justify-between items-start shadow-sm  transition ${
-                  theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700"
-                    : "bg-white border border-yellow-500 hover:bg-yellow-50"
-                }`}
-              >
-                <div className="space-y-1">
-                  <p
-                    className={`${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    } font-medium`}
-                  >
-                    {viajes.title}
-                  </p>
-                  <p className="text-sm text-zinc-400 flex items-center gap-1">
-                    <Clock size={14} /> {viajes.date}
-                  </p>
-                  <p
-                    className={`${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    } font-semibold`}
-                  >
-                    {viajes.price}
-                  </p>
-                </div>
+            {viajesRecientes
+              .filter((viaje) => viaje.status === "Completed")
+              .map((viaje) => (
                 <div
-                  className={`flex items-center ${
-                    theme === "dark" ? "text-yellow-500" : "text-gray-900"
-                  } text-sm`}
+                  key={viaje.id}
+                  className={`p-5 rounded-xl flex justify-between items-start shadow transition-transform hover:scale-[1.01] ${
+                    theme === "dark"
+                      ? "bg-zinc-800 hover:bg-zinc-700 border border-zinc-700"
+                      : "bg-white hover:bg-yellow-50 border border-yellow-300"
+                  }`}
                 >
-                  <Star size={16} className="mr-1" />
-                  5.0
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p
+                        className={`text-sm font-semibold ${
+                          theme === "dark"
+                            ? "text-yellow-400"
+                            : "text-yellow-700"
+                        }`}
+                      >
+                        Origen
+                      </p>
+                      <p
+                        className={`text-base ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {viaje.originAddress}
+                      </p>
+                    </div>
 
-          {/* Ver todos */}
-          <button
-            className={` hover:underline w-full text-sm font-medium text-center cursor-pointer ${
-              theme === "dark" ? "text-yellow-500" : "text-gray-900"
-            }`}
-          >
-            {translate("Ver todos los viajes")}
-          </button>
+                    <div>
+                      <p
+                        className={`text-sm font-semibold ${
+                          theme === "dark"
+                            ? "text-yellow-400"
+                            : "text-yellow-700"
+                        }`}
+                      >
+                        Destino
+                      </p>
+                      <p
+                        className={`text-base ${
+                          theme === "dark" ? "text-zinc-300" : "text-gray-700"
+                        }`}
+                      >
+                        {viaje.destinationAddress}
+                      </p>
+                    </div>
+
+                    <p
+                      className={`text-base font-bold ${
+                        theme === "dark" ? "text-yellow-300" : "text-yellow-600"
+                      }`}
+                    >
+                      Precio: ${viaje.payment.amount}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`flex items-center rounded-full px-3 py-1 text-sm font-medium shadow-sm ${
+                      theme === "dark"
+                        ? "bg-yellow-600 text-white"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    <Star size={16} className="mr-1" />
+                    5.0
+                  </div>
+                </div>
+              ))}
+          </div>
+          <Link to="/app/mis-viajes">
+            <button
+              className={`w-full text-sm text-center cursor-pointer font-medium hover:underline ${
+                theme === "dark" ? "text-yellow-400" : "text-gray-800"
+              }`}
+            >
+              {translate("Ver todos los viajes")}
+            </button>
+          </Link>
         </div>
 
         {/* Tarjetas informativas */}
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {/* Tarjeta común */}
           {rideProximo && (
             <Link to="/app/mis-viajes" className="block">
               <div
-                className={`transition p-6 rounded-2xl shadow-lg border-l-8 border cursor-pointer ${
+                className={`transition p-6 rounded-2xl shadow-lg border-l-8 ${
                   theme === "dark"
                     ? "bg-zinc-900 border-yellow-500 hover:bg-zinc-800"
-                    : "bg-white border-yellow-500  hover:bg-yellow-50"
+                    : "bg-white border-yellow-500 hover:bg-yellow-50"
                 }`}
               >
                 <div className="flex items-center gap-3 mb-3">
@@ -182,7 +216,6 @@ const HomePassenger = () => {
                     Próximo viaje programado
                   </h3>
                 </div>
-
                 <p
                   className={`text-base ${
                     theme === "dark" ? "text-gray-300" : "text-gray-700"
@@ -201,7 +234,7 @@ const HomePassenger = () => {
             </Link>
           )}
 
-          {/* Tarjeta especial para agregar */}
+          {/* Tarjeta para agregar */}
           <div
             className={`transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm ${
               theme === "dark"
@@ -209,24 +242,20 @@ const HomePassenger = () => {
                 : "bg-white border border-yellow-500 hover:bg-yellow-50"
             }`}
           >
-            <div
-              className={`w-10 h-10 flex items-center justify-center  text-black text-xl font-bold rounded-full ${
-                theme === "dark" ? "bg-yellow-500" : "bg-yellow-500"
-              }`}
-            >
+            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-black text-xl font-bold rounded-full">
               +
             </div>
             <h3
-              className={`${
+              className={`font-semibold ${
                 theme === "dark" ? "text-white" : "text-gray-900"
-              } font-semibold`}
+              }`}
             >
               {translate("Agregar")}
             </h3>
             <p
-              className={`${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              } text-sm`}
+              className={`text-sm ${
+                theme === "dark" ? "text-zinc-300" : "text-gray-700"
+              }`}
             >
               {translate("Añadir nuevo destino o preferencia")}
             </p>

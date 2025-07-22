@@ -156,8 +156,9 @@ const HistorialPassenger = () => {
     }
   };
 
-  const handleDetails = (trip) => {
-    setShowDetails(trip);
+  const handleDetails = (tripId) => {
+    const selectedTrip = scheduledTrips.find((trip) => trip.id === tripId);
+    setShowDetails(selectedTrip);
   };
 
   return (
@@ -459,114 +460,133 @@ const HistorialPassenger = () => {
                 </div>
               ))}
 
-          {/* Trip History 
-          {(activeTab === "todos" || activeTab === "completados") &&
-            trips.map((trip) => (
+          {showDetails && (
+            <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 backdrop-blur-sm">
               <div
-                key={trip.id}
-                className={` rounded-md p-4  transition-colors duration-200 ${
+                className={`p-8 rounded-2xl space-y-6 shadow-2xl max-w-lg w-full mx-4 ${
                   theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 border border-yellow-500"
+                    ? "bg-zinc-900 border border-yellow-500"
                     : "bg-white border border-yellow-500"
-                }`}
+                } transform transition-all duration-300`}
+                style={{ animation: "modalFadeIn 0.3s ease-out" }}
               >
-                <div
-                  className={`flex justify-between text-sm ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-900"
-                  }`}
+                <h3
+                  className={`text-2xl font-extrabold text-center ${
+                    theme === "dark" ? "text-yellow-400" : "text-yellow-600"
+                  } mb-4 tracking-wide`}
                 >
-                  <span
-                    className={`font-semibold ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  >
-                    {trip.date}
+                  <span className="border-b-4 border-yellow-500 pb-2 inline-block">
+                    {translate("Detalles del Viaje")}
                   </span>
-                  <span
-                    className={`font-semibold ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  ></span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin
-                    size={16}
-                    className={` ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  />
-                  <span
-                    className={`font-semibold ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  >
-                    {translate("Origen")}:
-                  </span>{" "}
-                  {trip.originAddress}
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Navigation
-                    size={16}
-                    className={`text-gray-400 ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  />
-                  <span
-                    className={`font-semibold ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  >
-                    {translate("Destino")}:
-                  </span>{" "}
-                  {trip.destinationAddress}
-                </div>
-                <div className="flex justify-between items-center mt-2 text-sm">
-                  <div className="flex items-center gap-4">
-                    <p
-                      className={` ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {trip.driver}
-                    </p>
-                    {trip.status === "completado" ? (
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={`${trip.id}-${star}`}
-                            type="button"
-                            onClick={() =>
-                              setRatings({
-                                ...ratings,
-                                [trip.id]: star,
-                              })
-                            }
-                            className="text-yellow-400 text-xl focus:outline-none transition-transform duration-200 hover:scale-110"
-                          >
-                            {(ratings[trip.id] ?? 0) >= star ? "★" : "☆"}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-yellow-400 text-xl">
-                        {Array.from({ length: 5 }, (_, i) => (
-                          <span key={`${trip.id}-star-${i}`}>
-                            {i < trip.rating ? "★" : "☆"}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                </h3>
+
+                <div className="space-y-6 text-sm">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <p
+                        className={`font-medium opacity-70 ${
+                          theme === "dark" ? "text-white" : "text-gray-600"
+                        }`}
+                      >
+                        {translate("Origen")}:
+                      </p>
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {showDetails.originAddress}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p
+                        className={`font-medium opacity-70 ${
+                          theme === "dark" ? "text-white" : "text-gray-600"
+                        }`}
+                      >
+                        {translate("Destino")}:
+                      </p>
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {showDetails.destinationAddress}
+                      </p>
+                    </div>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <p
+                        className={`font-medium opacity-70 ${
+                          theme === "dark" ? "text-white" : "text-gray-600"
+                        }`}
+                      >
+                        {translate("Fecha")}:
+                      </p>
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {new Date(showDetails.scheduledAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p
+                        className={`font-medium opacity-70 ${
+                          theme === "dark" ? "text-white" : "text-gray-600"
+                        }`}
+                      >
+                        {translate("Precio")}:
+                      </p>
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        ${showDetails.payment.amount}
+                      </p>
+                    </div>
+                  </div>
+
+                  {showDetails.driver && (
+                    <div className="space-y-1">
+                      <p
+                        className={`font-medium opacity-70 ${
+                          theme === "dark" ? "text-white" : "text-gray-600"
+                        }`}
+                      >
+                        {translate("Conductor")}:
+                      </p>
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {showDetails.driver.name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-center mt-6">
                   <button
-                    onClick={() => handleDetails(trip.id)}
-                    className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-1 rounded transition-colors duration-200 cursor-pointer"
+                    onClick={() => setShowDetails(null)}
+                    className={`px-8 py-3 rounded-xl cursor-pointer font-semibold transition-transform duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl ${
+                      theme === "dark"
+                        ? "bg-zinc-700 hover:bg-zinc-600 text-white"
+                        : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                    }`}
                   >
-                    {translate("Ver detalles")}
+                    {translate("Cerrar")}
                   </button>
                 </div>
               </div>
-            ))}
-*/}
+            </div>
+          )}
+
           {/* Modal Edit Form */}
           {isEditing && (
             <form
@@ -727,172 +747,6 @@ const HistorialPassenger = () => {
             </form>
           )}
           {/* Modal Trip Details */}
-          {showDetails && (
-            <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 backdrop-blur-sm">
-              <div
-                className={`p-8 rounded-xl space-y-6 shadow-2xl max-w-md w-full mx-4 ${
-                  theme === "dark"
-                    ? "bg-zinc-900"
-                    : "bg-white border border-yellow-500"
-                } transform transition-all duration-300`}
-                style={{
-                  animation: "modalFadeIn 0.3s ease-out",
-                }}
-              >
-                <h3
-                  className={`text-xl font-bold text-center ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  } mb-4`}
-                >
-                  <span className="border-b-4 border-yellow-500 pb-1">
-                    {translate("Detalles del Viaje")}
-                  </span>
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Origen:
-                      </p>
-                      <p
-                        className={`font-semibold text-lg ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } transition-colors duration-200`}
-                      >
-                        {showDetails.from}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Destino:
-                      </p>
-                      <p
-                        className={`font-semibold text-lg ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } transition-colors duration-200`}
-                      >
-                        {showDetails.to}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Fecha:
-                      </p>
-                      <p
-                        className={`font-semibold text-lg ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } transition-colors duration-200`}
-                      >
-                        {showDetails.date}
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Precio:
-                      </p>
-                      <p
-                        className={`font-semibold text-lg ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } transition-colors duration-200`}
-                      >
-                        {showDetails.price}
-                      </p>
-                    </div>
-                  </div>
-                  {showDetails.driver && (
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Conductor:
-                      </p>
-                      <p
-                        className={`font-semibold text-lg ${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } transition-colors duration-200`}
-                      >
-                        {showDetails.driver}
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <p
-                      className={`text-sm font-medium ${
-                        theme === "dark" ? "text-white/80" : "text-gray-600"
-                      } opacity-80`}
-                    >
-                      Estado:
-                    </p>
-                    <p
-                      className={`font-semibold text-lg ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      } transition-colors duration-200`}
-                    >
-                      {showDetails.status}
-                    </p>
-                  </div>
-                  {showDetails.rating && (
-                    <div className="space-y-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          theme === "dark" ? "text-white/80" : "text-gray-600"
-                        } opacity-80`}
-                      >
-                        Calificación:
-                      </p>
-                      <div className="flex justify-center items-center">
-                        <div
-                          className={`text-2xl ${
-                            theme === "dark"
-                              ? "text-yellow-300"
-                              : "text-yellow-500"
-                          } flex gap-1`}
-                        >
-                          {Array.from({ length: 5 }, (_, i) => (
-                            <span key={`details-${showDetails.id}-star-${i}`}>
-                              {i < showDetails.rating ? "★" : "☆"}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-center mt-6">
-                  <button
-                    onClick={() => setShowDetails(null)}
-                    className={`cursor-pointer px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
-                      theme === "dark"
-                        ? "bg-zinc-700 hover:bg-zinc-600 text-white"
-                        : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                    } shadow-lg hover:shadow-xl `}
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
         <Pagination
           currentPage={pageNumberRider}
@@ -905,3 +759,114 @@ const HistorialPassenger = () => {
 };
 
 export default HistorialPassenger;
+
+{
+  /* Trip History 
+          {(activeTab === "todos" || activeTab === "completados") &&
+            trips.map((trip) => (
+              <div
+                key={trip.id}
+                className={` rounded-md p-4  transition-colors duration-200 ${
+                  theme === "dark"
+                    ? "bg-zinc-800 hover:bg-zinc-700 border border-yellow-500"
+                    : "bg-white border border-yellow-500"
+                }`}
+              >
+                <div
+                  className={`flex justify-between text-sm ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-900"
+                  }`}
+                >
+                  <span
+                    className={`font-semibold ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  >
+                    {trip.date}
+                  </span>
+                  <span
+                    className={`font-semibold ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  ></span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin
+                    size={16}
+                    className={` ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  />
+                  <span
+                    className={`font-semibold ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  >
+                    {translate("Origen")}:
+                  </span>{" "}
+                  {trip.originAddress}
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Navigation
+                    size={16}
+                    className={`text-gray-400 ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  />
+                  <span
+                    className={`font-semibold ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  >
+                    {translate("Destino")}:
+                  </span>{" "}
+                  {trip.destinationAddress}
+                </div>
+                <div className="flex justify-between items-center mt-2 text-sm">
+                  <div className="flex items-center gap-4">
+                    <p
+                      className={` ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-900"
+                      }`}
+                    >
+                      {trip.driver}
+                    </p>
+                    {trip.status === "completado" ? (
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={`${trip.id}-${star}`}
+                            type="button"
+                            onClick={() =>
+                              setRatings({
+                                ...ratings,
+                                [trip.id]: star,
+                              })
+                            }
+                            className="text-yellow-400 text-xl focus:outline-none transition-transform duration-200 hover:scale-110"
+                          >
+                            {(ratings[trip.id] ?? 0) >= star ? "★" : "☆"}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-yellow-400 text-xl">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span key={`${trip.id}-star-${i}`}>
+                            {i < trip.rating ? "★" : "☆"}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDetails(trip.id)}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-1 rounded transition-colors duration-200 cursor-pointer"
+                  >
+                    {translate("Ver detalles")}
+                  </button>
+                </div>
+              </div>
+            ))}
+*/
+}
