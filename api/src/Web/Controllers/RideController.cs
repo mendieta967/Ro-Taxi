@@ -8,9 +8,11 @@ using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Web.Hubs;
 
 namespace Web.Controllers
 {
@@ -19,10 +21,12 @@ namespace Web.Controllers
     public class RideController : ControllerBase
     {
         private readonly IRideService _rideService;
+        private readonly IHubContext<RideHub> _hubContext;
 
-        public RideController(IRideService rideService)
+        public RideController(IRideService rideService, IHubContext<RideHub> hubContext)
         {
             _rideService = rideService;
+            _hubContext = hubContext;
         }
 
 
@@ -55,8 +59,28 @@ namespace Web.Controllers
 
             try
             {
-                var rides = await _rideService.GetSchedulesForDriver(userId, pagination, request);
+                var rides = await _rideService.GetSchedules(userId, pagination, request);
                 return Ok(rides);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = nameof(UserRole.Driver))]
+        [HttpGet("pending")]
+        public async Task<ActionResult<RideDto>> GetPending([FromQuery] double driverLat, [FromQuery] double driverLng)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            try
+            {
+                var ride = await _rideService.GetPending(userId, driverLat, driverLng);
+                return Ok(ride);
             }
             catch (NotFoundException ex)
             {
@@ -75,7 +99,7 @@ namespace Web.Controllers
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             try
             {
-                var ride = await _rideService.CreateScheduleRide(userId, request);
+                var ride = await _rideService.Create(userId, request);    
                 return Created($"/api/rides/{ride.Id}", ride);
             } 
             catch (NotFoundException ex)
@@ -117,14 +141,40 @@ namespace Web.Controllers
         }
 
         [Authorize(Roles = nameof(UserRole.Driver))]
-        [HttpPost("{rideId}/accept")]
-        public async Task<IActionResult> AcceptRide(int rideId)
+        [HttpPost("{rideId}/reject")]
+        public async Task<IActionResult> Reject(int rideId)
         {
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             try
             {
-                await _rideService.Accept(userId, rideId);
+                await _rideService.Reject(userId, rideId);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { Error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = nameof(UserRole.Driver))]
+        [HttpPost("{rideId}/accept")]
+        public async Task<IActionResult> Accept(int rideId)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                var ride = await _rideService.Accept(userId, rideId);
+                await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideAccepted", ride.Id);
                 return NoContent(); 
             }
             catch (NotFoundException ex)
@@ -134,6 +184,10 @@ namespace Web.Controllers
             catch (InvalidOperationException ex)
             {
                 return Conflict(new { Error = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
             }
         }
 

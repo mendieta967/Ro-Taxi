@@ -12,7 +12,8 @@ namespace Domain.Interfaces;
 public interface IRideRepository
 {
     Task<PaginatedList<Ride>> GetAll(int? userId, int pageIndex, int pageSize, RideStatus? status, string? search, DateOnly? date);
-    Task<PaginatedList<Ride>> GetSchedulesForDriver(int pageIndex, int pageSize, double driverLat, double driverLng);
+    Task<PaginatedList<Ride>> GetSchedules(int pageIndex, int pageSize, double driverLat, double driverLng);
+    Task<Ride?> GetPending(int driverId, double driverLat, double driverLng);
     Task<Ride?> GetById(int rideId);
     Task<int> ExpireRides(CancellationToken cancellationToken = default);
     Task Create(Ride ride);

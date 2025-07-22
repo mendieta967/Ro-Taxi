@@ -64,7 +64,7 @@ public class RideRepository : IRideRepository
         return new PaginatedList<Ride>(rides, totalData, pageIndex, pageSize, totalPages);
     }
 
-    public async Task<PaginatedList<Ride>> GetSchedulesForDriver(int pageIndex, int pageSize, double driverLat, double driverLng)
+    public async Task<PaginatedList<Ride>> GetSchedules(int pageIndex, int pageSize, double driverLat, double driverLng)
     {
         var query = _context.Rides
         .Include(r => r.Passeger)
@@ -90,6 +90,22 @@ public class RideRepository : IRideRepository
         return new PaginatedList<Ride>(rides, totalData, pageIndex, pageSize, totalPages);
     }
 
+    public async Task<Ride?> GetPending(int driverId, double driverLat, double driverLng)
+    {
+        return await _context.Rides
+            .Where(r => 
+            r.Status == RideStatus.Pending && 
+            r.ScheduledAt == null && 
+            r.DriverId == null &&
+            !_context.RideRejections.Any(rr => rr.RideId == r.Id && rr.DriverId == driverId)
+            )
+            .OrderBy(r =>
+            (r.OriginLat - driverLat) * (r.OriginLat - driverLat) +
+            (r.OriginLng - driverLng) * (r.OriginLng - driverLng)
+            )
+            .Take(1)
+            .FirstOrDefaultAsync();
+    }
 
     public async Task<Ride?> GetById(int rideId)
     {

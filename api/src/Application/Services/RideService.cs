@@ -21,15 +21,17 @@ public class RideService : IRideService
     private readonly IUserRepository _userRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IPaymentMethodRepository _paymentMethodRepository;
+    private readonly IRideRejectionRepository _rejectionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public RideService(IRideRepository rideRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IPaymentRepository paymentRepository, IPaymentMethodRepository paymentMethodRepository)
+    public RideService(IRideRepository rideRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IPaymentRepository paymentRepository, IPaymentMethodRepository paymentMethodRepository, IRideRejectionRepository rideRejection)
     {
         _rideRepository = rideRepository;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _paymentRepository = paymentRepository;
         _paymentMethodRepository = paymentMethodRepository;
+        _rejectionRepository = rideRejection;
     }
     
     public async Task<PaginatedList<RideDto>> GetAll(int userId, PaginationParams pagination, RideFilterParams filter)
@@ -54,17 +56,22 @@ public class RideService : IRideService
         return new PaginatedList<RideDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
     }
 
-    public async Task<PaginatedList<RideDto>> GetSchedulesForDriver(int userId, PaginationParams pagination, GetSchedulesForDriverRequest request)
+    public async Task<PaginatedList<RideDto>> GetSchedules(int userId, PaginationParams pagination, GetSchedulesForDriverRequest request)
     {
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
 
-        var response = await _rideRepository.GetSchedulesForDriver(pagination.Page, pagination.PageSize, request.DriverLat, request.DriverLng);
+        var response = await _rideRepository.GetSchedules(pagination.Page, pagination.PageSize, request.DriverLat, request.DriverLng);
         var data = response.Data.Select(ride => new RideDto(ride)).ToList();
         return new PaginatedList<RideDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
     }
+    public async Task<RideDto?> GetPending(int userId, double driverLat, double driverLng)
+    {
+        var ride = await _rideRepository.GetPending(userId, driverLat, driverLng) ?? throw new NotFoundException("No pending rides found");
+        return new RideDto(ride);
 
-    public async Task<RideDto> CreateScheduleRide(int userId, RideCreateRequest request)
+    }
+    public async Task<RideDto> Create(int userId, RideCreateRequest request)
     {
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
@@ -92,9 +99,12 @@ public class RideService : IRideService
                 DestinationAddress = request.DestinationAddress,
                 DestinationLat = request.DestinationLat,
                 DestinationLng = request.DestinationLng,               
-                RequestedAt = now,
-                ScheduledAt = request.ScheduledAt
+                RequestedAt = now
             };
+
+            if (request.ScheduledAt.HasValue)
+                ride.ScheduledAt = request.ScheduledAt;
+
             await _rideRepository.Create(ride);
 
             // payment
@@ -115,7 +125,8 @@ public class RideService : IRideService
             // save
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
-            ride.Payment = payment;
+            ride.Payment = payment;            
+
             return new RideDto(ride);
         }
         catch
@@ -140,7 +151,23 @@ public class RideService : IRideService
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
     }
-    public async Task Accept(int userId, int rideId)
+    public async Task Reject(int userId, int rideId)
+    {
+        var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
+        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("ride not found");
+        if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("this ride cannot be rejected");
+
+        var rejection = new RideRejection
+        {
+            RideId = rideId,
+            DriverId = userId,
+            RejectedAt = DateTime.UtcNow
+        };
+
+        _rejectionRepository.Create(rejection);
+        await _unitOfWork.SaveChangesAsync();
+    }
+    public async Task<Ride> Accept(int userId, int rideId)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
         var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
@@ -152,6 +179,7 @@ public class RideService : IRideService
 
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
+        return ride;
     }
     public async Task Cancel(int userId, int rideId)
     {
@@ -176,7 +204,6 @@ public class RideService : IRideService
 
         await _unitOfWork.SaveChangesAsync();
     }
-
     public async Task Complete(int userId, int rideId)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
@@ -194,7 +221,6 @@ public class RideService : IRideService
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
     }
-
     public async Task RateRide(int userId, int rideId, int rating)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
@@ -217,7 +243,6 @@ public class RideService : IRideService
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
     }
-
     public decimal CalculatePrice(CalculatePriceRequest request)
     {
         decimal baseFare = 600m;        // Tarifa inicial en BA
