@@ -48,6 +48,7 @@ const MapForm = ({
           addressdetails: 1,
           limit: 10,
         });
+
         fetch("https://nominatim.openstreetmap.org/search?" + params)
           .then((res) => res.json())
           .then((data) => {
@@ -75,13 +76,12 @@ const MapForm = ({
         handleSearchResults([]);
       }
     }, 400); // 400ms debounce
+
     return () => clearTimeout(handler);
   }, [
-    inputValues.origin,
-    inputValues.destination,
+    activeInput === "origin" ? inputValues.origin : inputValues.destination,
     activeInput,
     currentLocation,
-    handleSearchResults,
   ]);
 
   const [showModal, setShowModal] = useState(false);

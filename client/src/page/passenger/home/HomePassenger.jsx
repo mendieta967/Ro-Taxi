@@ -1,16 +1,45 @@
 import MainLayout from "../../../components/layout/MainLayout";
-import { historailViajes, cardViajes } from "../../../data/data";
+import { historailViajes } from "../../../data/data";
 import { Clock, Star } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
+import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
+import { Link } from "react-router-dom";
 
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
+  const [rideProximo, setRideProximo] = useState(null);
+
   const translate = useTranslate();
+
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const response = await getProgramados();
+        console.log("Response:", response);
+
+        const scheduledTrips = response.data.filter(
+          (ride) => ride?.status === "Pending"
+        );
+        console.log(scheduledTrips);
+
+        // Ordenar por fecha programada
+        scheduledTrips.sort(
+          (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
+        );
+        console.log(scheduledTrips);
+        // Guardar el más próximo
+        setRideProximo(scheduledTrips[0] || null);
+      } catch (error) {
+        console.error("Error fetching rides:", error);
+      }
+    };
+    fetchRides();
+  }, []);
 
   return (
     <MainLayout>
@@ -122,31 +151,55 @@ const HomePassenger = () => {
         {/* Tarjetas informativas */}
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           {/* Tarjeta común */}
-          {cardViajes.map((item, id) => (
-            <div
-              key={id}
-              className={`transition p-5 rounded-lg space-y-1 shadow-sm ${
-                theme === "dark"
-                  ? "bg-zinc-900 hover:bg-zinc-800"
-                  : "bg-white border border-yellow-500 hover:bg-yellow-50"
-              }`}
-            >
-              <h3
-                className={`${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                } font-semibold text-lg`}
+          {rideProximo && (
+            <Link to="/app/mis-viajes" className="block">
+              <div
+                className={`transition p-6 rounded-2xl shadow-lg border-l-8 border cursor-pointer ${
+                  theme === "dark"
+                    ? "bg-zinc-900 border-yellow-500 hover:bg-zinc-800"
+                    : "bg-white border-yellow-500  hover:bg-yellow-50"
+                }`}
               >
-                {item.title}
-              </h3>
-              <p
-                className={`${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                } text-sm `}
-              >
-                {item.description}
-              </p>
-            </div>
-          ))}
+                <div className="flex items-center gap-3 mb-3">
+                  <svg
+                    className="w-6 h-6 text-yellow-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 7V3m8 4V3m-9 4h10M5 11h14M5 19h14M5 15h14M3 7h18"
+                    />
+                  </svg>
+                  <h3
+                    className={`text-lg font-semibold ${
+                      theme === "dark" ? "text-white" : "text-gray-800"
+                    }`}
+                  >
+                    Próximo viaje programado
+                  </h3>
+                </div>
+
+                <p
+                  className={`text-base ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  {new Date(rideProximo.scheduledAt).toLocaleString("es-AR", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </Link>
+          )}
 
           {/* Tarjeta especial para agregar */}
           <div

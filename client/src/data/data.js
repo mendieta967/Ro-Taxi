@@ -256,6 +256,32 @@ export const historailViajes = [
 ];
 
 // Datos de ejemplo para el historial de pagos
+export const viajesProgramados = [
+  {
+    id: 1, // ID único del viaje
+    origin: "Jujuy 3201 (Luis Agote)", // Dirección de origen
+    originLat: -32.9331312,
+    originLng: -60.6650407,
+    destination: "Jujuy (Alberto Olmedo)", // Dirección de destino
+    destinationLat: -32.934184,
+    destinationLng: -60.659619,
+    date: "2025-07-25T14:30:00", // Fecha y hora programada
+    price: 600, // Precio estimado del viaje
+    status: "Pending", // Estado: Pending, Accepted, Completed, Cancelled
+    clientId: 123, // ID del cliente que lo solicitó
+    driverId: null, // ID del conductor asignado (null si aún no tiene)
+  },
+];
+
+export const paymentMethods = [
+  {
+    id: 1,
+    type: "mercado_pago",
+    name: "Mercado Pago",
+    expiry: "12/25",
+  },
+  { id: 2, type: "cash", name: "Efectivo", description: "Pago al conductor" },
+];
 export const historialPagos = [
   {
     id: 1,

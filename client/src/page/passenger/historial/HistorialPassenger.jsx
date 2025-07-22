@@ -4,7 +4,6 @@ import Pagination from "../../../components/ui/Pagination";
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
-import { trips } from "../../../data/data";
 import MapView from "../../../components/common/Map/MapView";
 import { getRides, deleteRide, editRide } from "../../../services/ride";
 import Modal from "../../../components/ui/Modal";
@@ -14,7 +13,7 @@ const HistorialPassenger = () => {
   const translate = useTranslate();
 
   const [activeTab, setActiveTab] = useState("todos");
-  const [ratings, setRatings] = useState({});
+  //const [ratings, setRatings] = useState({});
 
   const [isEditing, setIsEditing] = useState(null);
   const [showDetails, setShowDetails] = useState(null);
@@ -46,8 +45,10 @@ const HistorialPassenger = () => {
         );
         console.log("Response:", response);
 
-        const scheduledTrips = response.data.filter(
-          (ride) => ride?.status === "Pending"
+        const scheduledTrips = response.data.filter((ride) =>
+          ["InProgress", "Completed", "Expired", "Pending"].includes(
+            ride?.status
+          )
         );
         setScheduledTrips(scheduledTrips);
         setTotalPagesRider(response.totalPages);
@@ -88,13 +89,6 @@ const HistorialPassenger = () => {
     setPageNumberRider(newPage);
     console.log("Página cambiada a:", newPage);
   };
-
-  //filtrado de los viajes completados
-  const filteredTrips = trips.filter((trip) =>
-    `${trip.from} ${trip.to} ${trip.date} ${trip.driver}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
 
   //editamos los viajes programados
   const handleEdit = (riderId) => {
@@ -233,198 +227,241 @@ const HistorialPassenger = () => {
                   ? translate("Todos")
                   : tab === "completados"
                   ? translate("Completado")
-                  : translate("Programado")}
+                  : translate("Programados")}
               </div>
             ))}
           </div>
           {/* Scheduled Trips */}
-          {(activeTab === "todos" || activeTab === "programados") &&
-            scheduledTrips.map((trip) => (
-              <div
-                key={trip.id}
-                className={` rounded-md p-4  space-y-2 transition-colors duration-200 ${
-                  theme === "dark"
-                    ? "bg-zinc-800 hover:bg-zinc-700 border border-yellow-500"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3
-                      className={`font-bold text-lg ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Viaje programado")}
-                    </h3>
-                    <p
-                      className={`text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Tu próximo viaje")}
-                    </p>
-                    <div
-                      className={`flex items-center mt-2 gap-2 text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      <MapPin
-                        size={16}
-                        className={`text-gray-400 ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-900"
-                        }`}
-                      />
-                      <span
-                        className={`font-semibold ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-900"
-                        }`}
-                      >
-                        {translate("Origen")}:
-                      </span>{" "}
-                      {trip.originAddress}
-                    </div>
-                    <div
-                      className={`flex items-center mt-5 gap-2 text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      <Navigation
-                        size={16}
-                        className={`text-gray-400 ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-900"
-                        }`}
-                      />
-                      <span
-                        className={`font-semibold ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-900"
-                        }`}
-                      >
-                        {translate("Destino")}:
-                      </span>
-                      {trip.destinationAddress}
-                    </div>
+          {(activeTab === "todos" ||
+            activeTab === "programados" ||
+            activeTab === "completados") &&
+            scheduledTrips
+              .filter((trip) => {
+                if (activeTab === "completados") {
+                  return trip.status === "Completed";
+                }
+                if (activeTab === "programados") {
+                  // Mostrar solo Pending e InProgress
+                  return (
+                    trip.status === "Pending" || trip.status === "InProgress"
+                  );
+                }
+                if (activeTab === "todos") {
+                  return true; // Todos los viajes
+                }
+                return false;
+              })
+              .map((trip) => (
+                <div
+                  key={trip.id}
+                  className={`rounded-md p-4 space-y-2 transition-colors duration-200 ${
+                    theme === "dark"
+                      ? "bg-zinc-800 hover:bg-zinc-700 border border-yellow-500"
+                      : "bg-white border border-yellow-500"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      {["InProgress", "Pending"].includes(trip.status) && (
+                        <div>
+                          <h3
+                            className={`font-bold text-lg ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {translate("Viaje programado")}
+                          </h3>
+                          <p
+                            className={`text-sm ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {translate("Tu próximo viaje")}
+                          </p>
+                        </div>
+                      )}
 
-                    <p
-                      className={`font-semibold mt-4 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Metodo de pago")}:
-                    </p>
-                    <p
-                      className={`font-semibold mt-4 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      {translate("Tarifa")}: {trip.payment.amount}
-                    </p>
-                    <p className="mt-4 font-semibold text-gray-700 dark:text-gray-300">
-                      Estado:{" "}
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold
-      ${
-        trip.status === "Pending"
-          ? "bg-yellow-100 text-yellow-800"
-          : trip.status === "Accepted"
-          ? "bg-blue-100 text-blue-800"
-          : trip.status === "InProgress"
-          ? "bg-purple-100 text-purple-800"
-          : trip.status === "Completed"
-          ? "bg-green-100 text-green-800"
-          : trip.status === "Cancelled"
-          ? "bg-red-100 text-red-800"
-          : trip.status === "Expired"
-          ? "bg-gray-200 text-gray-800"
-          : "bg-gray-100 text-gray-700"
-      }`}
-                      >
-                        {trip.status === "Pending"
-                          ? "Pendiente"
-                          : trip.status === "Accepted"
-                          ? "Aceptado"
-                          : trip.status === "InProgress"
-                          ? "En curso"
-                          : trip.status === "Completed"
-                          ? "Completado"
-                          : trip.status === "Cancelled"
-                          ? "Cancelado"
-                          : trip.status === "Expired"
-                          ? "Expirado"
-                          : trip.status}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="mb-3">
-                      <p
-                        className={`font-semibold mt-4 ${
+                      <div
+                        className={`flex items-center mt-2 gap-2 text-sm ${
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
                       >
-                        {translate("Fecha")}:{" "}
-                        {new Date(trip.scheduledAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div
-                      className={`flex items-center gap-1 text-sm ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-900"
-                      }`}
-                    >
-                      <Clock
-                        size={16}
-                        className={`text-yellow-400 ${
+                        <MapPin
+                          size={16}
+                          className={`text-gray-400 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
+                        />
+                        <span
+                          className={`font-semibold ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
+                        >
+                          {translate("Origen")}:
+                        </span>{" "}
+                        {trip.originAddress}
+                      </div>
+                      <div
+                        className={`flex items-center mt-5 gap-2 text-sm ${
                           theme === "dark" ? "text-gray-400" : "text-gray-900"
                         }`}
-                      />
-                      {translate("Hora")}:{" "}
-                      {new Date(trip.scheduledAt).toLocaleTimeString()}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    onClick={() => handleEdit(trip.id)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded transition-colors duration-200 cursor-pointer"
-                  >
-                    {translate("Editar")}
-                  </button>
-                  <button
-                    onClick={() => setAbrirModal(true)}
-                    className="bg-red-700 hover:bg-red-900 text-white px-3 py-1 rounded transition-colors duration-200 cursor-pointer"
-                  >
-                    {translate("Cancelar")}
-                  </button>
-                </div>
-                {abrirModal && (
-                  <Modal onClose={() => setAbrirModal(false)}>
-                    <div className="flex flex-col items-center p-6">
-                      <h2 className="text-xl font-semibold mb-4 text-red-500">
-                        {translate("¿Estás seguro de cancelar el viaje?")}
-                      </h2>
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => handleDelete(trip.id)}
-                          className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                      >
+                        <Navigation
+                          size={16}
+                          className={`text-gray-400 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
+                        />
+                        <span
+                          className={`font-semibold ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
                         >
-                          {translate("Confirmar")}
-                        </button>
-                        <button
-                          onClick={() => setAbrirModal(false)}
-                          className="px-6 py-2 cursor-pointer bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
+                          {translate("Destino")}:
+                        </span>
+                        {trip.destinationAddress}
+                      </div>
+                      {["InProgress", "Pending"].includes(trip.status) && (
+                        <div>
+                          <p
+                            className={`font-semibold mt-4 ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {translate("Metodo de pago")}:
+                          </p>
+                          <p
+                            className={`font-semibold mt-1 ${
+                              theme === "dark"
+                                ? "text-gray-400"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {translate("Tarifa")}: ${trip.payment.amount}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between  mt-4 text-sm flex-col items-start">
+                        <p
+                          className={`${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
                         >
-                          {translate("Cancelar")}
-                        </button>
+                          <strong>{translate("Conductor")}:</strong>{" "}
+                          {trip.driver
+                            ? trip.driver.name
+                            : translate("Sin conductor asignado")}
+                        </p>
+                        <p
+                          className={`font-semibold  px-2 py-1 mt-5 rounded-md text-white ${
+                            trip.status === "Pending"
+                              ? "bg-yellow-500"
+                              : trip.status === "InProgress"
+                              ? "bg-blue-600"
+                              : trip.status === "Completed"
+                              ? "bg-green-600"
+                              : trip.status === "Expired"
+                              ? "bg-red-600"
+                              : "bg-gray-500"
+                          }`}
+                        >
+                          {trip.status}
+                        </p>
                       </div>
                     </div>
-                  </Modal>
-                )}
-              </div>
-            ))}
 
-          {/* Trip History */}
+                    <div className="flex flex-col items-end">
+                      <div className="mb-3">
+                        <p
+                          className={`font-semibold mt-4 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
+                        >
+                          {translate("Fecha")}:{" "}
+                          {new Date(trip.scheduledAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1 text-sm ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-900"
+                        }`}
+                      >
+                        <Clock
+                          size={16}
+                          className={`text-yellow-400 ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-900"
+                          }`}
+                        />
+                        {translate("Hora")}:{" "}
+                        {new Date(trip.scheduledAt).toLocaleTimeString()}
+                      </div>
+
+                      <div className="mt-4">
+                        {trip.status === "Completed" && (
+                          <button
+                            onClick={() => handleDetails(trip.id)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-md transition-colors duration-200 cursor-pointer"
+                          >
+                            {translate("Ver detalles")}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {["Pending", "InProgress"].includes(trip.status) && (
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={() => handleEdit(trip.id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-md transition-colors duration-200 cursor-pointer"
+                      >
+                        {translate("Editar")}
+                      </button>
+                      <button
+                        onClick={() => setAbrirModal(true)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md transition-colors duration-200 cursor-pointer"
+                      >
+                        {translate("Cancelar")}
+                      </button>
+                    </div>
+                  )}
+
+                  {abrirModal && (
+                    <Modal onClose={() => setAbrirModal(false)}>
+                      <div className="flex flex-col items-center p-6">
+                        <h2 className="text-xl font-semibold mb-4 text-red-600">
+                          {translate("¿Estás seguro de cancelar el viaje?")}
+                        </h2>
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => handleDelete(trip.id)}
+                            className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all cursor-pointer"
+                          >
+                            {translate("Confirmar")}
+                          </button>
+                          <button
+                            onClick={() => setAbrirModal(false)}
+                            className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all cursor-pointer"
+                          >
+                            {translate("Cancelar")}
+                          </button>
+                        </div>
+                      </div>
+                    </Modal>
+                  )}
+                </div>
+              ))}
+
+          {/* Trip History 
           {(activeTab === "todos" || activeTab === "completados") &&
-            filteredTrips.map((trip) => (
+            trips.map((trip) => (
               <div
                 key={trip.id}
                 className={` rounded-md p-4  transition-colors duration-200 ${
@@ -465,7 +502,7 @@ const HistorialPassenger = () => {
                   >
                     {translate("Origen")}:
                   </span>{" "}
-                  {trip.from}
+                  {trip.originAddress}
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Navigation
@@ -481,7 +518,7 @@ const HistorialPassenger = () => {
                   >
                     {translate("Destino")}:
                   </span>{" "}
-                  {trip.to}
+                  {trip.destinationAddress}
                 </div>
                 <div className="flex justify-between items-center mt-2 text-sm">
                   <div className="flex items-center gap-4">
@@ -529,7 +566,7 @@ const HistorialPassenger = () => {
                 </div>
               </div>
             ))}
-
+*/}
           {/* Modal Edit Form */}
           {isEditing && (
             <form
