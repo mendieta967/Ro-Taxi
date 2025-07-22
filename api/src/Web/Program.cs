@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 using Web.HostedServices;
+using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddHostedService<RideExpirationService>();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -108,6 +111,7 @@ builder.Services.AddScoped<IRideRepository, RideRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+builder.Services.AddScoped<IRideRejectionRepository, RideRejectionRepository>();
 #endregion
 
 var app = builder.Build();
@@ -127,5 +131,7 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<RideHub>("/rideHub");
 
 app.Run();
