@@ -136,11 +136,6 @@ const VehiculosDriver = () => {
     handleShowVehicle();
   }, [pageNumberVehiculo, search]);
 
-  const filterVehiculos = vehiculos.filter((v) =>
-    v.licensePlate.toLowerCase().includes(search.toLowerCase())
-  );
-  console.log("Vehiculos filtrados:", vehiculos);
-
   const handlePageChangeVehiculo = (newPage) => {
     console.log("Cambiando a página:", newPage); // DEBUG
     setPageNumberVehiculo(newPage);
@@ -238,11 +233,11 @@ const VehiculosDriver = () => {
           </div>
 
           <div className="space-y-6">
-            {filterVehiculos
+            {vehiculos
               .filter((vehiculo) => vehiculo.status !== "Deleted")
-              .map((vehiculo, index) => (
+              .map((vehiculo) => (
                 <div
-                  key={index}
+                  key={vehiculo.id}
                   className={`backdrop-blur-md  rounded-2xl p-6 border shadow-xl hover:shadow-yellow-500/10 transition-all duration-300 ${
                     theme === "dark"
                       ? "bg-zinc-900 border-zinc-800/50"

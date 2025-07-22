@@ -60,20 +60,17 @@ const HistorialPassenger = () => {
     fetchRides();
   }, [pageNumberRider, searchTerm]);
 
-  //filtrado de los viajes programados
-  const filteredScheduledTrips = scheduledTrips.filter((trip) =>
-    `${trip.originAddress} ${trip.destinationAddress} ${trip.scheduledAt} ${trip.payment} ${trip.estimatedPrice}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
-
   //elimino los viajes programados terminado
   const handleDelete = async (riderId) => {
     try {
       console.log("Deleting ride with ID:", riderId);
       await deleteRide(riderId);
 
-      const response = await getRides();
+      const response = await getRides(
+        pageNumberRider,
+        pageSizeRider,
+        searchTerm
+      );
       console.log("Response:", response); // Ver la estructura real de la respuesta
       const newScheduledTrips = response.data.filter(
         (ride) => ride?.status === "Pending"
@@ -242,7 +239,7 @@ const HistorialPassenger = () => {
           </div>
           {/* Scheduled Trips */}
           {(activeTab === "todos" || activeTab === "programados") &&
-            filteredScheduledTrips.map((trip) => (
+            scheduledTrips.map((trip) => (
               <div
                 key={trip.id}
                 className={` rounded-md p-4  space-y-2 transition-colors duration-200 ${
@@ -320,7 +317,42 @@ const HistorialPassenger = () => {
                         theme === "dark" ? "text-gray-400" : "text-gray-900"
                       }`}
                     >
-                      {translate("Tarifa")}: {trip.estimatedPrice}
+                      {translate("Tarifa")}: {trip.payment.amount}
+                    </p>
+                    <p className="mt-4 font-semibold text-gray-700 dark:text-gray-300">
+                      Estado:{" "}
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-semibold
+      ${
+        trip.status === "Pending"
+          ? "bg-yellow-100 text-yellow-800"
+          : trip.status === "Accepted"
+          ? "bg-blue-100 text-blue-800"
+          : trip.status === "InProgress"
+          ? "bg-purple-100 text-purple-800"
+          : trip.status === "Completed"
+          ? "bg-green-100 text-green-800"
+          : trip.status === "Cancelled"
+          ? "bg-red-100 text-red-800"
+          : trip.status === "Expired"
+          ? "bg-gray-200 text-gray-800"
+          : "bg-gray-100 text-gray-700"
+      }`}
+                      >
+                        {trip.status === "Pending"
+                          ? "Pendiente"
+                          : trip.status === "Accepted"
+                          ? "Aceptado"
+                          : trip.status === "InProgress"
+                          ? "En curso"
+                          : trip.status === "Completed"
+                          ? "Completado"
+                          : trip.status === "Cancelled"
+                          ? "Cancelado"
+                          : trip.status === "Expired"
+                          ? "Expirado"
+                          : trip.status}
+                      </span>
                     </p>
                   </div>
                   <div className="flex flex-col items-end">
@@ -516,7 +548,7 @@ const HistorialPassenger = () => {
                     theme === "dark" ? "text-white" : "text-black"
                   }`}
                 >
-                  {translate("Editar Viaje")}
+                  Ajustar fecha y hora de salida
                 </h3>
                 <div className="space-y-3">
                   <div>
@@ -531,12 +563,7 @@ const HistorialPassenger = () => {
                     <input
                       id="origin"
                       value={editingData.from}
-                      onChange={(e) =>
-                        setEditingData({
-                          ...editingData,
-                          from: e.target.value,
-                        })
-                      }
+                      disabled
                       type="text"
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
                         theme === "dark"
@@ -558,12 +585,7 @@ const HistorialPassenger = () => {
                     <input
                       id="destination"
                       value={editingData.to}
-                      onChange={(e) =>
-                        setEditingData({
-                          ...editingData,
-                          to: e.target.value,
-                        })
-                      }
+                      disabled
                       type="text"
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-yellow-500 transition-colors ${
                         theme === "dark"
@@ -638,6 +660,7 @@ const HistorialPassenger = () => {
                     </label>
                     <select
                       id="metodoPago"
+                      disabled
                       className={`w-full p-2 rounded  focus:outline-none focus:border-yellow-500 transition-colors ${
                         theme === "dark"
                           ? "bg-zinc-800 text-white border border-zinc-700 "
