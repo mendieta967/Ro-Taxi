@@ -17,6 +17,10 @@ const MapPanel = ({
   handleScheduleRide,
   currentLocation,
   cancel,
+  handleEstimateAndShowModal,
+  showModal,
+  setShowModal,
+  estimatedPrice,
   mapLoading, // Agregamos el estado de loading
 }) => {
   function getDistance(lat1, lon1, lat2, lon2) {
@@ -83,7 +87,7 @@ const MapPanel = ({
     handleSearchResults,
   ]);
 
-  const [showModal, setShowModal] = useState(false);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(1);
   const translate = useTranslate();
 
   return (
@@ -206,7 +210,7 @@ const MapPanel = ({
         {/* Botón Programar viaje */}
         <div className="mt-auto w-full flex flex-col gap-2">
           <button
-            onClick={() => setShowModal(true)}
+            onClick={handleEstimateAndShowModal}
             className="mt-auto w-full py-3 rounded-xl bg-yellow-400 text-[#23262F] font-medium text-base hover:bg-yellow-300 cursor-pointer transition-all"
           >
             {translate("Programar Viaje")}
@@ -235,20 +239,33 @@ const MapPanel = ({
                   Método de pago
                 </label>
                 <select
+                  value={selectedPaymentMethodId || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "") {
+                      setSelectedPaymentMethodId(1); // Si no selecciona nada, asigna Efectivo
+                    } else {
+                      setSelectedPaymentMethodId(parseInt(val, 10));
+                    }
+                  }}
                   name="metodoPago"
                   id="metodoPago"
                   className="w-full p-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-yellow-100 dark:bg-zinc-800 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 >
-                  <option value="efectivo">Efectivo</option>
-                  <option value="tarjeta">Tarjeta</option>
+                  <option value="">Seleccione método de pago</option>{" "}
+                  {/* Opción vacía por defecto */}
+                  <option value={1}>Efectivo</option>
+                  <option value={2}>Tarjeta</option>
                 </select>
               </div>
 
               {/* Tarifa */}
               <div className="mb-6 text-center">
                 <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                  La tarifa es de:{" "}
-                  <span className="text-yellow-500 font-bold">$</span>
+                  Precio estimado
+                  <span className="text-yellow-500 font-bold">
+                    ${estimatedPrice}
+                  </span>
                 </h2>
               </div>
 
@@ -256,7 +273,7 @@ const MapPanel = ({
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {
-                    handleScheduleRide();
+                    handleScheduleRide(selectedPaymentMethodId);
                     cancel();
                     setShowModal(false);
                   }}
