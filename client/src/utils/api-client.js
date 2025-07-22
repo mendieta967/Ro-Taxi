@@ -1,4 +1,4 @@
-const baseUrl = import.meta.env.VITE_BASE_URL;
+const baseUrl = import.meta.env.VITE_BASE_URL + "/api";
 
 const apiClient = {
   get: (url) => request(url, { method: "GET" }),

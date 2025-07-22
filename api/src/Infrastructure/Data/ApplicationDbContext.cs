@@ -15,6 +15,7 @@ namespace Infrastructure.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<RideRejection> RideRejections { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -58,6 +59,24 @@ namespace Infrastructure.Data
 
             modelBuilder.Entity<Ride>()
                  .HasIndex(r => new { r.Status, r.ScheduledAt });
+
+            modelBuilder.Entity<RideRejection>()
+                 .HasIndex(r => new { r.DriverId, r.RideId })
+                 .IsUnique();
+
+            modelBuilder.Entity<RideRejection>()
+                .HasOne<Ride>()
+                .WithMany()
+                .HasForeignKey(r => r.RideId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RideRejection>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(r => r.DriverId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
 
             modelBuilder.Entity<Vehicle>()
                 .HasOne(r => r.Driver)
