@@ -82,6 +82,13 @@ public class VehicleService: IVehicleService
         vehicle.Color = request.Color;
         vehicle.Status = request.Status;
 
+        if(user.Role == UserRole.Admin && request.DriverId.HasValue)
+        {
+            vehicle.DriverId = request.DriverId.Value;
+            var newDriver = await _userRepository.GetById(request.DriverId.Value) ?? throw new NotFoundException("driver not found");
+            vehicle.Driver = newDriver;
+        }
+
         _vehicleRepository.Update(vehicle);
         await _unitOfWork.SaveChangesAsync();
         return new VehicleDto(vehicle);

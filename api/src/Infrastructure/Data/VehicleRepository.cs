@@ -46,7 +46,7 @@ public class VehicleRepository: IVehicleRepository
 
     public async Task<Vehicle?> GetById(int id)
     {
-        return await _context.Vehicles.FindAsync(id);
+        return await _context.Vehicles.Include(v => v.Driver).FirstOrDefaultAsync(v => v.Id == id);
     }
 
     public async Task<Vehicle> Create(Vehicle vehicle)

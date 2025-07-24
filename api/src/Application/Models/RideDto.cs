@@ -14,6 +14,7 @@ public class RideDto
     public int Id { get; set; }
     public UserDto Passeger { get; set; }
     public UserDto? Driver { get; set; }
+    public VehicleDto? Vehicle { get; set; }
     public string OriginAddress { get; set; }
     public string DestinationAddress { get; set; }
     public Payment Payment { get; set; }
@@ -29,6 +30,7 @@ public class RideDto
         Id = ride.Id;
         Passeger = new UserDto(ride.Passeger);
         Driver = ride.Driver != null ? new UserDto(ride.Driver) : null;
+        Vehicle = ride.Vehicle != null ? new VehicleDto(ride.Vehicle) : null;
         OriginAddress = ride.OriginAddress;
         DestinationAddress = ride.DestinationAddress;
         Payment = ride.Payment;
