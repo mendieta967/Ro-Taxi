@@ -93,6 +93,8 @@ public class RideRepository : IRideRepository
     public async Task<Ride?> GetPending(int driverId, double driverLat, double driverLng)
     {
         return await _context.Rides
+            .Include(r => r.Passeger)
+            .Include(r => r.Payment)
             .Where(r => 
             r.Status == RideStatus.Pending && 
             r.ScheduledAt == null && 
