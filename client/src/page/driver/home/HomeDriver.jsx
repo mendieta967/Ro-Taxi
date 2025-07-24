@@ -19,12 +19,12 @@ import {
   acceptViaje,
   cancelViaje,
 } from "../../../services/driver";
+import { useConnection } from "@/context/ConnectionContext";
 
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
-  const [isOnline, setIsOnline] = useState(true);
   const [showRequest, setShowRequest] = useState(true);
   const [drivingMode, setDrivingMode] = useState(false);
   const [showRider, setShowRider] = useState(true);
@@ -32,32 +32,34 @@ const HomeDriver = () => {
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
+  const { isConnected, connect, disconnect } = useConnection();
+
   //Primero nos aseguramos que el conductor se encuentre adherido a como minimo un viaje vehiculo
 
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const response = await getVehicles(); // llamás a tu API
-        console.log("Response:", response.data);
+  // useEffect(() => {
+  //   const fetchVehicles = async () => {
+  //     try {
+  //       const response = await getVehicles(); // llamás a tu API
+  //       console.log("Response:", response.data);
 
-        const vehiculosValidos = response.data.filter(
-          (vehiculo) => vehiculo.status === "Active"
-        );
-        console.log(vehiculosValidos);
+  //       const vehiculosValidos = response.data.filter(
+  //         (vehiculo) => vehiculo.status === "Active"
+  //       );
+  //       console.log(vehiculosValidos);
 
-        // Si no hay ningún vehículo válido, mostramos el modal
-        if (vehiculosValidos.length === 0) {
-          console.log("No hay vehículos activos");
-          setShowScheduleModal(true);
-        } else {
-          setShowScheduleModal(false);
-        }
-      } catch (error) {
-        console.error("Error fetching scheduled trips:", error);
-      }
-    };
-    fetchVehicles();
-  });
+  //       // Si no hay ningún vehículo válido, mostramos el modal
+  //       if (vehiculosValidos.length === 0) {
+  //         console.log("No hay vehículos activos");
+  //         setShowScheduleModal(true);
+  //       } else {
+  //         setShowScheduleModal(false);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching scheduled trips:", error);
+  //     }
+  //   };
+  //   fetchVehicles();
+  // });
 
   // LLamado a los viajes programados
   useEffect(() => {
@@ -76,6 +78,14 @@ const HomeDriver = () => {
     };
     fetchScheduledTrips();
   }, []);
+
+  const handleConnect = async () => {
+    if (isConnected) {
+      disconnect();
+      return;
+    }
+    await connect();
+  };
 
   // funcion para aceptar viaje programados
   const handleAcceptTrip = async (trip) => {
@@ -212,22 +222,22 @@ const HomeDriver = () => {
                   {translate("Panel del Conductor")}
                 </h1>
                 <button
-                  onClick={() => setIsOnline(!isOnline)}
+                  onClick={handleConnect}
                   className={`flex items-center gap-2 cursor-pointer ${
-                    isOnline
+                    isConnected
                       ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500"
                       : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500"
                   } text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg`}
                 >
                   <Power size={20} />
-                  {isOnline
+                  {isConnected
                     ? translate("Conectado")
                     : translate("Desconectado")}
                 </button>
               </div>
 
               {/* Solicitud de viaje entrante con mapa */}
-              {showRequest && isOnline && (
+              {showRequest && isConnected && (
                 <div
                   className={`backdrop-blur-md  rounded-2xl border shadow-xl mb-6 overflow-hidden ${
                     theme === "dark"

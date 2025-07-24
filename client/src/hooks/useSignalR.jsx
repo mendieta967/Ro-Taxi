@@ -18,6 +18,7 @@ export default function useSignalR() {
 
     connection.onclose(() => {
       setIsConnected(false);
+      connectionRef.current = null;
     });
 
     connection
