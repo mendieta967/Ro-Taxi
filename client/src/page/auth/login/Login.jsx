@@ -68,12 +68,12 @@ const Login = ({ onSwitch }) => {
   return (
     <div className="min-h-screen w-full bg-gray-800/95 flex items-center justify-center px-4">
       <div className="w-full max-w-md p-6 sm:p-8 bg-gray-900 rounded-3xl shadow-2xl shadow-yellow-600">
-        <h1
+        <button
           onClick={handleLogin}
           className="text-center text-4xl font-bold text-yellow-500 mb-6 tracking-tight"
         >
           Iniciar sesión
-        </h1>
+        </button>
         <Form
           fields={loginFields}
           onSubmit={handleLogin}

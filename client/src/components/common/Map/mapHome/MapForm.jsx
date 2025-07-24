@@ -3,7 +3,6 @@ import MapSearch from "../MapSearch";
 import MapSearchResult from "../MapSearchResult";
 import ChatPassenger from "../../../../page/driver/chat/ChatPassenger";
 import Modal from "../../../ui/Modal";
-import { modalOrderTaxi } from "../../../../data/data";
 import { useTranslate } from "../../../../hooks/useTranslate";
 import { ThemeContext } from "../../../../context/ThemeContext";
 
@@ -17,7 +16,11 @@ const MapForm = ({
   searchResults,
   inputValues,
   handleInputChange,
+  handleEstimateAndShowModal,
   currentLocation,
+  showModal,
+  setShowModal,
+  estimatedPrice,
   mapLoading,
   handleConfirm, //para llamar a la api
 }) => {
@@ -85,9 +88,7 @@ const MapForm = ({
     currentLocation,
   ]);
 
-  const [showModal, setShowModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("efectivo");
-  const [selectedCar, setSelectedCar] = useState("estandar");
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
@@ -198,15 +199,7 @@ const MapForm = ({
             {/* Botón de confirmación */}
             <div className="flex justify-center pt-2">
               <button
-                onClick={() => {
-                  if (!inputValues.origin || !inputValues.destination) {
-                    alert(
-                      "Por favor, complete tanto el origen como el destino"
-                    );
-                    return;
-                  }
-                  setShowModal(true);
-                }}
+                onClick={handleEstimateAndShowModal}
                 disabled={!inputValues.origin || !inputValues.destination}
                 className={`px-6 py-3 rounded-lg font-semibold transition-colors duration-300 ${
                   !inputValues.origin || !inputValues.destination
@@ -223,116 +216,87 @@ const MapForm = ({
         {/* Modal Pedir taxi */}
         {showModal && (
           <Modal onClose={() => setShowModal(false)}>
-            <h2
-              className={`${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              } text-xl font-bold`}
-            >
-              {translate("Seleccione su vehículo")}
-            </h2>
-            <p
-              className={`${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              } text-sm mb-4`}
-            >
-              {translate("Elige el tipo de coche para tu viaje")}
-            </p>
-            {/* Opciones de vehículos */}
-            <div className="space-y-3">
-              {modalOrderTaxi.map((car) => (
-                <div
-                  key={car.type}
-                  onClick={() => setSelectedCar(car.type)}
-                  className={`border rounded-lg p-4 cursor-pointer ${
-                    selectedCar === car.type
-                      ? "border-yellow-500"
-                      : "border-zinc-800"
+            {/* Encabezado del precio */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg">
+                <span className="text-2xl">💰</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {translate("Precio estimado")}
+              </h2>
+              <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-2xl p-6 border border-yellow-200 dark:border-yellow-800">
+                <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-600 dark:from-yellow-400 dark:to-amber-400">
+                  ${estimatedPrice}
+                </p>
+              </div>
+            </div>
+
+            {/* Selección de método de pago */}
+            <div className="mb-8">
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setPaymentMethod("efectivo")}
+                  className={`group relative overflow-hidden cursor-pointer py-4 px-6 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    paymentMethod === "efectivo"
+                      ? "bg-gradient-to-r from-yellow-500 to-amber-500 text-black shadow-xl shadow-yellow-500/25 ring-2 ring-yellow-400"
+                      : "bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 border-2 border-gray-200 dark:border-zinc-600 hover:border-yellow-300 dark:hover:border-yellow-600"
                   }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p
-                        className={`${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } font-semibold`}
-                      >
-                        {car.name}
-                      </p>
-                      <p
-                        className={`${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } text-sm`}
-                      >
-                        {car.desc}
-                      </p>
-                      <span className="inline-block mt-1 text-xs bg-zinc-700 rounded-full px-2 py-0.5">
-                        {car.seats} {translate("pasajeros")}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={`${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } text-md font-semibold`}
-                      >
-                        {car.price}
-                      </p>
-                      <p
-                        className={`${
-                          theme === "dark" ? "text-white" : "text-gray-900"
-                        } text-sm`}
-                      >
-                        {translate("Llegada")}: {car.time}
-                      </p>
-                    </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm font-bold">
+                      {translate("Efectivo")}
+                    </span>
                   </div>
+                  {paymentMethod === "efectivo" && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setPaymentMethod("tarjeta")}
+                  className={`group relative overflow-hidden cursor-pointer py-4 px-6 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    paymentMethod === "tarjeta"
+                      ? "bg-gradient-to-r from-yellow-500 to-amber-500 text-black shadow-xl shadow-yellow-500/25 ring-2 ring-yellow-400"
+                      : "bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 border-2 border-gray-200 dark:border-zinc-600 hover:border-yellow-300 dark:hover:border-yellow-600"
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm font-bold">
+                      {translate("Tarjeta")}
+                    </span>
+                  </div>
+                  {paymentMethod === "tarjeta" && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Botón principal */}
+            <div className="space-y-4">
+              <button
+                onClick={handlePedirTaxi}
+                className="group relative w-full cursor-pointer py-4 px-6 rounded-2xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 hover:from-yellow-500 hover:via-yellow-600 hover:to-amber-600 text-black font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/25 hover:shadow-yellow-500/40"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-2xl group-hover:animate-bounce">
+                    🚖
+                  </span>
+                  <span>{translate("Pedir Ahora")}</span>
+                  <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-              ))}
-            </div>
-
-            {/* Método de pago */}
-            <div className="mt-4 flex space-x-2">
-              <button
-                onClick={() => setPaymentMethod("efectivo")}
-                className={`flex-1 py-2 rounded-lg cursor-pointer ${
-                  paymentMethod === "efectivo"
-                    ? "bg-zinc-700 text-yellow-500"
-                    : "bg-zinc-800 text-white "
-                }`}
-              >
-                {translate("Efectivo")}
               </button>
-              <button
-                onClick={() => setPaymentMethod("tarjeta")}
-                className={`flex-1 py-2 rounded-lg cursor-pointer ${
-                  paymentMethod === "tarjeta"
-                    ? "bg-zinc-700 text-yellow-500"
-                    : "bg-zinc-800 text-white"
-                }`}
-              >
-                {translate("Tarjeta")}
-              </button>
+
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                {translate(
+                  "Al confirmar aceptas nuestros términos y condiciones"
+                )}
+              </p>
             </div>
-
-            <p
-              className={`${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              } text-sm mt-2`}
-            >
-              {translate("Pagarás")}{" "}
-              {paymentMethod === "efectivo"
-                ? translate("en efectivo")
-                : translate("con tarjeta")}{" "}
-              {translate("final del viaje")}
-            </p>
-
-            {/* Confirmar */}
-            <button
-              className="w-full cursor-pointer bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-4 rounded"
-              onClick={() => handlePedirTaxi()}
-            >
-              {translate("Pedir Ahora")}
-            </button>
           </Modal>
         )}
         {showRequestModal && (

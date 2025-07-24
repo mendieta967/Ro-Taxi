@@ -1,5 +1,5 @@
 import MainLayout from "../../../components/layout/MainLayout";
-import { Clock, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";

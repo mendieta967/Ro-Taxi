@@ -258,7 +258,7 @@ const MapView = ({ cancel }) => {
       const priceResponse = await createPrice(priceRequest);
 
       if (!priceResponse || !priceResponse.estimatedPrice) {
-        alert("No se pudo calcular el precio");
+        console.log("No se pudo calcular el precio");
         return;
       }
 
@@ -266,7 +266,7 @@ const MapView = ({ cancel }) => {
       setShowModal(true); // 👉 Mostrar modal acá
     } catch (err) {
       console.error("Error al estimar precio:", err);
-      alert("Hubo un error al calcular el precio.");
+      console.log("Hubo un error al calcular el precio.");
     }
   };
 
@@ -278,7 +278,7 @@ const MapView = ({ cancel }) => {
       }
 
       if (!estimatedPrice) {
-        alert("Primero debes calcular el precio");
+        console.log("Primero debes calcular el precio");
         return;
       }
 

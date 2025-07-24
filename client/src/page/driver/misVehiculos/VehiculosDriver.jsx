@@ -40,6 +40,8 @@ const VehiculosDriver = () => {
   const [estado, setEstado] = useState("Active");
   const [vehiculos, setVehiculos] = useState([]);
 
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
   const [vehiculoEditando, setVehiculoEditando] = useState({
     brand: "",
     model: "",
@@ -213,9 +215,13 @@ const VehiculosDriver = () => {
       >
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4 sm:gap-0">
-            <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
-              {translate("Mis vehiculos")}
-            </h1>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
+                {translate("Mis vehiculos")}
+              </h1>
+              <h3>Seleccione un vehiculo:</h3>
+            </div>
+
             <input
               type="text"
               value={search}
@@ -357,6 +363,43 @@ const VehiculosDriver = () => {
                       >
                         <Trash2 size={18} className="text-red-500" />
                       </button>
+                      <label className="relative cursor-pointer">
+                        <input
+                          type="radio"
+                          name="vehiculo-selection"
+                          value={vehiculo.id}
+                          checked={selectedVehicle === vehiculo.id}
+                          onChange={() => setSelectedVehicle(vehiculo.id)}
+                          className="sr-only" // Oculta el input nativo
+                        />
+                        <div
+                          className={`p-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                            theme === "dark"
+                              ? "bg-zinc-800 hover:bg-zinc-700"
+                              : "bg-white border border-yellow-500 hover:bg-gray-50"
+                          } ${
+                            selectedVehicle === vehiculo.id
+                              ? theme === "dark"
+                                ? "bg-yellow-500 border-yellow-600"
+                                : "bg-white border-yellow-600"
+                              : ""
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                              selectedVehicle === vehiculo.id
+                                ? "bg-yellow-500 border-yellow-600"
+                                : theme === "dark"
+                                ? "border-yellow-500"
+                                : "border-yellow-500"
+                            }`}
+                          >
+                            {selectedVehicle === vehiculo.id && (
+                              <div className="w-2 h-2 rounded-full bg-white animate-in zoom-in-50 duration-200"></div>
+                            )}
+                          </div>
+                        </div>
+                      </label>
                     </div>
                   </div>
                 </div>
