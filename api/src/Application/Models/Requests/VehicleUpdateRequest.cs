@@ -14,5 +14,6 @@ public class VehicleUpdateRequest
     public string Brand { get; set; }
     public string Color { get; set; }
     public string Year { get; set; }
+    public int? DriverId {  get; set; }
     public VehicleStatus Status { get; set; }
 }
