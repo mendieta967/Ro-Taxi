@@ -33,7 +33,7 @@ public class UserRepository : IUserRepository
             query = query.Where(u => u.Role == role);
         }
 
-        query = query.OrderBy(v => v.Id);
+        query = query.OrderByDescending(v => v.CreatedAt);
 
         var totalData = await query.CountAsync();
 

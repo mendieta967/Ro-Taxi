@@ -51,7 +51,7 @@ public class RideRepository : IRideRepository
                 r.Passeger.Name.Contains(search) || 
                 r.Driver.Name.Contains(search));
 
-        query = query.OrderBy(v => v.RequestedAt);
+        query = query.OrderByDescending(v => v.RequestedAt);
 
         var totalData = await query.CountAsync();
 
