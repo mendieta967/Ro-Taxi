@@ -175,7 +175,7 @@ public class RideService : IRideService
         var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("ride not found");
         var vehicle = await _vehicleRepository.GetById(request.VehicleId) ?? throw new NotFoundException("vehicle not found");
 
-        if (vehicle.DriverId != user.Id) throw new InvalidOperationException("Vehicle's driver doesn't match the ride's assigned driver.");
+        if (vehicle.DriverId != user.Id && vehicle.Status == VehicleStatus.Active) throw new InvalidOperationException("Vehicle's driver doesn't match the ride's assigned driver.");
         if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("this ride cannot be accepted");
 
         ride.DriverId = userId;
