@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createRide, createPrice } from "../../../../services/ride";
 import {
   MapContainer,
   TileLayer,
@@ -61,6 +62,7 @@ const MapOnly = ({ cancel }) => {
   const [position, setPosition] = useState(null);
   const [origin, setOrigin] = useState(null);
   const [destination, setDestination] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [inputValues, setInputValues] = useState({
     origin: "",
     destination: "",
@@ -72,6 +74,7 @@ const MapOnly = ({ cancel }) => {
   const inputOriginRef = useRef();
   const inputDestinationRef = useRef();
   const [mapLoading, setMapLoading] = useState(true);
+  const [estimatedPrice, setEstimatedPrice] = useState(null);
   // Get current location
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -231,42 +234,63 @@ const MapOnly = ({ cancel }) => {
     getRoute();
   }, [origin, destination]);
 
-  {
-    /** const handleScheduleRide = async () =>{
+  const handleEstimateAndShowModal = async () => {
     try {
       if (!origin || !destination) {
         alert("Por favor, seleccione origen y destino");
         return;
       }
 
-      const rideData = {
-        originAddress: inputValues.origin,
+      const priceRequest = {
         originLat: origin.lat,
         originLng: origin.lng,
-        destinationAddress: inputValues.destination,
-        destinationLat: destination.lat,
-        destinationLng: destination.lng,
-        schduledAt: inputValues.date + "T" + inputValues.time + ":00.000Z"  // Combina fecha y hora
+        destLat: destination.lat,
+        destLng: destination.lng,
       };
 
-      await createRide(rideData);
-      console.log("Viaje programado exitosamente!", rideData);
-      alert("Viaje programado exitosamente!");
-    } catch (error) {
-      console.error("Error al programar viaje:", error);
-      alert("Error al programar viaje. Por favor, inténtelo de nuevo.");
+      const priceResponse = await createPrice(priceRequest);
+      if (!priceResponse || !priceResponse.estimatedPrice) {
+        console.log("No se pudo calcular el precio");
+        return;
+      }
+
+      setEstimatedPrice(priceResponse.estimatedPrice);
+      setShowModal(true);
+    } catch (err) {
+      console.error("Error al estimar precio:", err);
+      alert("Hubo un error al calcular el precio.");
     }
   };
-*/
-  }
 
-  const handleConfirm = () => {
-    if (origin && destination) {
-      // continuar con la lógica de confirmación, ejemplo:
-      console.log("Origen:", origin, "Destino:", destination);
-      // quizás: handleScheduleRide() u otra lógica
-    } else {
-      alert("Por favor seleccioná un origen y un destino.");
+  const handleConfirm = async () => {
+    try {
+      if (!origin || !destination) {
+        alert("Por favor, complete todos los campos");
+        return;
+      }
+      if (!estimatedPrice) {
+        console.log("Primero debes calcular el precio");
+        return;
+      }
+      const rideData = {
+        OriginAddress: inputValues.origin,
+        OriginLat: origin.lat,
+        OriginLng: origin.lng,
+        DestinationAddress: inputValues.destination,
+        DestinationLat: destination.lat,
+        DestinationLng: destination.lng,
+        CalculatedPrice: estimatedPrice,
+      };
+
+      const rideResponse = await createRide(rideData);
+      console.log("Viaje creado:", rideResponse);
+      console.log("¡Viaje creado exitosamente!");
+    } catch (err) {
+      if (err.response) {
+        console.error("Error backend:", err.response.data);
+      } else {
+        console.error(err);
+      }
     }
   };
 
@@ -285,6 +309,10 @@ const MapOnly = ({ cancel }) => {
           handleSearchResults={handleSearchResults}
           searchResults={searchResults}
           handleConfirm={handleConfirm}
+          handleEstimateAndShowModal={handleEstimateAndShowModal}
+          estimatedPrice={estimatedPrice}
+          showModal={showModal}
+          setShowModal={setShowModal}
           currentLocation={currentLocation}
           cancel={cancel}
         />

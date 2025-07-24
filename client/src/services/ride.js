@@ -10,3 +10,4 @@ export const createPrice = (data) =>
   apiClient.post("ride/calculate-price", data);
 export const deleteRide = (id) => apiClient.delete(`ride/${id}`);
 export const editRide = (id, data) => apiClient.patch(`ride/${id}`, data);
+export const ratingDriver = (id) => apiClient.post(`ride/${id}/rate`);

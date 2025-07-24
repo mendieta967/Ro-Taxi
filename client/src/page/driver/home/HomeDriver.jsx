@@ -1,6 +1,7 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
+import { Link } from "react-router-dom";
 import {
   Power,
   MapPin,
@@ -12,7 +13,12 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useContext, useState, useEffect } from "react";
-import { getDriver, acceptViaje } from "../../../services/driver";
+import {
+  getDriver,
+  getVehicles,
+  acceptViaje,
+  cancelViaje,
+} from "../../../services/driver";
 
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
@@ -24,6 +30,34 @@ const HomeDriver = () => {
   const [showRider, setShowRider] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState([]);
   const [ShowConfirm, setShowConfirm] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  //Primero nos aseguramos que el conductor se encuentre adherido a como minimo un viaje vehiculo
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await getVehicles(); // llamás a tu API
+        console.log("Response:", response.data);
+
+        const vehiculosValidos = response.data.filter(
+          (vehiculo) => vehiculo.status === "Active"
+        );
+        console.log(vehiculosValidos);
+
+        // Si no hay ningún vehículo válido, mostramos el modal
+        if (vehiculosValidos.length === 0) {
+          console.log("No hay vehículos activos");
+          setShowScheduleModal(true);
+        } else {
+          setShowScheduleModal(false);
+        }
+      } catch (error) {
+        console.error("Error fetching scheduled trips:", error);
+      }
+    };
+    fetchVehicles();
+  });
 
   // LLamado a los viajes programados
   useEffect(() => {
@@ -73,8 +107,16 @@ const HomeDriver = () => {
   };
 
   // Función para rechazar el viaje
-  const handleReject = () => {
-    setShowRequest(false);
+  const handleRejectTrip = async (riderId) => {
+    try {
+      console.log("Deleting ride with ID:", riderId);
+      await cancelViaje(riderId);
+      console.log("Viaje cancelado con éxito");
+      setShowRequest(false);
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error cancelando viaje con ID ${riderId}:`, error);
+    }
     // Aquí iría la lógica para rechazar el viaje
   };
 
@@ -88,6 +130,74 @@ const HomeDriver = () => {
         }`}
       >
         {/* Modo normal - Solicitud de viaje */}
+
+        {showScheduleModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div
+              className={`backdrop-blur-md rounded-2xl border shadow-2xl w-full max-w-md mx-4 p-8 text-center transform transition-all duration-300 animate-in zoom-in-95 ${
+                theme === "dark"
+                  ? "bg-zinc-900/90 border-zinc-800/50 text-white"
+                  : "bg-white/90 border-yellow-500 text-gray-900"
+              }`}
+            >
+              {/* Icono con animación */}
+              <div className="mb-6">
+                <div
+                  className={`mx-auto h-16 w-16 rounded-full flex items-center justify-center animate-pulse ${
+                    theme === "dark" ? "bg-yellow-500/20" : "bg-yellow-500/10"
+                  }`}
+                >
+                  <svg
+                    className="h-10 w-10 text-yellow-500 animate-bounce"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Título con gradiente */}
+              <h2
+                className={`text-2xl font-bold mb-3 bg-clip-text text-transparent ${
+                  theme === "dark"
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : "bg-gradient-to-r from-gray-900 to-gray-600"
+                }`}
+              >
+                ¡Atención!
+              </h2>
+
+              {/* Descripción */}
+              <p
+                className={`mb-8 text-base leading-relaxed ${
+                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Para continuar, debes agregar o activar al menos un vehículo.
+              </p>
+
+              {/* Botón mejorado */}
+              <Link to="/app/vehiculos">
+                <button
+                  onClick={() => {
+                    setShowScheduleModal(false);
+                  }}
+                  className="w-full px-6 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-yellow-500/25 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  Registrar vehículo
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {!drivingMode && (
           <div className="p-4 md:p-6">
             <div className="max-w-4xl mx-auto">
@@ -216,10 +326,7 @@ const HomeDriver = () => {
 
                     {/* Botones grandes y claros */}
                     <div className="flex gap-4">
-                      <button
-                        onClick={handleReject}
-                        className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-600 hover:bg-red-700 py-4 px-4 rounded-xl transition-all duration-300 font-medium text-lg"
-                      >
+                      <button className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-600 hover:bg-red-700 py-4 px-4 rounded-xl transition-all duration-300 font-medium text-lg">
                         <X size={24} />
                         {translate("Rechazar")}
                       </button>
@@ -299,7 +406,10 @@ const HomeDriver = () => {
                         >
                           Aceptar
                         </button>
-                        <button className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg">
+                        <button
+                          onClick={() => handleRejectTrip(viaje.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg"
+                        >
                           Rechazar
                         </button>
                       </div>
