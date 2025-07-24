@@ -63,7 +63,7 @@ public class RideService : IRideService
         var user = await _userRepository.GetById(userId);
         if (user is null) throw new NotFoundException("user not found");
 
-        var response = await _rideRepository.GetSchedules(pagination.Page, pagination.PageSize, request.DriverLat, request.DriverLng);
+        var response = await _rideRepository.GetSchedules(pagination.Page, pagination.PageSize, request.DriverLat, request.DriverLng, userId);
         var data = response.Data.Select(ride => new RideDto(ride)).ToList();
         return new PaginatedList<RideDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
     }
