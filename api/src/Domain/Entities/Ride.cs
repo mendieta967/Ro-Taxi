@@ -14,6 +14,8 @@ public class Ride
     public User Passeger { get; set; }
     public int? DriverId { get; set; }
     public User? Driver { get; set; }
+    public int? VehicleId { get; set; }
+    public Vehicle? Vehicle { get; set; }
     public string OriginAddress { get; set; }
     public double OriginLat { get; set; }
     public double OriginLng { get; set; }

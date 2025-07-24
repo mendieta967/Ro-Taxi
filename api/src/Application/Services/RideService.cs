@@ -19,15 +19,17 @@ public class RideService : IRideService
 {
     private readonly IRideRepository _rideRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IVehicleRepository _vehicleRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IPaymentMethodRepository _paymentMethodRepository;
     private readonly IRideRejectionRepository _rejectionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public RideService(IRideRepository rideRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IPaymentRepository paymentRepository, IPaymentMethodRepository paymentMethodRepository, IRideRejectionRepository rideRejection)
+    public RideService(IRideRepository rideRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IPaymentRepository paymentRepository, IPaymentMethodRepository paymentMethodRepository, IRideRejectionRepository rideRejection, IVehicleRepository vehicleRepository)
     {
         _rideRepository = rideRepository;
         _userRepository = userRepository;
+        _vehicleRepository = vehicleRepository;
         _unitOfWork = unitOfWork;
         _paymentRepository = paymentRepository;
         _paymentMethodRepository = paymentMethodRepository;
@@ -167,13 +169,17 @@ public class RideService : IRideService
         _rejectionRepository.Create(rejection);
         await _unitOfWork.SaveChangesAsync();
     }
-    public async Task<Ride> Accept(int userId, int rideId)
+    public async Task<Ride> Accept(int userId, int rideId, RideAcceptRequest request)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
-        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
-        if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("This ride cannot be accepted");
+        var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("ride not found");
+        var vehicle = await _vehicleRepository.GetById(request.VehicleId) ?? throw new NotFoundException("vehicle not found");
+
+        if (vehicle.DriverId != user.Id) throw new InvalidOperationException("Vehicle's driver doesn't match the ride's assigned driver.");
+        if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("this ride cannot be accepted");
 
         ride.DriverId = userId;
+        ride.VehicleId = vehicle.Id;
         ride.Status = RideStatus.InProgress;
         ride.StartedAt = DateTime.UtcNow;
 

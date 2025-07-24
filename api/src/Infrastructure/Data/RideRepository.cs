@@ -25,6 +25,7 @@ public class RideRepository : IRideRepository
             .Include(r => r.Passeger)
             .Include(r => r.Driver)
             .Include(r => r.Payment)
+            .Include(r => r.Driver)
             .AsQueryable();
 
         if (userId != null)
@@ -115,6 +116,7 @@ public class RideRepository : IRideRepository
             .Include(r => r.Passeger)
             .Include(r => r.Driver)
             .Include(r => r.Payment)
+            .Include(r => r.Driver)
             .FirstOrDefaultAsync(r => r.Id == rideId);
     }
 

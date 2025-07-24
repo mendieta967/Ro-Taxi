@@ -167,13 +167,13 @@ namespace Web.Controllers
 
         [Authorize(Roles = nameof(UserRole.Driver))]
         [HttpPost("{rideId}/accept")]
-        public async Task<IActionResult> Accept(int rideId)
+        public async Task<IActionResult> Accept(int rideId, [FromBody] RideAcceptRequest request)
         {
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             try
             {
-                var ride = await _rideService.Accept(userId, rideId);
+                var ride = await _rideService.Accept(userId, rideId, request);
                 await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideAccepted", ride.Id);
                 return NoContent(); 
             }
