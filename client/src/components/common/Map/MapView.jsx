@@ -293,6 +293,7 @@ const MapView = ({ cancel }) => {
         CalculatedPrice: estimatedPrice,
       };
 
+      console.log("Datos del viaje:", rideData);
       const rideResponse = await createRide(rideData);
       console.log("Viaje creado:", rideResponse);
       alert("¡Viaje programado exitosamente!");
