@@ -7,15 +7,16 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { useConnection } from "@/context/ConnectionContext";
+
+//import { useConnection } from "@/context/ConnectionContext";
 
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const [rideProximo, setRideProximo] = useState(null);
+  //const [tripAccepted, setTripAccepted] = useState(null);
   const [viajesRecientes, setViajesRecientes] = useState([]);
-  const { on } = useConnection();
+  //const { on } = useConnection();
 
   const translate = useTranslate();
 
@@ -48,29 +49,19 @@ const HomePassenger = () => {
     };
     fetchRides();
   }, []);
-
+  {
+    /* 
   useEffect(() => {
     on("RideAccepted", (rideId) => {
       console.log("Tu viaje fue aceptado:", rideId);
-      //  rideHub.joinRide(rideId); // Se une al mismo grupo ride-{rideId}
+      setTripAccepted(rideId);
+       rideHub.joinRide(rideId); // Se une al mismo grupo ride-{rideId}
     });
   }, []);
-
+ */
+  }
   return (
     <MainLayout>
-      <button
-        onClick={() =>
-          toast("Event has been created", {
-            description: "Sunday, December 03, 2023 at 9:00 AM",
-            action: {
-              label: "Undo",
-              onClick: () => console.log("Undo"),
-            },
-          })
-        }
-      >
-        Show Toast
-      </button>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna izquierda (Formulario + Mapa) */}
         <div className="lg:col-span-2 space-y-6">

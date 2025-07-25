@@ -1,6 +1,7 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
+import ScheduledTrips from "./components/ScheduledTrips";
 import { Link } from "react-router-dom";
 import {
   Power,
@@ -14,7 +15,6 @@ import {
 } from "lucide-react";
 import { useContext, useState, useEffect, useRef } from "react";
 import {
-  getDriver,
   acceptViaje,
   cancelViaje,
   pendingViaje,
@@ -29,32 +29,12 @@ const HomeDriver = () => {
   const translate = useTranslate();
   const intervalRef = useRef(null);
 
-  const [showRider, setShowRider] = useState(true);
-  const [selectedTrip, setSelectedTrip] = useState([]);
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [pendingTrip, setPendingTrip] = useState(null);
   const [accepteRide, setAccepteRide] = useState(null);
 
   const { isConnected, connect, disconnect } = useConnection();
-
-  // LLamado a los viajes programados
-  useEffect(() => {
-    const fetchScheduledTrips = async () => {
-      try {
-        const response = await getDriver(); // llamás a tu API
-        console.log("Response:", response);
-        const pendingTrips = response.data.filter(
-          (trip) => trip?.status === "Pending"
-        );
-        setSelectedTrip(pendingTrips);
-        console.log(pendingTrips);
-      } catch (error) {
-        console.error("Error fetching scheduled trips:", error);
-      }
-    };
-    fetchScheduledTrips();
-  }, []);
 
   const handleConnect = async () => {
     if (isConnected) {
@@ -68,13 +48,14 @@ const HomeDriver = () => {
     }
     await connect();
   };
+
   const handlePending = async () => {
     let responsePending;
     try {
       responsePending = await pendingViaje();
-      console.log("Buscando viajes pendientes:", responsePending);
+      console.log("Buscando viajes :", responsePending);
     } catch (error) {
-      console.log("Error buscando viajes pendientes:", error);
+      console.log("Error buscando viajes :", error);
     }
     if (responsePending) {
       setPendingTrip(responsePending);
@@ -97,7 +78,7 @@ const HomeDriver = () => {
     if (!intervalRef.current) {
       intervalRef.current = setInterval(() => {
         handlePending();
-      }, 5000); // 5 minutos
+      }, 5000); // 5 segundos
       console.log("Intervalo iniciado para buscar viajes cada 5 minutos.");
     }
 
@@ -113,7 +94,7 @@ const HomeDriver = () => {
     };
   }, [isConnected, pendingTrip]);
 
-  // funcion para aceptar viaje programados
+  // funcion para aceptar viajes en tiempo real
   const handleAcceptTrip = async (trip) => {
     console.log(trip);
     try {
@@ -152,7 +133,6 @@ const HomeDriver = () => {
     if (ShowConfirm) {
       const timeout = setTimeout(() => {
         setShowConfirm(false);
-        setShowRider(true);
       }, 3000); // 3 segundos
 
       // Limpiar el timeout si el componente se desmonta o si ShowConfirm cambia antes de los 3 seg
@@ -167,7 +147,6 @@ const HomeDriver = () => {
 
       setPendingTrip(null);
       setAccepteRide(null);
-      setShowRider(true);
 
       // Reiniciar el polling después de finalizar el viaje
       if (!intervalRef.current) {
@@ -191,7 +170,6 @@ const HomeDriver = () => {
         }`}
       >
         {/* Modo normal - Solicitud de viaje */}
-
         {showScheduleModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
             <div
@@ -285,291 +263,207 @@ const HomeDriver = () => {
                   : translate("Desconectado")}
               </button>
             </div>
-
-            {/* Solicitud de viaje entrante con mapa */}
-            {isConnected && pendingTrip && !accepteRide && (
-              <div
-                className={`backdrop-blur-md  rounded-2xl border shadow-xl mb-6 overflow-hidden ${
-                  theme === "dark"
-                    ? "bg-zinc-900/70 border-zinc-800/50 "
-                    : "bg-white/70 border-yellow-500"
-                }`}
-              >
-                {/* Mapa grande */}
-                <div className="relative w-full h-64 bg-zinc-800">
-                  {/* Simulación de mapa */}
-                  <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
-                    <div className="w-full h-full relative overflow-hidden">
-                      {/* Imagen de mapa simulada */}
-                      <div className="absolute inset-0 bg-zinc-700 opacity-50"></div>
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full"></div>
-
-                      {/* Marcador de destino */}
-                      <div className="absolute top-1/3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-                          <MapPin size={16} className="text-white" />
-                        </div>
-                      </div>
-
-                      {/* Línea de ruta */}
-                      <div className="absolute top-1/2 left-1/2 w-32 h-1 bg-yellow-500 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-                    </div>
-                  </div>
-
-                  {/* Overlay con información básica */}
-                  <div
-                    className={`absolute top-4 left-4 right-4 p-3 rounded-lg ${
-                      theme === "dark"
-                        ? "bg-zinc-800/70"
-                        : "bg-white text-yellow-500"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
-                        <User className="text-yellow-500" size={20} />
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          {pendingTrip.passeger.name}
-                        </p>
-                      </div>
-                      <div className="ml-auto text-right">
-                        <p className="font-medium">
-                          ${pendingTrip.payment.amount}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {translate("Efectivo")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Información de la solicitud */}
-                <div className="p-4">
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                        <MapPin size={20} className="text-green-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">
-                          {translate("Recoger en")}
-                        </p>
-                        <p className="font-medium">
-                          {pendingTrip.originAddress}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                        <MapPin size={20} className="text-red-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">
-                          {translate("Destino")}
-                        </p>
-                        <p className="font-medium">
-                          {pendingTrip.destinationAddress}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Botones grandes y claros */}
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => handleRejectTrip(pendingTrip.id)}
-                      className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-600 hover:bg-red-700 py-4 px-4 rounded-xl transition-all duration-300 font-medium text-lg"
-                    >
-                      <X size={24} />
-                      {translate("Rechazar")}
-                    </button>
-                    <button
-                      onClick={() => handleAcceptTrip(pendingTrip)}
-                      className="flex-1 flex items-center cursor-pointer justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white font-medium py-4 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/20 text-lg"
-                    >
-                      <Check size={24} />
-                      {translate("Aceptar")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Es cuando aceptas un viaje programado */}
-            {showRider &&
-              isConnected &&
-              selectedTrip.map((viaje) => (
-                <div
-                  key={viaje.id}
-                  className={`backdrop-blur-md rounded-2xl border shadow-xl mb-6 overflow-hidden ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70 border-zinc-800/50"
-                      : "bg-white/70 border-yellow-500"
-                  }`}
-                >
-                  {/* Cabecera con fecha y precio */}
-                  <div
-                    className={`p-3 flex justify-between items-center ${
-                      theme === "dark"
-                        ? "bg-zinc-800/70"
-                        : "bg-white text-yellow-500"
-                    }`}
-                  >
-                    <div className="text-sm font-medium text-gray-400">
-                      {new Date(viaje.scheduledAt).toLocaleString("es-AR", {
-                        weekday: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        day: "2-digit",
-                        month: "short",
-                      })}
-                    </div>
-                    <div className="text-lg font-bold">
-                      ${viaje.payment.amount}
-                    </div>
-                  </div>
-
-                  {/* Ruta del viaje */}
-                  <div className="p-4 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                        <MapPin size={20} className="text-green-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Recoger en</p>
-                        <p className="font-medium">{viaje.originAddress}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                        <MapPin size={20} className="text-red-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Destino</p>
-                        <p className="font-medium">
-                          {viaje.destinationAddress}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Botones de acción */}
-                    <div className="flex justify-end gap-2 pt-2">
-                      <button
-                        onClick={() => handleAcceptTrip(viaje)}
-                        className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg"
-                      >
-                        Aceptar
-                      </button>
-                      <button
-                        onClick={() => handleRejectTrip(viaje.id)}
-                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg"
-                      >
-                        Rechazar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            {/* te salta cuando aceptas el viaje */}
-            {ShowConfirm && (
-              <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-                <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
-                  {/* Botón para cerrar manualmente */}
-                  <button
-                    onClick={() => {
-                      setShowConfirm(false);
-                    }}
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                  >
-                    &times;
-                  </button>
-
-                  <h2 className="text-xl font-semibold text-green-600 mb-3">
-                    ¡Viaje confirmado!
-                  </h2>
-                  <p className="text-gray-600">
-                    Has aceptado el viaje exitosamente.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Estadísticas simplificadas cuando terminas el dia */}
-            {!isConnected && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 ">
-                <div
-                  className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70 border-zinc-800/50 "
-                      : "bg-white border-yellow-500"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Clock className="text-yellow-500" size={20} />
-                    <h3 className="font-medium">{translate("Tiempo")}</h3>
-                  </div>
-                  <p className="text-2xl font-bold">5h 23m</p>
-                </div>
-
-                <div
-                  className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70 border-zinc-800/50 "
-                      : "bg-white border-yellow-500"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <MapPin className="text-yellow-500" size={20} />
-                    <h3 className="font-medium">{translate("Distancia")}</h3>
-                  </div>
-                  <p className="text-2xl font-bold">78.5 km</p>
-                </div>
-
-                <div
-                  className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70 border-zinc-800/50 "
-                      : "bg-white border-yellow-500"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <DollarSign className="text-yellow-500" size={20} />
-                    <h3 className="font-medium">{translate("Ganancias")}</h3>
-                  </div>
-                  <p className="text-2xl font-bold">$3,450000</p>
-                </div>
-
-                <div
-                  className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70 border-zinc-800/50 "
-                      : "bg-white border-yellow-500"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <User className="text-yellow-500" size={20} />
-                    <h3 className="font-medium">{translate("Viajes")}</h3>
-                  </div>
-                  <p className="text-2xl font-bold">12</p>
-                </div>
-              </div>
-            )}
           </div>
-        </div>
+          {!pendingTrip && isConnected && (
+            <div className=" bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 mb-10">
+              <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
+                <div className="text-4xl mb-4 animate-spin">🚕</div>
+                <h2 className="text-xl font-bold">Buscando viajes...</h2>
+                <p className="text-zinc-400 mt-2">
+                  {translate("Esto tomará unos segundos")}
+                </p>
+              </div>
+            </div>
+          )}
+          {/* Solicitud de viaje entrante con mapa ojos */}
+          {isConnected && pendingTrip && !accepteRide && (
+            <div
+              className={`backdrop-blur-md  rounded-2xl border shadow-xl mb-6 overflow-hidden ${
+                theme === "dark"
+                  ? "bg-zinc-900/70 border-zinc-800/50 "
+                  : "bg-white/70 border-yellow-500"
+              }`}
+            >
+              {/* Mapa grande */}
+              <div className="relative w-full h-64 bg-zinc-800">
+                {/* Simulación de mapa */}
+                <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+                  <div className="w-full h-full relative overflow-hidden">
+                    {/* Imagen de mapa simulada */}
+                    <div className="absolute inset-0 bg-zinc-700 opacity-50"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full"></div>
 
-        {!pendingTrip && isConnected && (
-          <div className=" bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
-              <div className="text-4xl mb-4 animate-spin">🚕</div>
-              <h2 className="text-xl font-bold">Buscando viajes...</h2>
-              <p className="text-zinc-400 mt-2">
-                {translate("Esto tomará unos segundos")}
-              </p>
+                    {/* Marcador de destino */}
+                    <div className="absolute top-1/3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                        <MapPin size={16} className="text-white" />
+                      </div>
+                    </div>
+
+                    {/* Línea de ruta */}
+                    <div className="absolute top-1/2 left-1/2 w-32 h-1 bg-yellow-500 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+                  </div>
+                </div>
+
+                {/* Overlay con información básica */}
+                <div
+                  className={`absolute top-4 left-4 right-4 p-3 rounded-lg ${
+                    theme === "dark"
+                      ? "bg-zinc-800/70"
+                      : "bg-white text-yellow-500"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center">
+                      <User className="text-yellow-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="font-medium">{pendingTrip.passeger.name}</p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <p className="font-medium">
+                        ${pendingTrip.payment.amount}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        {translate("Efectivo")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información de la solicitud */}
+              <div className="p-4">
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                      <MapPin size={20} className="text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">
+                        {translate("Recoger en")}
+                      </p>
+                      <p className="font-medium">{pendingTrip.originAddress}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                      <MapPin size={20} className="text-red-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">
+                        {translate("Destino")}
+                      </p>
+                      <p className="font-medium">
+                        {pendingTrip.destinationAddress}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botones grandes y claros */}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => handleRejectTrip(pendingTrip.id)}
+                    className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-600 hover:bg-red-700 py-4 px-4 rounded-xl transition-all duration-300 font-medium text-lg"
+                  >
+                    <X size={24} />
+                    {translate("Rechazar")}
+                  </button>
+                  <button
+                    onClick={() => handleAcceptTrip(pendingTrip)}
+                    className="flex-1 flex items-center cursor-pointer justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 text-white font-medium py-4 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/20 text-lg"
+                  >
+                    <Check size={24} />
+                    {translate("Aceptar")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* te salta cuando aceptas el viaje */}
+          {ShowConfirm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+              <div className="relative bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
+                {/* Botón para cerrar manualmente */}
+                <button
+                  onClick={() => {
+                    setShowConfirm(false);
+                  }}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                >
+                  &times;
+                </button>
+
+                <h2 className="text-xl font-semibold text-green-600 mb-3">
+                  ¡Viaje confirmado!
+                </h2>
+                <p className="text-gray-600">
+                  Has aceptado el viaje exitosamente.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Estadísticas simplificadas cuando terminas el dia */}
+        {!isConnected && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 ">
+            <div
+              className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
+                theme === "dark"
+                  ? "bg-zinc-900/70 border-zinc-800/50 "
+                  : "bg-white border-yellow-500"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Clock className="text-yellow-500" size={20} />
+                <h3 className="font-medium">{translate("Tiempo")}</h3>
+              </div>
+              <p className="text-2xl font-bold">5h 23m</p>
+            </div>
+
+            <div
+              className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
+                theme === "dark"
+                  ? "bg-zinc-900/70 border-zinc-800/50 "
+                  : "bg-white border-yellow-500"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="text-yellow-500" size={20} />
+                <h3 className="font-medium">{translate("Distancia")}</h3>
+              </div>
+              <p className="text-2xl font-bold">78.5 km</p>
+            </div>
+
+            <div
+              className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
+                theme === "dark"
+                  ? "bg-zinc-900/70 border-zinc-800/50 "
+                  : "bg-white border-yellow-500"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <DollarSign className="text-yellow-500" size={20} />
+                <h3 className="font-medium">{translate("Ganancias")}</h3>
+              </div>
+              <p className="text-2xl font-bold">$3,450000</p>
+            </div>
+
+            <div
+              className={`backdrop-blur-md  rounded-xl p-4 border shadow-lg ${
+                theme === "dark"
+                  ? "bg-zinc-900/70 border-zinc-800/50 "
+                  : "bg-white border-yellow-500"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <User className="text-yellow-500" size={20} />
+                <h3 className="font-medium">{translate("Viajes")}</h3>
+              </div>
+              <p className="text-2xl font-bold">12</p>
             </div>
           </div>
         )}
@@ -694,6 +588,8 @@ const HomeDriver = () => {
             </div>
           </div>
         )}
+        {/* Viajes programados */}
+        {isConnected && <ScheduledTrips />}
       </div>
     </MainLayout>
   );

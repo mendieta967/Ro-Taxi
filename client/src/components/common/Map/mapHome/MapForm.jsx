@@ -5,6 +5,7 @@ import ChatPassenger from "../../../../page/driver/chat/ChatPassenger";
 import Modal from "../../../ui/Modal";
 import { useTranslate } from "../../../../hooks/useTranslate";
 import { ThemeContext } from "../../../../context/ThemeContext";
+import { useConnection } from "@/context/ConnectionContext";
 
 const MapForm = ({
   handleSelect,
@@ -93,19 +94,16 @@ const MapForm = ({
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [tripAccepted, setTripAccepted] = useState(null);
 
   const translate = useTranslate();
+  const { on } = useConnection();
   const { theme } = useContext(ThemeContext);
 
   const handlePedirTaxi = async () => {
     setShowModal(false);
     handleConfirm();
     setShowRequestModal(true);
-
-    setTimeout(() => {
-      setShowRequestModal(false);
-      setShowConfirmationModal(true);
-    }, 2000);
   };
 
   const handleCancel = () => {
@@ -118,7 +116,6 @@ const MapForm = ({
     console.clear();
     setShowCancelConfirmation(false);
     setShowConfirmationModal(false);
-    setShowRequestModal(false);
     setShowModal(false);
   };
 
@@ -126,6 +123,17 @@ const MapForm = ({
     setShowConfirmationModal(false);
     setShowChat(true);
   };
+
+  useEffect(() => {
+    on("RideAccepted", (rideId) => {
+      console.log("Tu viaje fue aceptado:", rideId);
+      setTripAccepted(rideId);
+      setShowRequestModal(false); // ocultar el modal de espera
+      setShowConfirmationModal(true); // mostrar el modal de confirmación
+      //  rideHub.joinRide(rideId); // Se une al mismo grupo ride-{rideId}
+    });
+  }, []);
+
   return (
     <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg rounded-lg">
       {/* Contenedor principal */}
@@ -313,7 +321,7 @@ const MapForm = ({
           </div>
         )}
         {/* Modal de confirmación */}
-        {showConfirmationModal && (
+        {showConfirmationModal && tripAccepted && (
           <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
             <div
               className={` w-[90%] max-w-md rounded-2xl p-6 space-y-4 text-white shadow-xl relative ${
@@ -322,57 +330,244 @@ const MapForm = ({
                   : "bg-white border border-yellow-500"
               }`}
             >
-              <div className="flex justify-center">
-                <div
-                  className={`w-16 h-16  rounded-full flex items-center justify-center text-3xl ${
-                    theme === "dark" ? "bg-green-800" : "bg-green-800"
-                  }`}
-                >
-                  ⏱️
+              <div className="relative space-y-8 p-6">
+                {/* Animated Background Elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute top-10 left-10 w-32 h-32 bg-green-500/5 rounded-full blur-3xl animate-pulse"></div>
+                  <div className="absolute bottom-10 right-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-yellow-500/3 rounded-full blur-3xl animate-pulse delay-500"></div>
                 </div>
-              </div>
 
-              <h2
-                className={`text-2xl font-bold text-center ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {translate("¡Tu taxi está en camino!")}
-              </h2>
-              <p
-                className={`text-center text-zinc-400 ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {translate("Llegada estimada")}: 3 minutos
-              </p>
+                {/* Header Section */}
+                <div className="relative text-center space-y-6">
+                  {/* Futuristic Icon Container */}
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      {/* Outer Ring */}
+                      <div className="absolute inset-0 w-28 h-28 rounded-full border-2 border-green-500/30 animate-spin-slow"></div>
+                      <div className="absolute inset-2 w-24 h-24 rounded-full border border-green-400/20 animate-pulse"></div>
 
-              <div
-                className={`flex items-center gap-4 p-4 rounded-lg ${
-                  theme === "dark"
-                    ? "bg-zinc-800"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <div>
-                  <p
-                    className={`font-semibold ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
+                      {/* Main Icon Container */}
+                      <div
+                        className={`relative w-24 h-24 rounded-full flex items-center justify-center text-4xl backdrop-blur-xl border ${
+                          theme === "dark"
+                            ? "bg-gradient-to-br from-green-500/20 via-emerald-600/30 to-green-700/20 border-green-400/30 shadow-2xl shadow-green-500/20"
+                            : "bg-gradient-to-br from-green-400/20 via-emerald-500/30 to-green-600/20 border-green-500/40 shadow-2xl shadow-green-400/30"
+                        }`}
+                      >
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400/20 to-emerald-500/20 blur-xl animate-pulse"></div>
+
+                        {/* Icon */}
+                        <span className="relative z-10 filter drop-shadow-lg">
+                          ⏱️
+                        </span>
+
+                        {/* Inner Pulse */}
+                        <div className="absolute inset-4 rounded-full bg-green-400/10 animate-ping"></div>
+                      </div>
+
+                      {/* Orbiting Dots */}
+                      <div className="absolute inset-0 w-28 h-28">
+                        <div className="absolute top-0 left-1/2 w-2 h-2 bg-green-400 rounded-full transform -translate-x-1/2 animate-pulse"></div>
+                        <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-emerald-400 rounded-full transform -translate-x-1/2 animate-pulse delay-500"></div>
+                        <div className="absolute left-0 top-1/2 w-2 h-2 bg-green-300 rounded-full transform -translate-y-1/2 animate-pulse delay-1000"></div>
+                        <div className="absolute right-0 top-1/2 w-2 h-2 bg-emerald-300 rounded-full transform -translate-y-1/2 animate-pulse delay-1500"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Futuristic Title */}
+                  <div className="space-y-4">
+                    <h2
+                      className={`text-4xl font-black tracking-tight bg-gradient-to-r bg-clip-text text-transparent ${
+                        theme === "dark"
+                          ? "from-white via-green-100 to-emerald-200"
+                          : "from-gray-900 via-green-800 to-emerald-900"
+                      }`}
+                    >
+                      {translate("¡Tu taxi está en camino!")}
+                    </h2>
+
+                    {/* Animated Underline */}
+                    <div className="flex justify-center">
+                      <div className="relative w-32 h-1">
+                        <div
+                          className={`absolute inset-0 rounded-full ${
+                            theme === "dark"
+                              ? "bg-green-500/30"
+                              : "bg-green-400/40"
+                          }`}
+                        ></div>
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse"></div>
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-green-300 to-transparent animate-ping"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Driver Info Card - Glassmorphism Style */}
+                <div className="flex justify-center">
+                  <div
+                    className={`relative w-full max-w-lg p-8 rounded-3xl backdrop-blur-2xl border transition-all duration-500 hover:scale-105 group ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-zinc-900/80 via-zinc-800/60 to-zinc-900/80 border-zinc-700/50 shadow-2xl shadow-green-500/10"
+                        : "bg-gradient-to-br from-white/80 via-gray-50/60 to-white/80 border-white/50 shadow-2xl shadow-green-400/20"
                     }`}
                   >
-                    Juan Rodríguez{" "}
-                    <span className="text-yellow-500">★ 4.8</span>
-                  </p>
-                  <p
-                    className={`text-sm ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    Toyota Corolla • XYZ-123 • Azul
-                  </p>
+                    {/* Card Glow Effect */}
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+
+                    {/* Top Border Glow */}
+                    <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-green-400 to-transparent"></div>
+
+                    <div className="relative flex items-center gap-6">
+                      {/* Futuristic Driver Avatar */}
+                      <div className="relative">
+                        <div
+                          className={`w-20 h-20 rounded-2xl flex items-center justify-center font-black text-2xl backdrop-blur-xl border-2 ${
+                            theme === "dark"
+                              ? "bg-gradient-to-br from-green-500/30 to-emerald-600/30 border-green-400/50 text-white shadow-lg shadow-green-500/30"
+                              : "bg-gradient-to-br from-green-400/30 to-emerald-500/30 border-green-500/60 text-white shadow-lg shadow-green-400/40"
+                          }`}
+                        >
+                          {tripAccepted.driver.name.charAt(0)}
+                        </div>
+
+                        {/* Avatar Glow */}
+                        <div className="absolute inset-0 rounded-2xl bg-green-400/20 blur-lg animate-pulse"></div>
+
+                        {/* Status Indicator */}
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        </div>
+                      </div>
+
+                      {/* Driver Details */}
+                      <div className="flex-1 space-y-3">
+                        {/* Driver Name and Rating */}
+                        <div className="flex items-center gap-3">
+                          <h3
+                            className={`font-bold text-xl ${
+                              theme === "dark" ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            {tripAccepted.driver.name}
+                          </h3>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 backdrop-blur-sm">
+                            <span className="text-yellow-500 text-sm">★</span>
+                            <span className="text-yellow-600 text-sm font-bold">
+                              4.8
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Vehicle Info with Tech Style */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`p-2 rounded-lg ${
+                                theme === "dark"
+                                  ? "bg-zinc-800/50"
+                                  : "bg-gray-100/50"
+                              } backdrop-blur-sm`}
+                            >
+                              <svg
+                                className={`w-4 h-4 ${
+                                  theme === "dark"
+                                    ? "text-green-400"
+                                    : "text-green-600"
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                />
+                              </svg>
+                            </div>
+                            <div>
+                              <p
+                                className={`text-xs uppercase tracking-wider font-semibold ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                PLACA
+                              </p>
+                              <p
+                                className={`font-mono font-bold ${
+                                  theme === "dark"
+                                    ? "text-white"
+                                    : "text-gray-900"
+                                }`}
+                              >
+                                {tripAccepted.vehicle.licensePlate}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`p-2 rounded-lg ${
+                                theme === "dark"
+                                  ? "bg-zinc-800/50"
+                                  : "bg-gray-100/50"
+                              } backdrop-blur-sm`}
+                            >
+                              <svg
+                                className={`w-4 h-4 ${
+                                  theme === "dark"
+                                    ? "text-blue-400"
+                                    : "text-blue-600"
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-2 4h2"
+                                />
+                              </svg>
+                            </div>
+                            <div>
+                              <p
+                                className={`text-xs uppercase tracking-wider font-semibold ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                MODELO
+                              </p>
+                              <p
+                                className={`font-semibold ${
+                                  theme === "dark"
+                                    ? "text-white"
+                                    : "text-gray-900"
+                                }`}
+                              >
+                                {tripAccepted.vehicle.model}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Tech Line */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-400/50 to-transparent"></div>
+                  </div>
                 </div>
               </div>
-
               <div className="flex gap-3">
                 <button
                   onClick={handleShowChat}
@@ -382,7 +577,7 @@ const MapForm = ({
                       : "bg-yellow-500 border border-yellow-600 hover:bg-yellow-400 "
                   }`}
                 >
-                  {translate("Confirmar")}
+                  {translate("Aceptar")}
                 </button>
                 <button
                   onClick={() => handleCancel()}
@@ -395,65 +590,42 @@ const MapForm = ({
               {/* Modal de confirmación de cancelación */}
               {showCancelConfirmation && (
                 <Modal onClose={() => setShowCancelConfirmation(false)}>
-                  <h2
-                    className={`${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    } text-xl font-bold`}
-                  >
-                    {translate("Confirmar Cancelación")}
-                  </h2>
-                  <p
-                    className={`${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    } text-sm mb-4`}
-                  >
-                    {translate("¿Estás seguro que deseas cancelar tu viaje?")}
-                  </p>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setShowCancelConfirmation(false)}
-                      className={`flex-1 py-2 rounded-lg cursor-pointer ${
-                        theme === "dark"
-                          ? "bg-zinc-800 hover:bg-zinc-700"
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }`}
+                  <div>
+                    <h2
+                      className={`${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } text-xl font-bold`}
                     >
-                      {translate("Cancelar")}
-                    </button>
-                    <button
-                      onClick={handleConfirmCancel}
-                      className={`flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer`}
+                      {translate("Confirmar Cancelación")}
+                    </h2>
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } text-sm mb-4`}
                     >
-                      {translate("Confirmar")}
-                    </button>
+                      {translate("¿Estás seguro que deseas cancelar tu viaje?")}
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowCancelConfirmation(false)}
+                        className={`flex-1 py-2 rounded-lg cursor-pointer ${
+                          theme === "dark"
+                            ? "bg-zinc-800 hover:bg-zinc-700"
+                            : "bg-gray-200 hover:bg-gray-300"
+                        }`}
+                      >
+                        {translate("Cancelar")}
+                      </button>
+                      <button
+                        onClick={handleConfirmCancel}
+                        className={`flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer`}
+                      >
+                        {translate("Confirmar")}
+                      </button>
+                    </div>
                   </div>
                 </Modal>
               )}
-
-              <div
-                className={`p-3 rounded-lg text-sm ${
-                  theme === "dark"
-                    ? "bg-zinc-800"
-                    : "bg-white border border-yellow-500"
-                }`}
-              >
-                <strong
-                  className={`${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {translate("¡Taxi en camino!")}
-                </strong>
-                <p
-                  className={`${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {translate(
-                    "Tu conductor llegará en aproximadamente 3 minutos"
-                  )}
-                </p>
-              </div>
             </div>
           </div>
         )}
