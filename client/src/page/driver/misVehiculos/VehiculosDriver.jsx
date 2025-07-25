@@ -18,9 +18,11 @@ import {
   updateVehicles,
   deleteVehicles,
 } from "../../../services/vehicle";
+import { useVehicle } from "@/context/VehicleContext";
 
 const VehiculosDriver = () => {
   const { theme } = useContext(ThemeContext);
+  const { handleVehicle, selectVehicle } = useVehicle();
   const translate = useTranslate();
 
   const [showAddVehicle, setShowAddVehicle] = useState(false);
@@ -40,8 +42,6 @@ const VehiculosDriver = () => {
   const [estado, setEstado] = useState("Active");
   const [vehiculos, setVehiculos] = useState([]);
 
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-
   const [vehiculoEditando, setVehiculoEditando] = useState({
     brand: "",
     model: "",
@@ -51,6 +51,7 @@ const VehiculosDriver = () => {
     status: "Active",
   });
 
+  console.log("vehiculos seleccionado", selectVehicle);
   const handleSumbit = async (e) => {
     e.preventDefault();
     // Validaciones
@@ -186,6 +187,10 @@ const VehiculosDriver = () => {
           v.id === vehiculoEditando.id ? vehicleGuardado : v
         )
       );
+
+      if (vehiculoEditando.id === selectVehicle) {
+        handleVehicle(null);
+      }
       console.log("Vehiculo guardado:", vehicleGuardado);
       setMostrarModal(false);
     } catch (error) {
@@ -363,43 +368,45 @@ const VehiculosDriver = () => {
                       >
                         <Trash2 size={18} className="text-red-500" />
                       </button>
-                      <label className="relative cursor-pointer">
-                        <input
-                          type="radio"
-                          name="vehiculo-selection"
-                          value={vehiculo.id}
-                          checked={selectedVehicle === vehiculo.id}
-                          onChange={() => setSelectedVehicle(vehiculo.id)}
-                          className="sr-only" // Oculta el input nativo
-                        />
-                        <div
-                          className={`p-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                            theme === "dark"
-                              ? "bg-zinc-800 hover:bg-zinc-700"
-                              : "bg-white border border-yellow-500 hover:bg-gray-50"
-                          } ${
-                            selectedVehicle === vehiculo.id
-                              ? theme === "dark"
-                                ? "bg-yellow-500 border-yellow-600"
-                                : "bg-white border-yellow-600"
-                              : ""
-                          }`}
-                        >
+                      {vehiculo.status === "Active" && (
+                        <label className="relative cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="vehiculo-selection"
+                            value={vehiculo.id}
+                            checked={selectVehicle === vehiculo.id}
+                            onChange={() => handleVehicle(vehiculo.id)}
+                            className="sr-only" // Oculta el input nativo
+                          />
                           <div
-                            className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
-                              selectedVehicle === vehiculo.id
-                                ? "bg-yellow-500 border-yellow-600"
-                                : theme === "dark"
-                                ? "border-yellow-500"
-                                : "border-yellow-500"
+                            className={`p-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                              theme === "dark"
+                                ? "bg-zinc-800 hover:bg-zinc-700"
+                                : "bg-white border border-yellow-500 hover:bg-gray-50"
+                            } ${
+                              selectVehicle === vehiculo.id
+                                ? theme === "dark"
+                                  ? "bg-yellow-500 border-yellow-600"
+                                  : "bg-white border-yellow-600"
+                                : ""
                             }`}
                           >
-                            {selectedVehicle === vehiculo.id && (
-                              <div className="w-2 h-2 rounded-full bg-white animate-in zoom-in-50 duration-200"></div>
-                            )}
+                            <div
+                              className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                                selectVehicle === vehiculo.id
+                                  ? "bg-yellow-500 border-yellow-600"
+                                  : theme === "dark"
+                                  ? "border-yellow-500"
+                                  : "border-yellow-500"
+                              }`}
+                            >
+                              {selectVehicle === vehiculo.id && (
+                                <div className="w-2 h-2 rounded-full bg-white animate-in zoom-in-50 duration-200"></div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </label>
+                        </label>
+                      )}
                     </div>
                   </div>
                 </div>
