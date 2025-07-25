@@ -174,7 +174,7 @@ namespace Web.Controllers
             try
             {
                 var ride = await _rideService.Accept(userId, rideId, request);
-                await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideAccepted", ride.Id);
+                await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideAccepted", ride);
                 return NoContent(); 
             }
             catch (NotFoundException ex)
