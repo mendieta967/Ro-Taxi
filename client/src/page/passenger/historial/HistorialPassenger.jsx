@@ -20,6 +20,7 @@ const HistorialPassenger = () => {
   const [scheduledTrips, setScheduledTrips] = useState([]); //viajes programados
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [abrirModal, setAbrirModal] = useState(false);
+  const [tripIdToDelete, setTripIdToDelete] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [totalPagesRider, setTotalPagesRider] = useState(1);
@@ -27,11 +28,7 @@ const HistorialPassenger = () => {
   const pageSizeRider = 10;
 
   const [editingData, setEditingData] = useState({
-    from: "",
-    to: "",
-    date: "",
     time: "",
-    metodoPago: "",
   });
 
   //mostramos los viajes programados
@@ -67,17 +64,11 @@ const HistorialPassenger = () => {
       console.log("Deleting ride with ID:", riderId);
       await deleteRide(riderId);
 
-      const response = await getRides(
-        pageNumberRider,
-        pageSizeRider,
-        searchTerm
+      // Actualizá el estado local directamente
+      setScheduledTrips((prevTrips) =>
+        prevTrips.filter((ride) => ride.id !== riderId)
       );
-      console.log("Response:", response); // Ver la estructura real de la respuesta
-      const newScheduledTrips = response.data.filter(
-        (ride) => ride?.status === "Pending"
-      );
-      setScheduledTrips(newScheduledTrips);
-      console.log(newScheduledTrips);
+
       setAbrirModal(false);
     } catch (error) {
       console.error(`Error cancelando viaje con ID ${riderId}:`, error);
@@ -104,12 +95,6 @@ const HistorialPassenger = () => {
 
       setEditingData({
         id: editeRide.id,
-        from: editeRide.originAddress,
-        fromLat: editeRide.originLat,
-        fromLng: editeRide.originLng,
-        to: editeRide.destinationAddress,
-        toLat: editeRide.destinationLat,
-        toLng: editeRide.destinationLng,
         date: formattedDate,
         time: formattedTime,
       });
@@ -132,12 +117,6 @@ const HistorialPassenger = () => {
     try {
       const updatedRide = {
         id: editingData.id,
-        originAddress: editingData.from,
-        originLat: editingData.fromLat,
-        originLng: editingData.fromLng,
-        destinationAddress: editingData.to,
-        destinationLat: editingData.toLat,
-        destinationLng: editingData.toLng,
         scheduledAt: `${editingData.date}T${editingData.time}:00`,
       };
 
@@ -426,7 +405,10 @@ const HistorialPassenger = () => {
                         {translate("Editar")}
                       </button>
                       <button
-                        onClick={() => setAbrirModal(true)}
+                        onClick={() => {
+                          setTripIdToDelete(trip.id);
+                          setAbrirModal(true);
+                        }}
                         className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md transition-colors duration-200 cursor-pointer"
                       >
                         {translate("Cancelar")}
@@ -442,7 +424,10 @@ const HistorialPassenger = () => {
                         </h2>
                         <div className="flex gap-4">
                           <button
-                            onClick={() => handleDelete(trip.id)}
+                            onClick={() => {
+                              handleDelete(tripIdToDelete);
+                              setAbrirModal(false); // cerrar después de eliminar
+                            }}
                             className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all cursor-pointer"
                           >
                             {translate("Confirmar")}

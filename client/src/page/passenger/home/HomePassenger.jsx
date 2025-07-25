@@ -7,6 +7,7 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { useConnection } from "@/context/ConnectionContext";
 
 const HomePassenger = () => {
@@ -57,6 +58,19 @@ const HomePassenger = () => {
 
   return (
     <MainLayout>
+      <button
+        onClick={() =>
+          toast("Event has been created", {
+            description: "Sunday, December 03, 2023 at 9:00 AM",
+            action: {
+              label: "Undo",
+              onClick: () => console.log("Undo"),
+            },
+          })
+        }
+      >
+        Show Toast
+      </button>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Columna izquierda (Formulario + Mapa) */}
         <div className="lg:col-span-2 space-y-6">
@@ -261,6 +275,7 @@ const HomePassenger = () => {
             >
               {translate("Agregar")}
             </h3>
+
             <p
               className={`text-sm ${
                 theme === "dark" ? "text-zinc-300" : "text-gray-700"

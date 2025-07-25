@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import Sidebar from "./sidebar/Sidebar";
 import Navbar from "./navBar/NavBar";
 import { ThemeContext } from "../../context/ThemeContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const MainLayout = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +33,7 @@ const MainLayout = ({ children }) => {
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
       />
+      <Toaster />
       <div className="flex-1 flex flex-col">
         <Navbar isMobile={isMobile} />
         <main className="flex-1 p-4 md:p-6  overflow-y-auto">

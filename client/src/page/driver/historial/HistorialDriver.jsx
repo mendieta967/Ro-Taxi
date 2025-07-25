@@ -1,8 +1,8 @@
 import MainLayout from "../../../components/layout/MainLayout";
-import { tripsDriver } from "../../../data/data";
-import { useSearch } from "../../../context/SearchContext";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
+import Pagination from "../../../components/ui/Pagination";
+import { getRides } from "../../../services/ride";
 import {
   Calendar,
   Search,
@@ -12,30 +12,52 @@ import {
   ChevronRight,
   Download,
 } from "lucide-react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 const HistorialDriver = () => {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const { search, setSearch } = useSearch();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [totalPagesRider, setTotalPagesRider] = useState(1);
+  const [pageNumberRider, setPageNumberRider] = useState(1);
+  const pageSizeRider = 10;
 
-  const SearchDriver = tripsDriver.filter((trip) => {
-    return (
-      trip.date.toLowerCase().includes(search.toLowerCase()) ||
-      trip.route.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const response = await getRides(
+          pageNumberRider,
+          pageSizeRider,
+          searchTerm
+        );
+        console.log("Response:", response);
 
-  const filteredTrips = SearchDriver.filter((trip) => {
-    const isStatusMatch = activeTab === "all" || trip.status === activeTab;
-    const isDateMatch = selectedDate ? trip.date === selectedDate : true;
-    return isStatusMatch && isDateMatch;
-  });
+        const scheduledTrips = response.data.filter((ride) =>
+          ["InProgress", "Completed", "Expired", "Pending"].includes(
+            ride?.status
+          )
+        );
+        setTrips(scheduledTrips);
+        setTotalPagesRider(response.totalPages);
+
+        console.log(scheduledTrips);
+      } catch (error) {
+        console.error("Error fetching rides:", error);
+      }
+    };
+    fetchRides();
+  }, [pageNumberRider, searchTerm]);
+
+  const handlePageChange = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+    setPageNumberRider(newPage);
+    console.log("Página cambiada a:", newPage);
+  };
 
   const openModal = (trip) => {
     setSelectedTrip(trip);
@@ -77,28 +99,8 @@ const HistorialDriver = () => {
                       : "border border-yellow-500 rounded-lg bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
                   }`}
                   placeholder={translate("Buscar por dirección o fecha")}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar
-                    className={`h-5 w-5  ${
-                      theme === "dark" ? "text-yellow-500" : "text-gray-900"
-                    }`}
-                  />
-                </div>
-                <input
-                  type="date"
-                  className={`block w-full cursor-pointer pl-10 pr-3 py-3  transition-all duration-200 ${
-                    theme === "dark"
-                      ? "border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500  "
-                      : "border border-yellow-500 rounded-lg bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
-                  }`}
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -136,7 +138,7 @@ const HistorialDriver = () => {
                 Pendientes
               </button>
               <button
-                onClick={() => setActiveTab("completed")}
+                onClick={() => setActiveTab("Completed")}
                 className={`py-2 px-4 font-medium text-sm cursor-pointer ${
                   activeTab === "completed"
                     ? "border-b-2 border-yellow-500 text-yellow-500"
@@ -210,7 +212,7 @@ const HistorialDriver = () => {
           </div>
 
           {/* Lista de viajes */}
-          {filteredTrips
+          {trips
             .filter((trip) => {
               if (activeTab === "all") return true;
               return trip.status === activeTab;
@@ -225,12 +227,6 @@ const HistorialDriver = () => {
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-gray-400">{trip.date}</p>
-                    <h3 className="text-lg font-bold">
-                      {translate("Viaje")} #{trip.id}
-                    </h3>
-                  </div>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                       trip.status === "completed"
@@ -238,7 +234,13 @@ const HistorialDriver = () => {
                         : "bg-red-400/30 text-red-500 border-red-500/30"
                     }`}
                   >
-                    {trip.status === "completed" ? "Completado" : "Cancelado"}
+                    {trip.status === "Completed"
+                      ? "Completado"
+                      : trip.status === "Cancelled"
+                      ? "Cancelado"
+                      : trip.status === "Pending"
+                      ? "Pendiente"
+                      : trip.status}
                   </span>
                 </div>
 
@@ -249,21 +251,15 @@ const HistorialDriver = () => {
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">
-                        {translate("Ruta")}
+                        {translate("Origen")}
                       </p>
-                      <p className="text-sm">{trip.route}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 w-8 h-8 rounded-full bg-zinc-800/80 flex items-center justify-center flex-shrink-0">
-                      <Clock size={16} className="text-yellow-500" />
+                      <p className="text-sm">{trip.originAddress}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">
-                        {translate("Duración")}
+                        {translate("Destino")}
                       </p>
-                      <p className="text-sm">{trip.duration}</p>
+                      <p className="text-sm">{trip.destinationAddress}</p>
                     </div>
                   </div>
 
@@ -276,7 +272,7 @@ const HistorialDriver = () => {
                         {translate("Ganancias")}
                       </p>
                       <p className="text-sm font-bold">
-                        ${trip.earnings.toFixed(2)}
+                        ${trip.payment.amount}
                       </p>
                     </div>
                   </div>
@@ -417,6 +413,11 @@ const HistorialDriver = () => {
             </div>
           )}
         </div>
+        <Pagination
+          currentPage={pageNumberRider}
+          totalPages={totalPagesRider}
+          onPageChange={handlePageChange}
+        />
       </div>
     </MainLayout>
   );

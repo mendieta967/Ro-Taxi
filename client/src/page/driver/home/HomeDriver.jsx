@@ -573,6 +573,7 @@ const HomeDriver = () => {
             </div>
           </div>
         )}
+
         {/* Modo conducción - Interfaz minimalista */}
         {accepteRide && (
           <div className="h-screen flex flex-col  ">
