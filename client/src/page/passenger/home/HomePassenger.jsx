@@ -7,12 +7,14 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
+import { useConnection } from "@/context/ConnectionContext";
 
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
   const [rideProximo, setRideProximo] = useState(null);
   const [viajesRecientes, setViajesRecientes] = useState([]);
+  const { on } = useConnection();
 
   const translate = useTranslate();
 
@@ -44,6 +46,13 @@ const HomePassenger = () => {
       }
     };
     fetchRides();
+  }, []);
+
+  useEffect(() => {
+    on("RideAccepted", (rideId) => {
+      console.log("Tu viaje fue aceptado:", rideId);
+      //  rideHub.joinRide(rideId); // Se une al mismo grupo ride-{rideId}
+    });
   }, []);
 
   return (
