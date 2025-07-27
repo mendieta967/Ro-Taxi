@@ -1,18 +1,19 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Pagination from "../../../components/ui/Pagination";
 import Modal from "../../../components/ui/Modal";
-import FormProfile from "../../../components/common/FormProfile";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import {
   generarResumenViaje,
   imprimirResumen,
 } from "../../../components/ui/PrintUtils";
-import { dataAdmin } from "../../../data/data";
 import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { getAll } from "../../../services/user";
+import { registerUser } from "../../../services/auth";
 import { getVehicles } from "../../../services/vehicle";
+import { getRides } from "../../../services/ride";
+import { createVehicles } from "../../../services/vehicle";
 import Form from "../../../components/common/Form";
 
 const HomeSuperAdmin = () => {
@@ -32,11 +33,17 @@ const HomeSuperAdmin = () => {
   const [pageNumberVehiculo, setPageNumberVehiculo] = useState(1);
   const pageSizeVehiculo = 10;
 
+  //Estado de mis viajes
+  const [totalPagesViajes, setTotalPagesViajes] = useState(1);
+  const [pageNumberViajes, setPageNumberViajes] = useState(1);
+  const pageSizeViajes = 10;
+
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("usuarios");
   const [showModalConductor, setShowModalConductor] = useState(false);
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
   const [vehiculos, setVehiculos] = useState([]);
+  const [viajes, setViajes] = useState([]);
 
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
@@ -144,6 +151,43 @@ const HomeSuperAdmin = () => {
     console.log("Página cambiada a:", newPage);
   };
 
+  //funcion para traer los viajes realizados
+  useEffect(() => {
+    const fetchViajes = async () => {
+      try {
+        const responseViajes = await getRides(
+          pageNumberViajes,
+          pageSizeViajes,
+          search
+        );
+        console.log("Viajes obtenidos del backend:", responseViajes);
+        const viajesMapeados = responseViajes.data.map((v) => ({
+          id: v.id,
+          origen: v.originAddress,
+          destino: v.destinationAddress,
+          fecha: new Date(v.startedAt).toLocaleDateString("es-AR"),
+          passenger: v.passeger.name,
+          conductor: v.driver?.name || "Desconocido",
+          status: v.status,
+          precio: v.payment.amount,
+        }));
+
+        console.log("Viajes obtenidos del backend:", viajesMapeados);
+        setViajes(viajesMapeados);
+        setTotalPagesViajes(responseViajes.totalPages);
+      } catch (error) {
+        console.log("Error al obtener viajes:", error);
+      }
+    };
+
+    fetchViajes();
+  }, [pageNumberViajes, search]);
+
+  const handlePageChangeViajes = (newPage) => {
+    console.log("Cambiando a página:", newPage); // DEBUG
+    setPageNumberViajes(newPage);
+    console.log("Página cambiada a:", newPage);
+  };
   // Configurar datos y headers según la pestaña activa
   if (activeTab === "usuarios") {
     displayedData = usuarios;
@@ -190,7 +234,7 @@ const HomeSuperAdmin = () => {
       translate("Acciones"),
     ];
   } else if (activeTab === "viajes") {
-    displayedData = dataAdmin.viajes;
+    displayedData = viajes;
     headers = [
       translate("id"),
       translate("Fecha"),
@@ -229,18 +273,26 @@ const HomeSuperAdmin = () => {
   });
 
   const handleClick = () => {
-    setShowModal(true);
-  };
-
-  const handleClickConductor = () => {
-    setShowModalConductor(true);
+    switch (activeTab) {
+      case "conductores":
+        setShowModalConductor(true);
+        break;
+      case "pasajeros":
+        setShowModalConductor(true);
+        break;
+      case "vehiculos":
+        setShowModalVehiculo(true);
+        break;
+      default:
+        break;
+    }
   };
 
   const handleClickVehiculo = () => {
     setShowModalVehiculo(true);
   };
 
-  const conductorFields = [
+  const usuariosForm = [
     {
       name: "name",
       label: translate("Nombre"),
@@ -275,6 +327,18 @@ const HomeSuperAdmin = () => {
       autoComplete: "current-password",
     },
     {
+      name: "tipoUsuario",
+      label: translate("Tipo de usuario"),
+      type: "select",
+      required: true,
+      options: [
+        { label: translate("Selecciona el tipo de usuario"), value: "" },
+        { label: translate("Pasajero"), value: "Client" },
+        { label: translate("Conductor"), value: "Driver" },
+      ],
+    },
+
+    {
       name: "genre",
       label: translate("Género"),
       type: "select",
@@ -287,6 +351,26 @@ const HomeSuperAdmin = () => {
       ],
     },
   ];
+  const handleSubmitUsuarios = async (data) => {
+    const newUser = {
+      ...data,
+      nombre: data.name,
+      id: usuarios.length + 1,
+      role: data.tipoUsuario, // <- lo toma del select
+      estado: "Active",
+      fechaCreated: new Date().toLocaleDateString("es-AR"),
+    };
+
+    try {
+      console.log("Nuevo usuario a registrar:", newUser);
+      const responseUsuario = await registerUser(newUser);
+      console.log("Usuario registrado exitosamente", responseUsuario);
+      setShowModalConductor(false);
+      setShowModal(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const vehiculoFields = [
     {
@@ -330,49 +414,46 @@ const HomeSuperAdmin = () => {
       autoComplete: "off",
     },
     {
-      name: "conductor",
+      name: "conductorId",
       label: translate("Conductor"),
-      type: "text",
-      placeholder: translate("Ingrese el conductor"),
+      type: "select",
       required: true,
-      autoComplete: "off",
+      options: conductores.map((conductor) => ({
+        label: conductor.nombre,
+        value: conductor.id,
+      })),
     },
   ];
 
-  const handleSubmitConductor = (data, resetForm) => {
-    const newConductor = {
-      ...data,
-      nombre: data.name,
-      id: usuarios.length + 1,
-      rol: "Driver",
-      estado: "Activo",
-      fechaCreated: new Date().toLocaleDateString("es-AR"),
-    };
+  const handleSubmitVehiculo = (data) => {
+    // Buscar el conductor según el conductorId recibido
+    const conductorSeleccionado = conductores.find(
+      (c) => c.id === Number(data.conductorId)
+    );
 
-    setConductores((prev) => [...prev, newConductor]);
-    setUsuarios((prev) => [...prev, newConductor]);
-
-    resetForm();
-    setShowModalConductor(false);
-    setShowModal(false);
-  };
-
-  const handleSubmitVehiculo = (data, resetForm) => {
     const newVehiculo = {
-      ...data,
       id: vehiculos.length + 1,
       estado: "Activo",
       patente: data.patente,
       marca: data.marca,
       modelo: data.modelo,
       color: data.color,
-      anio: data.anio,
-      conductor: data.conductor,
+      anio: Number(data.anio),
+      conductorId: Number(data.conductorId), // guardar el id para referencia
+      conductorNombre: conductorSeleccionado
+        ? conductorSeleccionado.nombre
+        : "Desconocido",
     };
-    setVehiculos((prev) => [...prev, newVehiculo]);
-    resetForm();
-    setShowModalVehiculo(false);
-    setShowModal(false);
+
+    try {
+      console.log("Nuevo vehiculo a registrar:", newVehiculo);
+      const responseVehiculo = createVehicles(newVehiculo);
+      console.log("Vehiculo registrado exitosamente", responseVehiculo);
+      setShowModalVehiculo(false);
+      setShowModal(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -432,8 +513,7 @@ const HomeSuperAdmin = () => {
               `Total: ${pasajeros.length} pasajeros`}
             {activeTab === "vehiculos" &&
               `Total: ${vehiculos.length} vehículos`}
-            {activeTab === "viajes" &&
-              `Total: ${dataAdmin.viajes.length} viajes`}
+            {activeTab === "viajes" && `Total: ${viajes.length} viajes`}
           </div>
         </div>
 
@@ -473,54 +553,54 @@ const HomeSuperAdmin = () => {
                 )}
               />
             </div>
-            <button
-              onClick={handleClick}
-              className="ml-4 flex items-center bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-md transition cursor-pointer"
-            >
-              <Plus className="mr-2 w-4 h-4" />
-              {translate("Agregar")}
-            </button>
+            {activeTab !== "viajes" && activeTab !== "usuarios" && (
+              <button
+                onClick={handleClick}
+                className="ml-4 flex items-center bg-yellow-500 hover:bg-yellow-600 text-black font-medium py-2 px-4 rounded-md transition cursor-pointer"
+              >
+                <Plus className="mr-2 w-4 h-4" />
+                {translate("Agregar")}
+              </button>
+            )}
           </div>
+
           {showModal && (
             <Modal onClose={() => setShowModal(false)}>
               <div className="flex flex-col gap-4">
-                <h1
-                  className={
-                    theme === "dark"
-                      ? "text-3xl font-extrabold text-center  mb-8 tracking-wide text-white"
-                      : "text-3xl font-extrabold text-center  mb-8 tracking-wide text-gray-900"
-                  }
-                >
-                  {translate("Agregar Usuario")}
-                </h1>
-
                 <div className="flex justify-center gap-4">
-                  <button
-                    onClick={handleClickConductor}
-                    className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition cursor-pointer"
-                  >
-                    {translate("Agregar Conductor")}
-                  </button>
-                  <button
-                    onClick={handleClickVehiculo}
-                    className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition cursor-pointer"
-                  >
-                    {translate("Agregar Vehiculo")}
-                  </button>
+                  {activeTab === "conductores" && activeTab === "pasajeros" && (
+                    <button
+                      onClick={() => {
+                        setShowModalConductor(true);
+                      }}
+                      className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition cursor-pointer"
+                    >
+                      {translate("Agregar Usuario")}
+                    </button>
+                  )}
+
+                  {activeTab === "vehiculos" && (
+                    <button
+                      onClick={handleClickVehiculo}
+                      className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition cursor-pointer"
+                    >
+                      {translate("Agregar Vehiculo")}
+                    </button>
+                  )}
                 </div>
               </div>
             </Modal>
           )}
+
           {showModalConductor && (
             <Modal onClose={() => setShowModalConductor(false)}>
-              <FormProfile
-                fields={conductorFields}
-                onSubmit={handleSubmitConductor}
+              <Form
+                fields={usuariosForm}
+                onSubmit={handleSubmitUsuarios}
                 submitText={translate("Guardar")}
               />
             </Modal>
           )}
-
           {showModalVehiculo && (
             <Modal onClose={() => setShowModalVehiculo(false)}>
               <Form
@@ -755,7 +835,7 @@ const HomeSuperAdmin = () => {
                             {item.destino}
                           </td>
                           <td className="px-6 py-4 font-semibold">
-                            {item.pasajero}
+                            {item.passenger}
                           </td>
                           <td className="px-6 py-4 font-semibold">
                             {item.conductor}
@@ -763,20 +843,20 @@ const HomeSuperAdmin = () => {
                           <td className="px-6 py-4 font-semibold">
                             <span
                               className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                                item.estado === "Completado"
+                                item.status === "Completed"
                                   ? "bg-green-600"
-                                  : item.estado === "En curso"
+                                  : item.status === "InProgress"
                                   ? "bg-yellow-500"
-                                  : item.estado === "Cancelado"
+                                  : item.status === "Cancelled"
                                   ? "bg-red-600"
                                   : "bg-gray-600"
                               }`}
                             >
-                              {item?.estado ?? "N/A"}
+                              {item?.status ?? "N/A"}
                             </span>
                           </td>
                           <td className="px-6 py-4 font-semibold">
-                            {item.importe}
+                            {item.precio}
                           </td>
                           <td className="px-6 py-4">
                             <button
@@ -799,19 +879,29 @@ const HomeSuperAdmin = () => {
         </div>
 
         {/* Paginación mejorada usuarios*/}
-        {activeTab === "usuarios" && (
+        {activeTab !== "vehiculos" && activeTab !== "viajes" && (
           <Pagination
             currentPage={pageNumber}
             totalPages={totalPages}
             onPageChange={handlePageChange}
           />
         )}
+
         {/* Paginación mejorada vehiculo*/}
         {activeTab === "vehiculos" && (
           <Pagination
             currentPage={pageNumberVehiculo}
             totalPages={totalPagesVehiculo}
             onPageChange={handlePageChangeVehiculo}
+          />
+        )}
+
+        {/* Paginación mejorada viajes*/}
+        {activeTab === "viajes" && (
+          <Pagination
+            currentPage={pageNumberViajes}
+            totalPages={totalPagesViajes}
+            onPageChange={handlePageChangeViajes}
           />
         )}
       </div>

@@ -53,6 +53,7 @@ export default function AuthContextProvider({ children }) {
     try {
       setLoading(true);
       await logoutUser();
+      localStorage.clear();
       setUser(null);
     } catch (error) {
       console.log(error);

@@ -365,7 +365,7 @@ const HistorialPassenger = () => {
                           }`}
                         >
                           {translate("Fecha")}:{" "}
-                          {new Date(trip.scheduledAt).toLocaleDateString()}
+                          {new Date(trip.startedAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div

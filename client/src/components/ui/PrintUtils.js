@@ -5,10 +5,10 @@ export const generarResumenViaje = (item) => {
       <p><strong>Fecha:</strong> ${item.fecha}</p>
       <p><strong>Origen:</strong> ${item.origen}</p>
       <p><strong>Destino:</strong> ${item.destino}</p>
-      <p><strong>Pasajero:</strong> ${item.pasajero}</p>
+      <p><strong>Pasajero:</strong> ${item.passenger}</p>
       <p><strong>Conductor:</strong> ${item.conductor}</p>
-      <p><strong>Estado:</strong> ${item.estado}</p>
-      <p><strong>Importe:</strong> ${item.importe}</p>
+      <p><strong>Estado:</strong> ${item.status}</p>
+      <p><strong>Importe:</strong> ${item.precio}</p>
     </div>
   `;
 };

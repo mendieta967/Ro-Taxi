@@ -589,7 +589,7 @@ const HomeDriver = () => {
           </div>
         )}
         {/* Viajes programados */}
-        {isConnected && <ScheduledTrips />}
+        {isConnected && !accepteRide && <ScheduledTrips />}
       </div>
     </MainLayout>
   );
