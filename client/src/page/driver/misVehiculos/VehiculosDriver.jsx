@@ -408,8 +408,7 @@ const VehiculosDriver = () => {
           {mostrarModal && (
             <div className="fixed inset-0 bg-transparent bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm">
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
+                onSubmit={() => {
                   guardarCambios();
                 }}
                 className={`rounded-2xl p-6 w-full max-w-lg shadow-lg  relative ${
