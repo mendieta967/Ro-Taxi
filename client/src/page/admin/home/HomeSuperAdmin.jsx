@@ -1,6 +1,7 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Pagination from "../../../components/ui/Pagination";
 import Modal from "../../../components/ui/Modal";
+import FormProfile from "@/components/common/FormProfile";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import {
@@ -11,10 +12,14 @@ import { Pencil, Plus, Search, FileText } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { getAll } from "../../../services/user";
 import { registerUser } from "../../../services/auth";
-import { getVehicles } from "../../../services/vehicle";
+import {
+  getVehicles,
+  createVehicles,
+  updateVehicles,
+} from "../../../services/vehicle";
 import { getRides } from "../../../services/ride";
-import { createVehicles } from "../../../services/vehicle";
 import Form from "../../../components/common/Form";
+import { editUser } from "../../../services/auth";
 
 const HomeSuperAdmin = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -28,7 +33,26 @@ const HomeSuperAdmin = () => {
   const pageSize = 10;
 
   //Estado de mis vehiculos
+  const [vehiculoEditando, setVehiculoEditando] = useState({
+    brand: "",
+    model: "",
+    licensePlate: "",
+    color: "",
+    year: "",
+    status: "",
+    driverId: null,
+  });
 
+  const [editUserAdd, setEditUserAdd] = useState({
+    id: "",
+    dni: "",
+    name: "",
+    email: "",
+    status: "",
+  });
+
+  const [showUsuarioModal, setShowUsuarioModal] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [totalPagesVehiculo, setTotalPagesVehiculo] = useState(1);
   const [pageNumberVehiculo, setPageNumberVehiculo] = useState(1);
   const pageSizeVehiculo = 10;
@@ -108,6 +132,58 @@ const HomeSuperAdmin = () => {
 
     fetchUsuarios();
   }, [pageNumber, search]);
+
+  const handleEditUser = (user) => {
+    console.log("Editar usuario con ID:", user);
+    // Aquí iría la lógica para editar el usuario
+
+    setEditUserAdd({
+      id: user.id,
+      dni: user.dni,
+      name: user.nombre,
+      email: user.email,
+      status: user.estado,
+    });
+
+    setShowUsuarioModal(true);
+  };
+
+  const handleAddUser = async () => {
+    console.log("Agregar nuevo usuario");
+    // Aquí iría la lógica para agregar un nuevo usuario
+    try {
+      const userAdd = {
+        id: editUserAdd.id,
+        dni: editUserAdd.dni,
+        name: editUserAdd.name,
+        email: editUserAdd.email,
+        accountStatus: editUserAdd.status,
+      };
+      console.log(userAdd);
+
+      const responseUser = await editUser(userAdd.id, userAdd);
+      console.log("Usuario editado exitosamente", responseUser);
+
+      setUsuarios((prevUsuarios) =>
+        prevUsuarios.map((u) => (u.id === userAdd.id ? userAdd : u))
+      );
+
+      setShowUsuarioModal(false);
+    } catch (error) {
+      console.error("Error al editar el usuario:", error);
+      if (error.response && error.response.status === 404) {
+        console.error("El usuario no fue encontrado.");
+      }
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditUserAdd((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handlePageChange = (newPage) => {
     console.log("Cambiando a página:", newPage); // DEBUG
@@ -408,51 +484,89 @@ const HomeSuperAdmin = () => {
     {
       name: "anio",
       label: translate("Año"),
-      type: "number",
+      type: "text",
       placeholder: translate("Ingrese el año"),
       required: true,
       autoComplete: "off",
     },
-    {
-      name: "conductorId",
-      label: translate("Conductor"),
-      type: "select",
-      required: true,
-      options: conductores.map((conductor) => ({
-        label: conductor.nombre,
-        value: conductor.id,
-      })),
-    },
   ];
 
   const handleSubmitVehiculo = (data) => {
-    // Buscar el conductor según el conductorId recibido
-    const conductorSeleccionado = conductores.find(
-      (c) => c.id === Number(data.conductorId)
-    );
-
     const newVehiculo = {
-      id: vehiculos.length + 1,
-      estado: "Activo",
-      patente: data.patente,
-      marca: data.marca,
-      modelo: data.modelo,
+      brand: data.marca,
       color: data.color,
-      anio: Number(data.anio),
-      conductorId: Number(data.conductorId), // guardar el id para referencia
-      conductorNombre: conductorSeleccionado
-        ? conductorSeleccionado.nombre
-        : "Desconocido",
+      licensePlate: data.patente,
+      model: data.modelo,
+      status: data.status,
+      year: data.anio,
     };
 
     try {
       console.log("Nuevo vehiculo a registrar:", newVehiculo);
       const responseVehiculo = createVehicles(newVehiculo);
       console.log("Vehiculo registrado exitosamente", responseVehiculo);
+      // Actualizar estado local con los datos retornados, adaptando la estructura
+      setVehiculos([...vehiculos, newVehiculo]);
       setShowModalVehiculo(false);
       setShowModal(false);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleEditar = (vehiculo) => {
+    console.log("Vehículo a editar:", vehiculo);
+    if (!vehiculo) {
+      console.warn("Vehículo no válido para editar");
+      return;
+    }
+
+    // Buscar ID del conductor por su nombre
+    const conductorEncontrado = conductores.find(
+      (c) => c.nombre === vehiculo.conductor
+    );
+
+    setVehiculoEditando({
+      id: vehiculo.id,
+      brand: vehiculo.marca || "",
+      model: vehiculo.modelo || "",
+      licensePlate: vehiculo.patente || "",
+      color: vehiculo.color || "",
+      year: vehiculo.anio ? vehiculo.anio.toString() : "",
+      status: vehiculo.estado || "",
+      driverId: conductorEncontrado?.id || "", // usar id si existe
+    });
+
+    setMostrarModal(true);
+  };
+
+  const guardarCambios = async () => {
+    try {
+      const vehicleGuardado = {
+        id: vehiculoEditando.id,
+        brand: vehiculoEditando.brand,
+        model: vehiculoEditando.model,
+        licensePlate: vehiculoEditando.licensePlate,
+        color: vehiculoEditando.color,
+        year: vehiculoEditando.year.toString(),
+        status: vehiculoEditando.status,
+        driverId: vehiculoEditando.driverId,
+      };
+      console.log("Vehiculo guardado:", vehicleGuardado);
+      const response = await updateVehicles(
+        vehiculoEditando.id,
+        vehicleGuardado
+      );
+      console.log("Vehiculo editado con éxito", response);
+      setVehiculos(
+        vehiculos.map((v) =>
+          v.id === vehiculoEditando.id ? vehicleGuardado : v
+        )
+      );
+      console.log("Vehiculo guardado:", vehicleGuardado);
+      setMostrarModal(false);
+    } catch (error) {
+      console.log("Error al guardar cambios", error);
     }
   };
 
@@ -724,7 +838,10 @@ const HomeSuperAdmin = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 flex items-center gap-2">
-                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                            <button
+                              onClick={() => handleEditUser(item)}
+                              className="p-2 bg-yellow-500 rounded-md cursor-pointer"
+                            >
                               <Pencil size={16} />
                             </button>
                           </td>
@@ -812,7 +929,10 @@ const HomeSuperAdmin = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 flex items-center gap-2">
-                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                            <button
+                              onClick={() => handleEditar(item)}
+                              className="p-2 bg-yellow-500 rounded-md cursor-pointer"
+                            >
                               <Pencil size={16} />
                             </button>
                           </td>
@@ -877,6 +997,492 @@ const HomeSuperAdmin = () => {
             </table>
           </div>
         </div>
+
+        {mostrarModal && (
+          <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <form
+              onSubmit={() => {
+                guardarCambios();
+              }}
+              className={`
+              relative w-full max-w-2xl max-h-[90vh] overflow-y-auto
+              rounded-3xl shadow-2xl border backdrop-blur-sm
+              animate-in zoom-in-95 slide-in-from-bottom-4 duration-300
+              ${
+                theme === "dark"
+                  ? "bg-zinc-900/95 border-zinc-800/50 text-white shadow-black/50"
+                  : "bg-white/95 border-gray-200 text-gray-900 shadow-gray-500/20"
+              }
+            `}
+            >
+              {/* Header */}
+              <div
+                className={`
+              sticky top-0 z-10 px-8 py-6 border-b backdrop-blur-sm rounded-t-3xl
+              ${
+                theme === "dark"
+                  ? "bg-zinc-900/90 border-zinc-800/50"
+                  : "bg-white/90 border-gray-200"
+              }
+            `}
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                    {translate("Editar vehículo")}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarModal(false)}
+                    className={`
+                    p-2 rounded-full transition-all duration-200 hover:scale-110
+                    ${
+                      theme === "dark"
+                        ? "hover:bg-zinc-800 text-zinc-400 hover:text-white"
+                        : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                    }
+                  `}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-8 py-6 space-y-6">
+                {/* Grid Layout for Form Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Marca */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Marca")}
+                    </label>
+                    <input
+                      type="text"
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 placeholder:text-sm
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white placeholder-zinc-500 hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 hover:bg-white"
+                      }
+                    `}
+                      value={vehiculoEditando.brand}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          brand: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Toyota, Ford, Chevrolet"
+                    />
+                  </div>
+
+                  {/* Modelo */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Modelo")}
+                    </label>
+                    <input
+                      type="text"
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 placeholder:text-sm
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white placeholder-zinc-500 hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 hover:bg-white"
+                      }
+                    `}
+                      value={vehiculoEditando.model}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          model: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Corolla, Focus, Cruze"
+                    />
+                  </div>
+
+                  {/* Patente */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Patente")}
+                    </label>
+                    <input
+                      type="text"
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 placeholder:text-sm uppercase tracking-wider
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white placeholder-zinc-500 hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 hover:bg-white"
+                      }
+                    `}
+                      value={vehiculoEditando.licensePlate}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          licensePlate: e.target.value.toUpperCase(),
+                        })
+                      }
+                      placeholder="ABC-123"
+                    />
+                  </div>
+
+                  {/* Año */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Año")}
+                    </label>
+                    <input
+                      type="number"
+                      min="1900"
+                      max="2030"
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 placeholder:text-sm
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white placeholder-zinc-500 hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 hover:bg-white"
+                      }
+                    `}
+                      value={vehiculoEditando.year}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          year: e.target.value,
+                        })
+                      }
+                      placeholder="2020"
+                    />
+                  </div>
+
+                  {/* Color */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Color")}
+                    </label>
+                    <input
+                      type="text"
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 placeholder:text-sm
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white placeholder-zinc-500 hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400 hover:bg-white"
+                      }
+                    `}
+                      value={vehiculoEditando.color}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          color: e.target.value,
+                        })
+                      }
+                      placeholder="Blanco, Negro, Azul..."
+                    />
+                  </div>
+
+                  {/* Estado */}
+                  <div className="space-y-2">
+                    <label
+                      className={`
+                    block text-sm font-semibold tracking-wide
+                    ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                  `}
+                    >
+                      {translate("Estado")}
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={vehiculoEditando.status}
+                        onChange={(e) =>
+                          setVehiculoEditando({
+                            ...vehiculoEditando,
+                            status: e.target.value,
+                          })
+                        }
+                        className={`
+                        w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                        focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                        hover:border-yellow-400 cursor-pointer appearance-none
+                        ${
+                          theme === "dark"
+                            ? "bg-zinc-800/70 border-zinc-700 text-white hover:bg-zinc-800"
+                            : "bg-gray-50 border-gray-300 text-gray-900 hover:bg-white"
+                        }
+                      `}
+                      >
+                        <option value="Active">{translate("Activo")}</option>
+                        <option value="Revision">
+                          {translate("Revisión")}
+                        </option>
+                        <option value="Inactive">
+                          {translate("Inactivo")}
+                        </option>
+                        <option value="Deleted">{translate("Deleted")}</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg
+                          className={`w-5 h-5 ${
+                            theme === "dark" ? "text-zinc-400" : "text-gray-400"
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conductor - Full Width */}
+                <div className="space-y-2">
+                  <label
+                    className={`
+                  block text-sm font-semibold tracking-wide
+                  ${theme === "dark" ? "text-yellow-400" : "text-gray-700"}
+                `}
+                  >
+                    {translate("Conductor Asignado")}
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={vehiculoEditando.driverId}
+                      onChange={(e) =>
+                        setVehiculoEditando({
+                          ...vehiculoEditando,
+                          driverId: Number(e.target.value),
+                        })
+                      }
+                      className={`
+                      w-full px-4 py-3 rounded-xl border-2 transition-all duration-200 
+                      focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500
+                      hover:border-yellow-400 cursor-pointer appearance-none
+                      ${
+                        theme === "dark"
+                          ? "bg-zinc-800/70 border-zinc-700 text-white hover:bg-zinc-800"
+                          : "bg-gray-50 border-gray-300 text-gray-900 hover:bg-white"
+                      }
+                    `}
+                    >
+                      <option value="">Selecciona un conductor</option>
+                      {conductores.map((conductor) => (
+                        <option key={conductor.id} value={conductor.id}>
+                          {conductor.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg
+                        className={`w-5 h-5 ${
+                          theme === "dark" ? "text-zinc-400" : "text-gray-400"
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div
+                className={`
+              sticky bottom-0 px-8 py-6 border-t backdrop-blur-sm rounded-b-3xl
+              ${
+                theme === "dark"
+                  ? "bg-zinc-900/90 border-zinc-800/50"
+                  : "bg-white/90 border-gray-200"
+              }
+            `}
+              >
+                <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setMostrarModal(false)}
+                    className={`
+                    px-6 py-3 rounded-xl font-medium transition-all duration-200 
+                    border-2 hover:scale-[1.02] active:scale-[0.98]
+                    ${
+                      theme === "dark"
+                        ? "border-zinc-700 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800/50"
+                        : "border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                    }
+                  `}
+                  >
+                    {translate("Cancelar")}
+                  </button>
+                  <button
+                    type="submit"
+                    className="
+                    px-8 py-3 rounded-xl font-semibold transition-all duration-200
+                    bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500
+                    text-white shadow-lg hover:shadow-yellow-500/25 hover:scale-[1.02] active:scale-[0.98]
+                    focus:outline-none focus:ring-4 focus:ring-yellow-500/30
+                  "
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {translate("Guardar")}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {showUsuarioModal && (
+          <Modal
+            onClose={() => setShowUsuarioModal(false)}
+            title="Editar Usuario"
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAddUser();
+              }}
+              className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-8 space-y-6"
+            >
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                Editar Usuario
+              </h2>
+
+              {/* Nombre */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editUserAdd.name || ""}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ingrese el nombre"
+                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editUserAdd.email || ""}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ingrese el email"
+                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                />
+              </div>
+
+              {/* DNI */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  DNI
+                </label>
+                <input
+                  type="text"
+                  name="dni"
+                  value={editUserAdd.dni || ""}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ingrese el DNI"
+                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                />
+              </div>
+
+              {/* Botón de Guardar */}
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
 
         {/* Paginación mejorada usuarios*/}
         {activeTab !== "vehiculos" && activeTab !== "viajes" && (
