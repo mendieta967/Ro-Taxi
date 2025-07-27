@@ -1,14 +1,6 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
-import {
-  Car,
-  Plus,
-  Edit,
-  Trash2,
-  Check,
-  AlertCircle,
-  VenetianMaskIcon,
-} from "lucide-react";
+import { Car, Plus, Edit, Trash2, Check, AlertCircle } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import Pagination from "../../../components/ui/Pagination";
 import { useTranslate } from "../../../hooks/useTranslate";

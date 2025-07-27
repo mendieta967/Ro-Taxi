@@ -554,7 +554,7 @@ const SettingsApp = () => {
                 size={18}
                 className="group-hover:rotate-12 transition-transform duration-300 "
               />
-              {translate("Eliminar Cuenta")} {" cambiar a desactivar cuenta"}
+              Desactivar cuenta
             </button>
           </div>
         </div>

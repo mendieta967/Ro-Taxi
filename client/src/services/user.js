@@ -7,3 +7,5 @@ export const getAll = (pageNumber, pageSize, search = "") =>
   apiClient.get(
     `user?Page=${pageNumber}&PageSize=${pageSize}&Search=${search}`
   );
+
+export const deleteUser = () => apiClient.delete("user/delete-account");

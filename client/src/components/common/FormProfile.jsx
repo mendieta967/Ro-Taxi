@@ -45,7 +45,7 @@ const FormProfile = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     const isValid = validate(formData);
-
+    console.log("isValid", isValid);
     if (isValid) {
       onSubmit({ ...formData, ...extraValues });
       setIsEditing(false);
@@ -69,7 +69,11 @@ const FormProfile = ({
           value: formData[field.name] || "",
           onChange: handleChange,
 
-          className: `w-full mt-1 p-2 pr-10 ${theme === 'dark' ? 'bg-zinc-800' : 'bg-white border border-yellow-500'} rounded-md outline-none appearance-none ${
+          className: `w-full mt-1 p-2 pr-10 ${
+            theme === "dark"
+              ? "bg-zinc-800"
+              : "bg-white border border-yellow-500"
+          } rounded-md outline-none appearance-none ${
             isError ? "border-red-500" : "border-gray-600"
           } focus:outline-none focus:ring-2 focus:ring-yellow-500`,
         };
@@ -79,7 +83,9 @@ const FormProfile = ({
             {field.label && field.type !== "hidden" && (
               <label
                 htmlFor={field.name}
-                className={`text-sm font-semibold ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-900'} mb-1 block`}
+                className={`text-sm font-semibold ${
+                  theme === "dark" ? "text-yellow-500" : "text-gray-900"
+                } mb-1 block`}
               >
                 {field.label}
               </label>
@@ -95,7 +101,9 @@ const FormProfile = ({
                 <select
                   {...commonProps}
                   disabled={!isEditing}
-                  className={`pl-10 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'} cursor-pointer ${commonProps.className}`}
+                  className={`pl-10 ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  } cursor-pointer ${commonProps.className}`}
                 >
                   {field.options?.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -128,7 +136,9 @@ const FormProfile = ({
                   autoComplete={field.autoComplete}
                   autoFocus={field.autoFocus}
                   readOnly={!isEditing}
-                  className={`pl-10 pr-10 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'} ${commonProps.className}`}
+                  className={`pl-10 pr-10 ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  } ${commonProps.className}`}
                 />
                 {field.type === "password" && (
                   <div
@@ -161,7 +171,11 @@ const FormProfile = ({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className={`w-full sm:w-1/2 md:w-1/4 mt-4font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${theme === 'dark' ? 'bg-yellow-500 text-zinc-900 hover:bg-yellow-600' : 'bg-yellow-500 text-zinc-900 hover:bg-yellow-600'}`}
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${
+              theme === "dark"
+                ? "bg-yellow-500 text-zinc-900 hover:bg-yellow-600"
+                : "bg-yellow-500 text-zinc-900 hover:bg-yellow-600"
+            }`}
           >
             <span className="flex justify-center items-center gap-2 font-semibold">
               <Pencil className="h-5 w-5" />
@@ -172,7 +186,11 @@ const FormProfile = ({
         {isEditing && (
           <button
             type="submit"
-            className={`w-full sm:w-1/2 md:w-1/4 mt-4 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${theme === 'dark' ? 'bg-zinc-700 text-yellow-500 hover:bg-zinc-600' : 'bg-zinc-700 text-yellow-500 hover:bg-zinc-600'}`}
+            className={`w-full sm:w-1/2 md:w-1/4 mt-4 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105 ${
+              theme === "dark"
+                ? "bg-zinc-700 text-yellow-500 hover:bg-zinc-600"
+                : "bg-zinc-700 text-yellow-500 hover:bg-zinc-600"
+            }`}
           >
             <span className="flex justify-center items-center gap-2 font-semibold">
               <Save className="h-5 w-5" />
