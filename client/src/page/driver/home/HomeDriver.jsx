@@ -2,6 +2,7 @@ import MainLayout from "../../../components/layout/MainLayout";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import ScheduledTrips from "./components/ScheduledTrips";
+import { useRide } from "@/context/RideContext";
 import { Link } from "react-router-dom";
 import {
   Power,
@@ -26,13 +27,13 @@ import { useVehicle } from "@/context/VehicleContext";
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
   const { selectVehicle } = useVehicle();
+  const { accepteRide, setAccepteRide } = useRide();
   const translate = useTranslate();
   const intervalRef = useRef(null);
 
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [pendingTrip, setPendingTrip] = useState(null);
-  const [accepteRide, setAccepteRide] = useState(null);
 
   const { isConnected, connect, disconnect } = useConnection();
 
@@ -264,7 +265,7 @@ const HomeDriver = () => {
               </button>
             </div>
           </div>
-          {!pendingTrip && isConnected && (
+          {!pendingTrip && isConnected && !accepteRide && (
             <div className=" bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 mb-10">
               <div className="bg-zinc-900 w-[90%] max-w-sm rounded-2xl p-6 text-white text-center">
                 <div className="text-4xl mb-4 animate-spin">🚕</div>
@@ -275,6 +276,7 @@ const HomeDriver = () => {
               </div>
             </div>
           )}
+
           {/* Solicitud de viaje entrante con mapa ojos */}
           {isConnected && pendingTrip && !accepteRide && (
             <div
@@ -550,23 +552,24 @@ const HomeDriver = () => {
               }`}
             >
               <div className="flex justify-around">
-                <button
-                  className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${
-                    theme === "dark"
-                      ? "bg-zinc-900/70"
-                      : "bg-white border border-yellow-500 text-yellow-500"
-                  }`}
-                >
-                  <MessageCircle size={28} className="text-green-500 mb-1" />
-                  <span
-                    className={`text-sm font-semibold ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
+                <Link to="/app/chat">
+                  <button
+                    className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${
+                      theme === "dark"
+                        ? "bg-zinc-900/70"
+                        : "bg-white border border-yellow-500 text-yellow-500"
                     }`}
                   >
-                    {translate("Mensaje")}
-                  </span>
-                </button>
-
+                    <MessageCircle size={28} className="text-green-500 mb-1" />
+                    <span
+                      className={`text-sm font-semibold ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {translate("Mensaje")}
+                    </span>
+                  </button>
+                </Link>
                 <button
                   onClick={() => handleComplete()}
                   className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${

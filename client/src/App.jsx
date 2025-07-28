@@ -4,6 +4,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { TranslateProvider } from "./context/TranslateLanguage";
 import ConnectionProvider from "./context/ConnectionContext";
 import VehicleProvider from "./context/VehicleContext";
+import { RideProvider } from "./context/rideContext";
 
 const App = () => {
   return (
@@ -12,7 +13,9 @@ const App = () => {
         <TranslateProvider>
           <SearchProvider>
             <VehicleProvider>
-              <AppRoute />
+              <RideProvider>
+                <AppRoute />
+              </RideProvider>
             </VehicleProvider>
           </SearchProvider>
         </TranslateProvider>

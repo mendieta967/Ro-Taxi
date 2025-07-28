@@ -3,6 +3,7 @@ import Form from "../../../components/common/Form";
 import { FaGoogle, FaFacebookF, FaGithub } from "react-icons/fa";
 import { linkGithubProvider } from "../../../services/auth";
 import { useAuth } from "../../../context/auth";
+import { Link } from "react-router-dom";
 
 const Login = ({ onSwitch }) => {
   const emailRef = useRef(null);
@@ -81,11 +82,13 @@ const Login = ({ onSwitch }) => {
           refs={{ email: emailRef, password: passwordRef }}
           submitText="Iniciar sesión"
         />
-        <div className="text-center mt-2">
-          <button className="cursor-pointer text-zinc-600 hover:underline">
-            ¿Has olvidado la contraseña?
-          </button>
-        </div>
+        <Link to="/recoverPassword">
+          <div className="text-center mt-2">
+            <button className="cursor-pointer text-zinc-600 hover:underline">
+              ¿Has olvidado la contraseña?
+            </button>
+          </div>
+        </Link>
 
         <div className="text-center my-6">
           <p className="text-gray-300 mb-2">Continuar con:</p>

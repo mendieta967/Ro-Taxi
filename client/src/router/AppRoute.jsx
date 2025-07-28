@@ -113,7 +113,7 @@ const router = createBrowserRouter([
   { path: "complete-account", element: <CompleteAccount /> },
   { path: "login", element: <AuthPage /> },
   { path: "*", element: <NotFound /> },
-  { path: "/recuperar", element: <RecoverPassword /> },
+  { path: "/recoverPassword", element: <RecoverPassword /> },
 ]);
 
 const AppRoute = () => {
