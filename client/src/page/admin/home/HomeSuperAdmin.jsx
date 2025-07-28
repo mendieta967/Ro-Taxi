@@ -867,12 +867,14 @@ const HomeSuperAdmin = () => {
 
                           <td className="px-6 py-4 flex items-center gap-2">
                             <button
+                              title="Editar usuario"
                               onClick={() => handleEditUser(item)}
                               className="p-2 bg-yellow-500 rounded-md cursor-pointer"
                             >
                               <Pencil size={16} />
                             </button>
                             <button
+                              title="Desactivar usuario"
                               onClick={() =>
                                 handleStatusUser(
                                   item.id,
@@ -922,12 +924,14 @@ const HomeSuperAdmin = () => {
                           </td>
                           <td className="px-6 py-4 flex items-center gap-2">
                             <button
+                              title="Editar usuario"
                               onClick={() => handleEditUser(item)}
                               className="p-2 bg-yellow-500 rounded-md cursor-pointer"
                             >
                               <Pencil size={16} />
                             </button>
                             <button
+                              title="Desactivar usuario"
                               onClick={() =>
                                 handleStatusUser(
                                   item.id,
@@ -987,6 +991,7 @@ const HomeSuperAdmin = () => {
                           </td>
                           <td className="px-6 py-4 flex items-center gap-2">
                             <button
+                              title="Editar vehiculo"
                               onClick={() => handleEditar(item)}
                               className="p-2 bg-yellow-500 rounded-md cursor-pointer"
                             >
@@ -1037,6 +1042,7 @@ const HomeSuperAdmin = () => {
                           </td>
                           <td className="px-6 py-4">
                             <button
+                              title="Imprimir resumen"
                               onClick={() =>
                                 imprimirResumen(generarResumenViaje(item))
                               }
