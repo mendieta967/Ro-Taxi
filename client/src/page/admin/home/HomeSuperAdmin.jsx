@@ -1,16 +1,16 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import Pagination from "../../../components/ui/Pagination";
 import Modal from "../../../components/ui/Modal";
-import FormProfile from "@/components/common/FormProfile";
+import { toast } from "sonner";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import {
   generarResumenViaje,
   imprimirResumen,
 } from "../../../components/ui/PrintUtils";
-import { Pencil, Plus, Search, FileText } from "lucide-react";
+import { Pencil, Plus, Search, FileText, Ban } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
-import { getAll } from "../../../services/user";
+import { getAll, editUserStatus } from "../../../services/user";
 import { registerUser } from "../../../services/auth";
 import {
   getVehicles,
@@ -63,6 +63,7 @@ const HomeSuperAdmin = () => {
   const pageSizeViajes = 10;
 
   const [showModal, setShowModal] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [activeTab, setActiveTab] = useState("usuarios");
   const [showModalConductor, setShowModalConductor] = useState(false);
   const [showModalVehiculo, setShowModalVehiculo] = useState(false);
@@ -144,7 +145,7 @@ const HomeSuperAdmin = () => {
       email: user.email,
       status: user.estado,
     });
-
+    setIsEditable(false);
     setShowUsuarioModal(true);
   };
 
@@ -167,7 +168,9 @@ const HomeSuperAdmin = () => {
       setUsuarios((prevUsuarios) =>
         prevUsuarios.map((u) => (u.id === userAdd.id ? userAdd : u))
       );
-
+      toast("✅ Usuario modificado", {
+        description: "El usuario fue modificado correctamente.",
+      });
       setShowUsuarioModal(false);
     } catch (error) {
       console.error("Error al editar el usuario:", error);
@@ -177,6 +180,21 @@ const HomeSuperAdmin = () => {
     }
   };
 
+  const handleStatusUser = async (id) => {
+    console.log("Cambiar estado de usuario con ID:", id);
+    try {
+      const response = await editUserStatus(id);
+      console.log("Usuario editado exitosamente", response);
+      toast("✅ Estado modificado", {
+        description: "El Estado fue modificado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error al editar el usuario:", error);
+      if (error.response && error.response.status === 404) {
+        console.error("El usuario no fue encontrado.");
+      }
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditUserAdd((prev) => ({
@@ -441,6 +459,9 @@ const HomeSuperAdmin = () => {
       console.log("Nuevo usuario a registrar:", newUser);
       const responseUsuario = await registerUser(newUser);
       console.log("Usuario registrado exitosamente", responseUsuario);
+      toast("✅ ", {
+        description: "Usuario registrado correctamente.",
+      });
       setShowModalConductor(false);
       setShowModal(false);
     } catch (error) {
@@ -505,6 +526,9 @@ const HomeSuperAdmin = () => {
       console.log("Nuevo vehiculo a registrar:", newVehiculo);
       const responseVehiculo = createVehicles(newVehiculo);
       console.log("Vehiculo registrado exitosamente", responseVehiculo);
+      toast("✅ ", {
+        description: "Vehiculo registrado correctamente.",
+      });
       // Actualizar estado local con los datos retornados, adaptando la estructura
       setVehiculos([...vehiculos, newVehiculo]);
       setShowModalVehiculo(false);
@@ -564,6 +588,9 @@ const HomeSuperAdmin = () => {
         )
       );
       console.log("Vehiculo guardado:", vehicleGuardado);
+      toast("✅", {
+        description: "Vehiculo guardado correctamente.",
+      });
       setMostrarModal(false);
     } catch (error) {
       console.log("Error al guardar cambios", error);
@@ -793,7 +820,7 @@ const HomeSuperAdmin = () => {
                                   ? "bg-green-600"
                                   : item?.estado === "Inactivo"
                                   ? "bg-yellow-500"
-                                  : item?.estado === "Cancelado"
+                                  : item?.estado === "Disabled"
                                   ? "bg-red-600"
                                   : "bg-gray-600"
                               }`}
@@ -829,7 +856,7 @@ const HomeSuperAdmin = () => {
                                   ? "bg-green-600"
                                   : item?.estado === "Inactivo"
                                   ? "bg-yellow-600"
-                                  : item?.estado === "Cancelado"
+                                  : item?.estado === "Disabled"
                                   ? "bg-red-600"
                                   : "bg-gray-600"
                               }`}
@@ -837,12 +864,26 @@ const HomeSuperAdmin = () => {
                               {item?.estado ?? "N/A"}
                             </span>
                           </td>
+
                           <td className="px-6 py-4 flex items-center gap-2">
                             <button
                               onClick={() => handleEditUser(item)}
                               className="p-2 bg-yellow-500 rounded-md cursor-pointer"
                             >
                               <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleStatusUser(
+                                  item.id,
+                                  item.estado === "Active"
+                                    ? "Disabled"
+                                    : "Active"
+                                )
+                              }
+                              className="p-2 bg-red-500 rounded-md cursor-pointer"
+                            >
+                              <Ban size={16} />
                             </button>
                           </td>
                         </>
@@ -871,7 +912,7 @@ const HomeSuperAdmin = () => {
                                   ? "bg-green-600"
                                   : item?.estado === "Inactivo"
                                   ? "bg-yellow-600"
-                                  : item?.estado === "Cancelado"
+                                  : item?.estado === "Disabled"
                                   ? "bg-red-600"
                                   : "bg-gray-600"
                               }`}
@@ -880,8 +921,24 @@ const HomeSuperAdmin = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 flex items-center gap-2">
-                            <button className="p-2 bg-yellow-500 rounded-md cursor-pointer">
+                            <button
+                              onClick={() => handleEditUser(item)}
+                              className="p-2 bg-yellow-500 rounded-md cursor-pointer"
+                            >
                               <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleStatusUser(
+                                  item.id,
+                                  item.estado === "Active"
+                                    ? "Disabled"
+                                    : "Active"
+                                )
+                              }
+                              className="p-2 bg-red-500 rounded-md cursor-pointer"
+                            >
+                              <Ban size={16} />
                             </button>
                           </td>
                         </>
@@ -1001,7 +1058,8 @@ const HomeSuperAdmin = () => {
         {mostrarModal && (
           <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <form
-              onSubmit={() => {
+              onSubmit={(e) => {
+                e.preventDefault();
                 guardarCambios();
               }}
               className={`
@@ -1417,7 +1475,6 @@ const HomeSuperAdmin = () => {
                 e.preventDefault();
                 handleAddUser();
               }}
-              className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-8 space-y-6"
             >
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                 Editar Usuario
@@ -1431,6 +1488,7 @@ const HomeSuperAdmin = () => {
                 <input
                   type="text"
                   name="name"
+                  disabled={!isEditable}
                   value={editUserAdd.name || ""}
                   onChange={handleChange}
                   required
@@ -1447,6 +1505,7 @@ const HomeSuperAdmin = () => {
                 <input
                   type="email"
                   name="email"
+                  disabled={!isEditable}
                   value={editUserAdd.email || ""}
                   onChange={handleChange}
                   required
@@ -1463,6 +1522,7 @@ const HomeSuperAdmin = () => {
                 <input
                   type="text"
                   name="dni"
+                  disabled={!isEditable}
                   value={editUserAdd.dni || ""}
                   onChange={handleChange}
                   required
@@ -1472,10 +1532,17 @@ const HomeSuperAdmin = () => {
               </div>
 
               {/* Botón de Guardar */}
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-4 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditable(true)}
+                  className="bg-gray-100 cursor-pointer hover:bg-gray-200 text-gray-800 font-medium px-5 py-2 rounded-lg shadow-sm hover:shadow-md transition duration-200 border border-gray-300"
+                >
+                  Editar
+                </button>
                 <button
                   type="submit"
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+                  className="bg-yellow-500 cursor-pointer hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition duration-200"
                 >
                   Guardar cambios
                 </button>
