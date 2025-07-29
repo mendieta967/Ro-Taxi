@@ -17,7 +17,7 @@ import {
 import { useContext, useState, useEffect, useRef } from "react";
 import {
   acceptViaje,
-  cancelViaje,
+  rejectViaje,
   pendingViaje,
   completeViaje,
 } from "../../../services/driver";
@@ -35,7 +35,7 @@ const HomeDriver = () => {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [pendingTrip, setPendingTrip] = useState(null);
 
-  const { isConnected, connect, disconnect } = useConnection();
+  const { isConnected, connect, disconnect, invoke, on } = useConnection();
 
   const handleConnect = async () => {
     if (isConnected) {
@@ -101,6 +101,9 @@ const HomeDriver = () => {
     try {
       const response = await acceptViaje(trip.id, selectVehicle); // llamás a tu API
       console.log("Response:", response);
+      invoke("JoinRideGroup", trip.id)
+        .then(() => console.log("Unido al grupo de ride:", trip.id))
+        .catch((err) => console.error("Error al unirse al grupo:", err));
       setAccepteRide(trip);
       setShowConfirm(true);
     } catch (error) {
@@ -112,7 +115,7 @@ const HomeDriver = () => {
   const handleRejectTrip = async (riderId) => {
     try {
       console.log("Cancelando viaje con ID:", riderId);
-      await cancelViaje(riderId);
+      await rejectViaje(riderId);
       console.log("Viaje cancelado con éxito");
 
       // Limpia el viaje actual y vuelve a buscar después de unos segundos
@@ -141,9 +144,17 @@ const HomeDriver = () => {
     }
   }, [ShowConfirm]);
 
+  useEffect(() => {
+    on("RideCanceled", (rideId) => {
+      console.log("El viaje fue cancelado :(");
+      invoke("LeaveRideGroup", rideId);
+    });
+  }, []);
+
   const handleComplete = async () => {
     try {
       const responseComplete = await completeViaje(accepteRide.id);
+      await invoke("LeaveRideGroup", accepteRide.id);
       console.log(responseComplete);
 
       setPendingTrip(null);

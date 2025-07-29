@@ -7,7 +7,7 @@ import { useVehicle } from "@/context/VehicleContext";
 import {
   getDriver,
   acceptViaje,
-  cancelViaje,
+  rejectViaje,
 } from "../../../../services/driver";
 
 const ScheduledTrips = () => {
@@ -68,7 +68,7 @@ const ScheduledTrips = () => {
   // Función para rechazar viaje programados
   const handleRejectTrip = async (riderId) => {
     try {
-      await cancelViaje(riderId);
+      await rejectViaje(riderId);
       console.log("Viaje cancelado con éxito");
       setSelectedTrip((prev) => prev.filter((t) => t.id !== riderId));
       toast("❌ Viaje rechazado", {

@@ -174,7 +174,7 @@ namespace Web.Controllers
             try
             {
                 var ride = await _rideService.Accept(userId, rideId, request);
-                await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideAccepted", ride);
+                await _hubContext.Clients.User(ride.Passeger.Id.ToString()).SendAsync("RideAccepted", ride);
                 return NoContent(); 
             }
             catch (NotFoundException ex)
@@ -193,13 +193,22 @@ namespace Web.Controllers
 
 
         [Authorize]
-        [HttpDelete("{rideId}")]
+        [HttpDelete("{rideId}/cancel")]
         public async Task<IActionResult> Cancel([FromRoute] int rideId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)!.Value;
             try
             {
-                await _rideService.Cancel(userId, rideId);
+                var ride = await _rideService.Cancel(userId, rideId);
+                if (userRole == UserRole.Driver.ToString())
+                {
+                    await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideCanceled", rideId);
+                }
+                else
+                {
+                    await _hubContext.Clients.User(ride.DriverId.ToString()).SendAsync("RideCanceled", rideId);
+                }
                 return NoContent();
             }
             catch (NotFoundException ex)
@@ -224,7 +233,8 @@ namespace Web.Controllers
 
             try
             {
-                await _rideService.Complete(driverId, rideId);
+                var ride = await _rideService.Complete(driverId, rideId);
+                await _hubContext.Clients.User(ride.PassegerId.ToString()).SendAsync("RideCompleted", rideId);
                 return NoContent(); 
             }
             catch (NotFoundException ex)
@@ -247,7 +257,7 @@ namespace Web.Controllers
 
         [Authorize(Roles = nameof(UserRole.Client))]
         [HttpPost("{rideId}/rate")]
-        public async Task<IActionResult> CompleteRide(int rideId, [FromBody] int rating)
+        public async Task<IActionResult> RateRide(int rideId, [FromBody] int rating)
         {
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 

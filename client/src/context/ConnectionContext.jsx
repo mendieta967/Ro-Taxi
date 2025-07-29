@@ -5,7 +5,7 @@ import { useAuth } from "./auth";
 const ConnectionContext = createContext();
 
 export default function ConnectionProvider({ children }) {
-  const { isConnected, connect, disconnect, on } = useSignalR();
+  const { isConnected, connect, disconnect, on, invoke } = useSignalR();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function ConnectionProvider({ children }) {
   });
   return (
     <ConnectionContext.Provider
-      value={{ isConnected, connect, disconnect, on }}
+      value={{ isConnected, connect, disconnect, on, invoke }}
     >
       {children}
     </ConnectionContext.Provider>

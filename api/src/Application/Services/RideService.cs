@@ -169,7 +169,7 @@ public class RideService : IRideService
         _rejectionRepository.Create(rejection);
         await _unitOfWork.SaveChangesAsync();
     }
-    public async Task<Ride> Accept(int userId, int rideId, RideAcceptRequest request)
+    public async Task<RideDto> Accept(int userId, int rideId, RideAcceptRequest request)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
         var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("ride not found");
@@ -185,9 +185,9 @@ public class RideService : IRideService
 
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
-        return ride;
+        return new RideDto(ride);
     }
-    public async Task Cancel(int userId, int rideId)
+    public async Task<Ride> Cancel(int userId, int rideId)
     {
         var ride = await _rideRepository.GetById(rideId);
         if (ride is null) throw new NotFoundException("Ride not found");
@@ -209,8 +209,9 @@ public class RideService : IRideService
         }
 
         await _unitOfWork.SaveChangesAsync();
+        return ride;
     }
-    public async Task Complete(int userId, int rideId)
+    public async Task<Ride> Complete(int userId, int rideId)
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
         var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
@@ -226,6 +227,7 @@ public class RideService : IRideService
 
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
+        return ride;
     }
     public async Task RateRide(int userId, int rideId, int rating)
     {
