@@ -146,4 +146,25 @@ public class RideRepository : IRideRepository
         _context.Remove(ride);        
     }
 
+    public async Task<PaginatedList<Ride>> GetWithMessages(int driverId, int pageIndex, int pageSize)
+    {
+        var query = _context.Rides
+            .Where(r => r.DriverId == driverId && r.Status == RideStatus.InProgress)
+            .Include(r => r.Passeger)           
+            .Include(r => r.Messages)
+            .AsQueryable();
+
+        query = query.OrderByDescending(r => r.Messages.Any() ? r.Messages.Max(m => m.Timestamp) : DateTime.MinValue);
+
+        var totalData = await query.CountAsync();
+
+        var rides = await query            
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling((double)totalData / pageSize);
+
+        return new PaginatedList<Ride>(rides, totalData, pageIndex, pageSize, totalPages);
+    }
 }

@@ -20,5 +20,6 @@ public interface IRideRepository
     void Update(Ride ride);
     void Delete(Ride ride);
 
+    Task<PaginatedList<Ride>> GetWithMessages(int driverId, int pageIndex, int pageSize);
 
 }

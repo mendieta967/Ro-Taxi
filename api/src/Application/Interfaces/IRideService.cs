@@ -24,4 +24,5 @@ public interface IRideService
     Task<Ride> Complete(int userId, int rideId);
     Task RateRide(int userId, int rideId, int rating);
     decimal CalculatePrice(CalculatePriceRequest request);
+    Task<PaginatedList<RideWithMessageDto>> GetWithMessages(int userId, PaginationParams pagination);
 }

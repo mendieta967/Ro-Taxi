@@ -197,7 +197,7 @@ const MapForm = ({
         {/* Contenedor de Inputs o Chat */}
         {showChat ? (
           <div className="flex flex-col h-100 rounded-lg overflow-hidden border border-zinc-700">
-            <ChatPassenger />
+            <ChatPassenger rideId={tripAccepted.id} />
           </div>
         ) : (
           <div className="flex flex-col gap-6">

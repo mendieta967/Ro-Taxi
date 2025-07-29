@@ -1,6 +1,9 @@
-﻿using Application.Models;
+﻿using Application.Interfaces;
+using Application.Models;
+using Application.Models.Requests;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
@@ -9,6 +12,12 @@ namespace Web.Hubs;
 public class RideHub : Hub
 {
     private static int _connectedDriversCount = 0;
+    private readonly IMessageService _messageService;
+
+    public RideHub(IMessageService messageService)
+    {
+        _messageService = messageService;
+    }
     public override async Task OnConnectedAsync()
     {
         var user = Context.User;
@@ -63,5 +72,12 @@ public class RideHub : Hub
             Lat = lat,
             Lng = lng
         });
+    }
+
+    public async Task SendMessageToRideGroup(int rideId, string text)
+    {
+        int userId = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+        var message = await _messageService.Create(userId, rideId, text);
+        await Clients.Group($"ride-{rideId}").SendAsync("ReceiveRideMessage", message);
     }
 }
