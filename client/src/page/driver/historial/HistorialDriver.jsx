@@ -9,6 +9,7 @@ import {
   DollarSign,
   ChevronRight,
   Download,
+  Star,
 } from "lucide-react";
 import { useState, useContext, useEffect } from "react";
 const HistorialDriver = () => {
@@ -654,7 +655,7 @@ const HistorialDriver = () => {
 
                 {/* Status */}
                 <div
-                  className={`col-span-1 md:col-span-2 p-6 rounded-2xl border transition-all duration-200 hover:shadow-md ${
+                  className={`p-4 rounded-2xl border transition-all duration-200 hover:shadow-md ${
                     theme === "dark"
                       ? "bg-zinc-800/50 border-zinc-700/50 hover:border-yellow-500/30"
                       : "bg-gray-50/50 border-gray-200 hover:border-yellow-300"
@@ -725,6 +726,44 @@ const HistorialDriver = () => {
                           : translate("Cancelado")}
                       </p>
                     </div>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-2xl border transition-all duration-200 hover:shadow-md ${
+                    theme === "dark"
+                      ? "bg-zinc-800/50 border-zinc-700/50 hover:border-yellow-500/30"
+                      : "bg-gray-50/50 border-gray-200 hover:border-yellow-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                        theme === "dark" ? "bg-yellow-600/30" : "bg-yellow-200"
+                      }`}
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          theme === "dark"
+                            ? "text-yellow-400"
+                            : "text-yellow-600"
+                        }`}
+                        fill="currentColor"
+                      />
+                    </div>
+                    <p
+                      className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
+                        theme === "dark" ? "text-yellow-400" : "text-yellow-700"
+                      }`}
+                    >
+                      Puntuación
+                    </p>
+                    <p
+                      className={`text-4xl font-extrabold leading-none ${
+                        theme === "dark" ? "text-yellow-400" : "text-yellow-700"
+                      }`}
+                    >
+                      {selectedTrip.rating}
+                    </p>
                   </div>
                 </div>
               </div>

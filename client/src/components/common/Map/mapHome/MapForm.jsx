@@ -6,6 +6,8 @@ import Modal from "../../../ui/Modal";
 import { useTranslate } from "../../../../hooks/useTranslate";
 import { ThemeContext } from "../../../../context/ThemeContext";
 import { useConnection } from "@/context/ConnectionContext";
+import { Star } from "lucide-react";
+import { ratingDriver, deleteRide } from "../../../../services/ride";
 
 const MapForm = ({
   handleSelect,
@@ -95,6 +97,11 @@ const MapForm = ({
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [tripAccepted, setTripAccepted] = useState(null);
+  const [showRateDriver, setShowRateDriver] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [idDriver, setidDriver] = useState(null);
+  const [cancelId, setCancelId] = useState(null);
 
   const translate = useTranslate();
   const { on, invoke } = useConnection();
@@ -106,22 +113,39 @@ const MapForm = ({
     setShowRequestModal(true);
   };
 
-  const handleCancel = () => {
-    setShowCancelConfirmation(true);
-  };
-
-  const handleConfirmCancel = () => {
-    inputValues.origin = "";
-    inputValues.destination = "";
-    console.clear();
-    setShowCancelConfirmation(false);
-    setShowConfirmationModal(false);
-    setShowModal(false);
-  };
-
   const handleShowChat = () => {
     setShowConfirmationModal(false);
     setShowChat(true);
+  };
+
+  const resetState = () => {
+    setTripAccepted(null);
+    setShowRateDriver(false);
+    setShowChat(false);
+    setShowConfirmationModal(false);
+    setShowRequestModal(false);
+    setShowCancelConfirmation(false);
+    setShowModal(false);
+    setRating(0);
+    setHovered(0);
+    setidDriver(null);
+    handleSearchResults([]);
+    inputValues.origin = "";
+    inputValues.destination = "";
+  };
+
+  const handleSubmit = async () => {
+    if (!idDriver || rating === 0) {
+      console.log("Falta ID del driver o calificación");
+      return;
+    }
+    try {
+      const response = await ratingDriver(idDriver, rating);
+      console.log("enviando calificacion", response);
+      resetState();
+    } catch (err) {
+      console.error("Error al enviar calificación:", err);
+    }
   };
 
   useEffect(() => {
@@ -135,17 +159,36 @@ const MapForm = ({
         .catch((err) => console.error("Error al unirse al grupo:", err));
     });
 
-    on("RideCanceled", (rideId) => {
-      console.log("El viaje fue cancelado :(");
+    on("ridecanceled", (rideId) => {
+      console.log("El viaje fue cancelado :(", rideId);
       invoke("LeaveRideGroup", rideId);
+      setCancelId(true);
     });
 
+    // 🚨 Aca manejamos finalización
     on("RideCompleted", (rideId) => {
-      console.log("El viaje fue completado!");
+      console.log("El viaje fue completado", rideId);
       invoke("LeaveRideGroup", rideId);
-      // aca que aparezca para dar el rating
+      setidDriver(rideId);
+      setShowRateDriver(true);
     });
   }, []);
+
+  const handleCancel = async () => {
+    if (!tripAccepted.id) {
+      console.log("Falta ID del driver");
+      return;
+    }
+
+    try {
+      console.log("Cancelando viaje con ID:", tripAccepted.id);
+      const responseCancelViaje = await deleteRide(tripAccepted.id);
+      console.log("Viaje cancelado con éxito:", responseCancelViaje);
+      resetState();
+    } catch (error) {
+      console.error("Error cancelando viaje:", error);
+    }
+  };
 
   return (
     <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg rounded-lg">
@@ -593,7 +636,7 @@ const MapForm = ({
                   {translate("Aceptar")}
                 </button>
                 <button
-                  onClick={() => handleCancel()}
+                  onClick={() => setShowCancelConfirmation(true)}
                   className="flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer"
                 >
                   {translate("Cancelar")}
@@ -630,7 +673,7 @@ const MapForm = ({
                         {translate("Cancelar")}
                       </button>
                       <button
-                        onClick={handleConfirmCancel}
+                        onClick={handleCancel}
                         className={`flex-1 py-2 bg-red-600 hover:bg-red-500 rounded-lg cursor-pointer`}
                       >
                         {translate("Confirmar")}
@@ -641,6 +684,58 @@ const MapForm = ({
               )}
             </div>
           </div>
+        )}
+
+        {showRateDriver && (
+          <div className="w-full fixed  max-w-md mx-auto p-6 rounded-2xl shadow-lg bg-white dark:bg-zinc-900">
+            <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-4">
+              ¿Cómo fue tu experiencia?
+            </h2>
+
+            <div className="flex justify-center mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={32}
+                  className={`cursor-pointer transition-colors ${
+                    (hovered || rating) >= star
+                      ? "text-yellow-400"
+                      : "text-gray-300 dark:text-gray-600"
+                  }`}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHovered(star)}
+                  onMouseLeave={() => setHovered(0)}
+                  fill={(hovered || rating) >= star ? "currentColor" : "none"}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              className="w-full py-2 px-4 rounded-lg bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition"
+            >
+              Enviar calificación
+            </button>
+          </div>
+        )}
+
+        {cancelId && (
+          <Modal onClose={() => setCancelId(false)}>
+            <div className="p-6 text-center">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                El conductor canceló el viaje 😞
+              </h2>
+              <button
+                onClick={() => {
+                  setCancelId(false);
+                  resetState(); // <-- limpia inputs, resetea modales, etc.
+                }}
+                className="px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition"
+              >
+                Buscar nuevo viaje
+              </button>
+            </div>
+          </Modal>
         )}
       </div>
     </div>
