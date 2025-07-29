@@ -3,6 +3,8 @@ import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import ScheduledTrips from "./components/ScheduledTrips";
 import { useRide } from "@/context/RideContext";
+import Modal from "@/components/ui/Modal";
+import { deleteRide } from "../../../services/ride";
 import { Link } from "react-router-dom";
 import {
   Power,
@@ -13,6 +15,7 @@ import {
   Check,
   X,
   MessageCircle,
+  CheckCircle,
 } from "lucide-react";
 import { useContext, useState, useEffect, useRef } from "react";
 import {
@@ -34,6 +37,8 @@ const HomeDriver = () => {
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [pendingTrip, setPendingTrip] = useState(null);
+  const [cancelTrip, setCancelTrip] = useState(false);
+  const [tripCancelPassanger, setTripCancelPassanger] = useState(false);
 
   const { isConnected, connect, disconnect, invoke, on } = useConnection();
 
@@ -70,7 +75,7 @@ const HomeDriver = () => {
     }
   };
   useEffect(() => {
-    if (!isConnected || pendingTrip) return; // No hacer nada si está desconectado o ya hay viaje
+    if (!isConnected || pendingTrip || accepteRide) return; // No hacer nada si está desconectado o ya hay viaje
 
     // Llamada inicial
     handlePending();
@@ -93,7 +98,7 @@ const HomeDriver = () => {
         );
       }
     };
-  }, [isConnected, pendingTrip]);
+  }, [isConnected, pendingTrip, accepteRide]);
 
   // funcion para aceptar viajes en tiempo real
   const handleAcceptTrip = async (trip) => {
@@ -145,11 +150,23 @@ const HomeDriver = () => {
   }, [ShowConfirm]);
 
   useEffect(() => {
-    on("RideCanceled", (rideId) => {
-      console.log("El viaje fue cancelado :(");
+    const handler = (rideId) => {
+      console.log("El viaje fue cancelado :(", rideId);
       invoke("LeaveRideGroup", rideId);
-    });
-  }, []);
+      setTripCancelPassanger(true);
+      setPendingTrip(null);
+      setAccepteRide(null);
+
+      // Reiniciar el polling después de finalizar el viaje
+      if (!intervalRef.current) {
+        intervalRef.current = setInterval(() => {
+          handlePending();
+        }, 5000); // o 300000 para 5 minutos en producción
+        console.log("Se reinicia el polling tras finalizar viaje.");
+      }
+    };
+    on("ridecanceled", handler);
+  }, [on]);
 
   const handleComplete = async () => {
     try {
@@ -169,6 +186,29 @@ const HomeDriver = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleCancelTrip = async () => {
+    if (!accepteRide) return;
+
+    try {
+      const responseCancel = await deleteRide(accepteRide.id);
+      console.log("cancelando, viaje aceptado:", responseCancel);
+      await invoke("LeaveRideGroup", accepteRide.id);
+      setAccepteRide(null);
+      setPendingTrip(null);
+      setCancelTrip(false);
+
+      // Reiniciar polling si no está corriendo
+      if (!intervalRef.current) {
+        intervalRef.current = setInterval(() => {
+          handlePending();
+        }, 5000);
+        console.log("Se reinicia el polling tras cancelar viaje.");
+      }
+    } catch (error) {
+      console.error(`Error cancelando viaje con ID ${accepteRide.id}:`, error);
     }
   };
 
@@ -248,7 +288,6 @@ const HomeDriver = () => {
             </div>
           </div>
         )}
-
         <div className="p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-4">
@@ -480,7 +519,6 @@ const HomeDriver = () => {
             </div>
           </div>
         )}
-
         {/* Modo conducción - Interfaz minimalista */}
         {accepteRide && (
           <div className="h-screen flex flex-col  ">
@@ -581,6 +619,24 @@ const HomeDriver = () => {
                     </span>
                   </button>
                 </Link>
+
+                <button
+                  onClick={() => setCancelTrip(true)}
+                  className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${
+                    theme === "dark"
+                      ? "bg-zinc-900/70"
+                      : "bg-white border border-yellow-500 text-yellow-500"
+                  }`}
+                >
+                  <X size={28} className="text-red-500 mb-1" />
+                  <span
+                    className={`text-sm font-semibold ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {translate("Cancelar")}
+                  </span>
+                </button>
                 <button
                   onClick={() => handleComplete()}
                   className={`w-16 h-16 flex flex-col items-center justify-center rounded-xl cursor-pointer ${
@@ -589,7 +645,7 @@ const HomeDriver = () => {
                       : "bg-white border border-yellow-500 text-yellow-500"
                   }`}
                 >
-                  <X size={28} className="text-red-500 mb-1" />
+                  <CheckCircle size={28} className="text-blue-500 mb-1" />
                   <span
                     className={`text-sm font-semibold ${
                       theme === "dark" ? "text-white" : "text-gray-900"
@@ -604,6 +660,47 @@ const HomeDriver = () => {
         )}
         {/* Viajes programados */}
         {isConnected && !accepteRide && <ScheduledTrips />}
+        {cancelTrip && (
+          <Modal onClose={() => setCancelTrip(false)}>
+            <div className="p-6 text-center">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+                ¿Estás seguro de que querés cancelar el viaje?
+              </h2>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => handleCancelTrip()}
+                  className="px-4 py-2 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCancelTrip} // asumido que tenés esta función
+                  className="px-4 py-2 rounded-lg font-medium bg-red-500 hover:bg-red-600 text-white transition"
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+        {tripCancelPassanger && (
+          <Modal onClose={() => setTripCancelPassanger(false)}>
+            <div className="p-6 text-center">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">
+                El pasajero ha cancelado el viaje
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 mb-6">
+                Lamentablemente, el pasajero ha decidido cancelar este viaje.
+              </p>
+              <button
+                onClick={() => setTripCancelPassanger(false)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
+              >
+                Cerrar
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     </MainLayout>
   );

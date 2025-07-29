@@ -8,7 +8,8 @@ export const createRide = (data) => apiClient.post("ride", data);
 export const getProgramados = () => apiClient.get("ride");
 export const createPrice = (data) =>
   apiClient.post("ride/calculate-price", data);
-export const deleteRide = (id) => apiClient.delete(`ride/${id}`);
+export const deleteRide = (id) => apiClient.delete(`ride/${id}/cancel`);
 export const editRide = (id, scheduledAt) =>
   apiClient.patch(`ride/${id}`, scheduledAt);
-export const ratingDriver = (id) => apiClient.post(`ride/${id}/rate`);
+export const ratingDriver = (id, rating) =>
+  apiClient.post(`ride/${id}/rate`, rating);
