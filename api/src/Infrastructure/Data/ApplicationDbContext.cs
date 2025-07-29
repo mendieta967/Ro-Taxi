@@ -16,6 +16,7 @@ namespace Infrastructure.Data
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<RideRejection> RideRejections { get; set; }
+        public DbSet<Message> Messages { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             

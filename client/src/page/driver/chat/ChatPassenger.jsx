@@ -1,25 +1,47 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import { Send } from "lucide-react";
+import { getChat } from "@/services/chat";
+import { useConnection } from "@/context/ConnectionContext";
 
-const ChatPassenger = () => {
+const ChatPassenger = ({ rideId }) => {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
 
-  const [messages, setMessages] = useState([
-    { id: 1, text: "¡Hola! ¿En qué puedo ayudarte?", sender: "bot" },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const { on, invoke } = useConnection();
+
+  const getMessages = async (id) => {
+    try {
+      const messages = await getChat(id);
+      setMessages(messages);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMessages(rideId);
+  }, [rideId]);
+
+  useEffect(() => {
+    on("receiveRideMessage", (message) => {
+      console.log(message);
+    });
+  });
+
+  if (!rideId) return;
 
   const handleSend = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-
-    setMessages((prev) => [
-      ...prev,
-      { id: Date.now(), text: newMessage, sender: "user" },
-    ]);
+    invoke("SendMessageToRideGroup", rideId, newMessage);
+    // setMessages((prev) => [
+    //   ...prev,
+    //   { id: Date.now(), text: newMessage, sender: "user" },
+    // ]);
     setNewMessage("");
   };
 

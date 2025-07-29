@@ -278,5 +278,16 @@ public class RideService : IRideService
         return Math.Round(price, 2);
     }
 
+    public async Task<PaginatedList<RideWithMessageDto>> GetWithMessages(int userId, PaginationParams pagination)
+    {
+        var user = await _userRepository.GetById(userId);
+        if (user is null) throw new NotFoundException("user not found");
+        if (user.Role != UserRole.Driver) throw new ForbiddenAccessException("user must be a driver");
 
+        var response = await _rideRepository.GetWithMessages(userId, pagination.Page, pagination.PageSize);
+            
+        var data = response.Data.Select(ride => new RideWithMessageDto(ride, userId)).ToList();
+
+        return new PaginatedList<RideWithMessageDto>(data, response.TotalData, response.PageNumber, response.PageSize, response.TotalPages);
+    }
 }

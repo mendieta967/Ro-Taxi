@@ -29,5 +29,6 @@ public class Ride
     public DateTime? StartedAt { get; set; }
     public DateTime? EndedAt { get; set; }
     public RideStatus Status { get; set; }
+    public ICollection<Message> Messages { get; set; } = new List<Message>();
 
 }

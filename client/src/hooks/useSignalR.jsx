@@ -50,5 +50,9 @@ export default function useSignalR() {
     return Promise.resolve();
   };
 
-  return { isConnected, connect, on, invoke, disconnect };
+  const off = (eventName, callback) => {
+    connectionRef.current?.off(eventName, callback);
+  };
+
+  return { isConnected, connect, on, invoke, disconnect, off };
 }

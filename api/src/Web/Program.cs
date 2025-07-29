@@ -101,6 +101,7 @@ builder.Services.Configure<AuthServiceOptions>(
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRideService, RideService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 #endregion
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 builder.Services.AddScoped<IRideRejectionRepository, RideRejectionRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 #endregion
 
 var app = builder.Build();
