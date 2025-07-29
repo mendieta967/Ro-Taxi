@@ -19,9 +19,9 @@ public interface IRideService
     Task<RideDto?> GetPending(int userId, double driverLat, double driverLng);
     Task Update(int userId, int rideId, RideUpdateRequest request);
     Task Reject(int userId, int rideId);
-    Task<Ride> Accept(int userId, int rideId, RideAcceptRequest request);
-    Task Cancel(int userId, int rideId);
-    Task Complete(int userId, int rideId);
+    Task<RideDto> Accept(int userId, int rideId, RideAcceptRequest request);
+    Task<Ride> Cancel(int userId, int rideId);
+    Task<Ride> Complete(int userId, int rideId);
     Task RateRide(int userId, int rideId, int rating);
     decimal CalculatePrice(CalculatePriceRequest request);
 }

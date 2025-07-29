@@ -97,7 +97,7 @@ const MapForm = ({
   const [tripAccepted, setTripAccepted] = useState(null);
 
   const translate = useTranslate();
-  const { on } = useConnection();
+  const { on, invoke } = useConnection();
   const { theme } = useContext(ThemeContext);
 
   const handlePedirTaxi = async () => {
@@ -125,12 +125,25 @@ const MapForm = ({
   };
 
   useEffect(() => {
-    on("RideAccepted", (rideId) => {
-      console.log("Tu viaje fue aceptado:", rideId);
-      setTripAccepted(rideId);
+    on("RideAccepted", (ride) => {
+      console.log("Tu viaje fue aceptado:", ride);
+      setTripAccepted(ride);
       setShowRequestModal(false); // ocultar el modal de espera
       setShowConfirmationModal(true); // mostrar el modal de confirmación
-      //  rideHub.joinRide(rideId); // Se une al mismo grupo ride-{rideId}
+      invoke("JoinRideGroup", ride.id) // Se une al mismo grupo ride-{rideId}
+        .then(() => console.log("Unido al grupo de ride:", ride.id))
+        .catch((err) => console.error("Error al unirse al grupo:", err));
+    });
+
+    on("RideCanceled", (rideId) => {
+      console.log("El viaje fue cancelado :(");
+      invoke("LeaveRideGroup", rideId);
+    });
+
+    on("RideCompleted", (rideId) => {
+      console.log("El viaje fue completado!");
+      invoke("LeaveRideGroup", rideId);
+      // aca que aparezca para dar el rating
     });
   }, []);
 
