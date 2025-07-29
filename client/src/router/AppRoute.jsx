@@ -20,6 +20,7 @@ import NotFound from "../page/notFound/NotFound";
 import RecoverPassword from "../page/auth/recoverPassword/recoverPassword";
 import LandingPage from "../page/landing/LandingPage";
 import { Historial, Home } from "./CommonRoute";
+import RateDriver from "@/components/common/rating/RateDriver";
 
 const router = createBrowserRouter([
   {
@@ -114,6 +115,7 @@ const router = createBrowserRouter([
   { path: "login", element: <AuthPage /> },
   { path: "*", element: <NotFound /> },
   { path: "/recoverPassword", element: <RecoverPassword /> },
+  { path: "/rateDriver", element: <RateDriver /> },
 ]);
 
 const AppRoute = () => {

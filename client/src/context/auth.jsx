@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
 import { getCurrentUser } from "../services/auth";
 import { loginUser } from "../services/auth";
 import { logoutUser } from "../services/auth";
 import Loader from "../components/common/Loader";
+import { toast } from "sonner";
 
 const AuthContext = createContext();
 
@@ -39,11 +39,13 @@ export default function AuthContextProvider({ children }) {
 
   const login = async (formData) => {
     try {
-      setLoading(true);
       await loginUser(formData);
       await fetchUser();
     } catch (error) {
-      alert(error.response.data.message);
+      toast("❌ Credenciales incorrectas", {
+        description: "Verificá tu correo y contraseña e intentá nuevamente.",
+      });
+      console.log("Error al intentar iniciar sesión:", error);
     } finally {
       setLoading(false);
     }

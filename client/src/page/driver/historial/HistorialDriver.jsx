@@ -721,7 +721,7 @@ const HistorialDriver = () => {
                         {selectedTrip.status === "Completed"
                           ? translate("Completado")
                           : selectedTrip.status === "InProgress"
-                          ? translate("En curso")
+                          ? translate("Pendiente")
                           : translate("Cancelado")}
                       </p>
                     </div>

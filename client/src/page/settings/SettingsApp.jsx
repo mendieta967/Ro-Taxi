@@ -299,7 +299,7 @@ const SettingsApp = () => {
             </div>
           </div>
 
-          {/* Privacidad y Seguridad */}
+          {/* Privacidad y Seguridad 
           <div
             className={`mb-8 backdrop-blur-md ${
               theme === "dark" ? "bg-zinc-900/70" : "bg-white/70"
@@ -435,8 +435,8 @@ const SettingsApp = () => {
               </div>
             </div>
           </div>
-
-          {/* Información Legal */}
+*/}
+          {/* Información Legal 
           <div
             className={`mb-8 backdrop-blur-md ${
               theme === "dark" ? "bg-zinc-900/70" : "bg-white/70"
@@ -514,7 +514,7 @@ const SettingsApp = () => {
               </div>
             </div>
           </div>
-
+*/}
           {/* Botones de Sesión y Cuenta */}
           <div className="flex flex-col sm:flex-row gap-4 justify-between mb-10">
             <button

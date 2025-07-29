@@ -8,6 +8,7 @@ import { newPassword } from "../../services/auth";
 import { editUser } from "../../services/auth";
 import { ThemeContext } from "../../context/ThemeContext";
 import { useTranslate } from "../../hooks/useTranslate";
+import { toast } from "sonner";
 
 const PerfilApp = () => {
   const {
@@ -103,7 +104,9 @@ const PerfilApp = () => {
 
   const handlePasswordSubmit = async (data, resetForm) => {
     if (data.newPassword !== data.confirmPassword) {
-      alert("Las contraseñas no coinciden.");
+      toast("❌ Credenciales incorrectas", {
+        description: "Verificá tu  contraseña e intentá nuevamente.",
+      });
       return;
     }
     console.log("Datos de seguridad:", data);
@@ -116,7 +119,9 @@ const PerfilApp = () => {
       };
 
       await newPassword(changePasswordRequest);
-      alert("Contraseña cambiada exitosamente");
+      toast("✅ Credenciales correctas", {
+        description: "La contraseña fue cambiada correctamente.",
+      });
       resetForm();
     } catch (error) {
       console.log("Error al cambiar la contraseña");
@@ -142,10 +147,14 @@ const PerfilApp = () => {
       }));
 
       console.log("Perfil actualizado exitosamente", userDate);
-      alert("Perfil actualizado exitosamente");
+      toast("✅ Credenciales correctas", {
+        description: "El perfil fue actualizado correctamente.",
+      });
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
-      alert("Error al actualizar el perfil. Por favor intente nuevamente.");
+      toast("❌ ", {
+        description: "Error al actualizar el perfil.",
+      });
     }
   };
 
