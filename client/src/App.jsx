@@ -5,6 +5,7 @@ import { TranslateProvider } from "./context/TranslateLanguage";
 import ConnectionProvider from "./context/ConnectionContext";
 import VehicleProvider from "./context/VehicleContext";
 import { RideProvider } from "./context/rideContext";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           </SearchProvider>
         </TranslateProvider>
       </ThemeProvider>
+      <Toaster />
     </ConnectionProvider>
   );
 };

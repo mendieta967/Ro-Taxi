@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import Form from "../../../components/common/Form";
 import { registerUser } from "../../../services/auth";
+import { toast } from "sonner";
 
 const Register = ({ onSwitch }) => {
   const nameRef = useRef(null);
@@ -124,11 +125,16 @@ const Register = ({ onSwitch }) => {
       console.log("Respuesta del servidor:", res);
 
       if (res.status === 201) {
-        alert("Usuario registrado con éxito");
+        toast.success("✅ Usuario registrado con éxito", {
+          description: "El usuario fue registrado correctamente.",
+        });
         resetForm();
       }
     } catch (error) {
-      alert("Error al registrar usuario");
+      toast.error("❌ Error al registrar usuario", {
+        description:
+          "Por favor, revisá los datos ingresados o intentá más tarde.",
+      });
       console.error(error);
     }
   };

@@ -26,27 +26,38 @@ const HomePassenger = () => {
         const response = await getProgramados();
         console.log("Response:", response);
 
-        const scheduledTrips = response.data.filter((ride) =>
-          ["Completed", "InProgress"].includes(ride?.status)
+        // ✅ VIAJES PROGRAMADOS (futuros o activos con fecha programada)
+        const programados = response.data.filter(
+          (ride) => ride?.startedAt !== null && ride.status !== "Completed"
         );
-        console.log(scheduledTrips);
 
-        // Ordenar por fecha programada
-        scheduledTrips.sort(
-          (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
+        // Ordenar por fecha programada (más próximos primero)
+        programados.sort(
+          (a, b) => new Date(a.startedAt) - new Date(b.startedAt)
         );
-        console.log(scheduledTrips);
 
-        // Tomar solo los 3 más recientes
-        const top3Trips = scheduledTrips.slice(0, 3);
-        console.log(top3Trips);
-        // Guardar el más próximo
-        setViajesRecientes(top3Trips);
-        setRideProximo(scheduledTrips[0] || null);
+        // Guardar el próximo viaje programado
+        setRideProximo(programados[0] || null);
+
+        // ✅ VIAJES COMPLETADOS
+        const completados = response.data
+          .filter((ride) => ride.status === "Completed")
+          .sort(
+            (a, b) =>
+              new Date(b.scheduledAt || b.startedAt) -
+              new Date(a.scheduledAt || a.startedAt)
+          );
+
+        // Tomar los 3 más recientes
+        const top3Completados = completados.slice(0, 3);
+
+        // Guardar los completados
+        setViajesRecientes(top3Completados);
       } catch (error) {
         console.error("Error fetching rides:", error);
       }
     };
+
     fetchRides();
   }, []);
 
@@ -225,7 +236,7 @@ const HomePassenger = () => {
                     theme === "dark" ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
-                  {new Date(rideProximo.scheduledAt).toLocaleString("es-AR", {
+                  {new Date(rideProximo.startedAt).toLocaleString("es-AR", {
                     weekday: "long",
                     year: "numeric",
                     month: "long",
@@ -233,6 +244,13 @@ const HomePassenger = () => {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
+                </p>
+                <p
+                  className={`text-base ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Precio: {rideProximo.payment.amount}
                 </p>
               </div>
             </Link>

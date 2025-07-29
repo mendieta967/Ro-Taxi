@@ -1,18 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
+import { ratingDriver } from "../../../services/ride";
+import { useConnection } from "@/context/ConnectionContext";
 
 const RateDriver = ({ onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
-  const [comment, setComment] = useState("");
+  const [tripAccepted, setTripAccepted] = useState(null);
+  const { on } = useConnection();
 
-  const handleSubmit = () => {
-    if (rating > 0) {
-      onSubmit?.({ rating, comment });
+  const handleSubmit = async () => {
+    if (!tripAccepted || rating === 0) {
+      console.log("Falta ID del driver o calificación");
+      return;
+    }
+
+    try {
+      const response = await ratingDriver(2, rating);
+      console.log(response);
+      onSubmit?.({ rating });
       setRating(0);
-      setComment("");
+    } catch (err) {
+      console.error("Error al enviar calificación:", err);
     }
   };
+
+  useEffect(() => {
+    on("RideAccepted", (rideId) => {
+      console.log("Tu viaje fue aceptado:", rideId);
+      setTripAccepted(rideId);
+    });
+  }, []);
 
   return (
     <div className="max-w-md mx-auto p-6 rounded-2xl shadow-lg bg-white dark:bg-zinc-900">
