@@ -118,6 +118,7 @@ public class RideRepository : IRideRepository
             .Include(r => r.Passeger)
             .Include(r => r.Driver)
             .Include(r => r.Payment)
+            .Include(r => r.Vehicle)
             .Where(r =>
             r.Status == RideStatus.InProgress &&
             r.DriverId == userId ||
