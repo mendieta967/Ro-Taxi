@@ -13,3 +13,4 @@ export const editRide = (id, scheduledAt) =>
   apiClient.patch(`ride/${id}`, scheduledAt);
 export const ratingDriver = (id, rating) =>
   apiClient.post(`ride/${id}/rate`, rating);
+export const getInProgress = () => apiClient.get("ride/inprogress");

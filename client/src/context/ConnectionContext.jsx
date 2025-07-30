@@ -1,11 +1,13 @@
 import useSignalR from "@/hooks/useSignalR";
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./auth";
+import Loader from "@/components/common/Loader";
 
 const ConnectionContext = createContext();
 
 export default function ConnectionProvider({ children }) {
-  const { isConnected, connect, disconnect, on, invoke, off } = useSignalR();
+  const { isConnected, connect, disconnect, on, invoke, off, loading } =
+    useSignalR();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -13,6 +15,9 @@ export default function ConnectionProvider({ children }) {
     if (user.role === "Driver") return;
     connect();
   });
+
+  if (loading) return <Loader />;
+
   return (
     <ConnectionContext.Provider
       value={{ isConnected, connect, disconnect, on, invoke, off }}

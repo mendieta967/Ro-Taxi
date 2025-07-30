@@ -112,6 +112,20 @@ public class RideRepository : IRideRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<List<Ride>> GetInProgress(int userId)
+    {
+        return await _context.Rides
+            .Include(r => r.Passeger)
+            .Include(r => r.Driver)
+            .Include(r => r.Payment)
+            .Where(r =>
+            r.Status == RideStatus.InProgress &&
+            r.DriverId == userId ||
+            r.PassegerId == userId
+            )            
+            .ToListAsync();
+    }
+
     public async Task<Ride?> GetById(int rideId)
     {
         return await _context.Rides
