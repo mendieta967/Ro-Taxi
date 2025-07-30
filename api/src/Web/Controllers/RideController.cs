@@ -93,6 +93,29 @@ namespace Web.Controllers
         }
 
         [Authorize]
+        [HttpGet("inprogress")]
+        public async Task<ActionResult<RideDto>> GetInProgress()
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                var rides = await _rideService.GetInProgress(userId);
+                var scheduledRides = rides.Where(ride => ride.ScheduledAt != null);
+                var notScheduledRides = rides.Where(ride => ride.ScheduledAt == null);
+                return Ok(new 
+                {
+                    Scheduled = scheduledRides,
+                    Inmediate = notScheduledRides
+                });
+            }            
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = ex.Message });
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<RideDto>> Create([FromBody] RideCreateRequest request)
         {

@@ -17,6 +17,7 @@ public interface IRideService
     Task<RideDto> Create(int userId, RideCreateRequest request);
     Task<PaginatedList<RideDto>> GetSchedules(int userId, PaginationParams pagination, GetSchedulesForDriverRequest request);
     Task<RideDto?> GetPending(int userId, double driverLat, double driverLng);
+    Task<List<RideDto>> GetInProgress(int userId);
     Task Update(int userId, int rideId, RideUpdateRequest request);
     Task Reject(int userId, int rideId);
     Task<RideDto> Accept(int userId, int rideId, RideAcceptRequest request);

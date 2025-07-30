@@ -73,6 +73,13 @@ public class RideService : IRideService
         return new RideDto(ride);
 
     }
+
+    public async Task<List<RideDto>> GetInProgress(int userId)
+    {
+        var ride = await _rideRepository.GetInProgress(userId);
+        return ride.Select(ride => new RideDto(ride)).ToList();
+
+    }
     public async Task<RideDto> Create(int userId, RideCreateRequest request)
     {
         var user = await _userRepository.GetById(userId);
@@ -177,6 +184,9 @@ public class RideService : IRideService
 
         if (vehicle.DriverId != user.Id && vehicle.Status == VehicleStatus.Active) throw new InvalidOperationException("Vehicle's driver doesn't match the ride's assigned driver.");
         if (ride.Status != RideStatus.Pending || ride.DriverId != null) throw new InvalidOperationException("this ride cannot be accepted");
+
+        var inProgressRides = await _rideRepository.GetInProgress(userId);
+        if(inProgressRides.Any(ride => ride.ScheduledAt == null) && ride.ScheduledAt == null) throw new InvalidOperationException("you still have a ride in progress");
 
         ride.DriverId = userId;
         ride.VehicleId = vehicle.Id;

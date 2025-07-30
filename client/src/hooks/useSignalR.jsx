@@ -5,11 +5,12 @@ const hubUrl = `${import.meta.env.VITE_BASE_URL}/rideHub`;
 
 export default function useSignalR() {
   const [isConnected, setIsConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
   const connectionRef = useRef(null);
 
   const connect = async () => {
     if (connectionRef.current) return; // ya conectado o en proceso
-
+    setLoading(true);
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl)
       .withAutomaticReconnect()
@@ -27,7 +28,10 @@ export default function useSignalR() {
         console.log("Conectado al hub:", hubUrl);
         setIsConnected(true);
       })
-      .catch((err) => console.error("Error al conectar al hub:", err));
+      .catch((err) => console.error("Error al conectar al hub:", err))
+      .finally(() => {
+        setLoading(false);
+      });
 
     connectionRef.current = connection;
   };
@@ -54,5 +58,5 @@ export default function useSignalR() {
     connectionRef.current?.off(eventName, callback);
   };
 
-  return { isConnected, connect, on, invoke, disconnect, off };
+  return { isConnected, connect, on, invoke, disconnect, off, loading };
 }
