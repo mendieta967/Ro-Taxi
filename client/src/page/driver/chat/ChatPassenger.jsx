@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
-import { Send } from "lucide-react";
+import { Send, User } from "lucide-react";
 import { getChat } from "@/services/chat";
 import { useConnection } from "@/context/ConnectionContext";
 
@@ -55,13 +55,17 @@ const ChatPassenger = ({ rideId }) => {
     >
       {/* Header */}
       <div
-        className={`p-4 text-lg font-bold border-b ${
+        className={`flex flex-row items-center gap-3 px-5 py-4 text-lg font-semibold border-b ${
           theme === "dark"
-            ? "border-zinc-800 text-yellow-500"
-            : "border-yellow-400 text-gray-900"
-        }`}
+            ? "border-zinc-700 text-yellow-500 bg-zinc-900"
+            : "border-yellow-400 text-gray-900 bg-yellow-50"
+        } rounded-t-lg`}
       >
-        {translate("Chat")}
+        <User
+          className={theme === "dark" ? "text-yellow-400" : "text-yellow-600"}
+          size={28}
+        />
+        <span className="truncate">nombre del conductor</span>
       </div>
 
       {/* Messages */}
