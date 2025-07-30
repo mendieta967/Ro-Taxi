@@ -8,6 +8,7 @@ import { ThemeContext } from "../../../../context/ThemeContext";
 import { useConnection } from "@/context/ConnectionContext";
 import { Star } from "lucide-react";
 import { ratingDriver, deleteRide } from "../../../../services/ride";
+import { useRide } from "@/context/RideContext";
 
 const MapForm = ({
   handleSelect,
@@ -95,8 +96,6 @@ const MapForm = ({
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [tripAccepted, setTripAccepted] = useState(null);
   const [showRateDriver, setShowRateDriver] = useState(false);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
@@ -106,6 +105,7 @@ const MapForm = ({
   const translate = useTranslate();
   const { on, invoke } = useConnection();
   const { theme } = useContext(ThemeContext);
+  const { accepteRide, setAccepteRide } = useRide();
 
   const handlePedirTaxi = async () => {
     setShowModal(false);
@@ -115,13 +115,11 @@ const MapForm = ({
 
   const handleShowChat = () => {
     setShowConfirmationModal(false);
-    setShowChat(true);
   };
 
   const resetState = () => {
-    setTripAccepted(null);
+    setAccepteRide(null);
     setShowRateDriver(false);
-    setShowChat(false);
     setShowConfirmationModal(false);
     setShowRequestModal(false);
     setShowCancelConfirmation(false);
@@ -151,7 +149,7 @@ const MapForm = ({
   useEffect(() => {
     on("RideAccepted", (ride) => {
       console.log("Tu viaje fue aceptado:", ride);
-      setTripAccepted(ride);
+      setAccepteRide(ride);
       setShowRequestModal(false); // ocultar el modal de espera
       setShowConfirmationModal(true); // mostrar el modal de confirmación
       invoke("JoinRideGroup", ride.id) // Se une al mismo grupo ride-{rideId}
@@ -170,19 +168,20 @@ const MapForm = ({
       console.log("El viaje fue completado", rideId);
       invoke("LeaveRideGroup", rideId);
       setidDriver(rideId);
+      setAccepteRide(null);
       setShowRateDriver(true);
     });
   }, []);
 
   const handleCancel = async () => {
-    if (!tripAccepted.id) {
+    if (!accepteRide.id) {
       console.log("Falta ID del driver");
       return;
     }
 
     try {
-      console.log("Cancelando viaje con ID:", tripAccepted.id);
-      const responseCancelViaje = await deleteRide(tripAccepted.id);
+      console.log("Cancelando viaje con ID:", accepteRide.id);
+      const responseCancelViaje = await deleteRide(accepteRide.id);
       console.log("Viaje cancelado con éxito:", responseCancelViaje);
       resetState();
     } catch (error) {
@@ -195,9 +194,9 @@ const MapForm = ({
       {/* Contenedor principal */}
       <div className="flex flex-col h-full">
         {/* Contenedor de Inputs o Chat */}
-        {showChat ? (
+        {accepteRide ? (
           <div className="flex flex-col h-100 rounded-lg overflow-hidden border border-zinc-700">
-            <ChatPassenger rideId={tripAccepted.id} />
+            <ChatPassenger rideId={accepteRide.id} />
           </div>
         ) : (
           <div className="flex flex-col gap-6">
@@ -377,7 +376,7 @@ const MapForm = ({
           </div>
         )}
         {/* Modal de confirmación */}
-        {showConfirmationModal && tripAccepted && (
+        {showConfirmationModal && accepteRide && (
           <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
             <div
               className={` w-[90%] max-w-md rounded-2xl p-6 space-y-4 text-white shadow-xl relative ${
@@ -487,7 +486,7 @@ const MapForm = ({
                               : "bg-gradient-to-br from-green-400/30 to-emerald-500/30 border-green-500/60 text-white shadow-lg shadow-green-400/40"
                           }`}
                         >
-                          {tripAccepted.driver.name.charAt(0)}
+                          {accepteRide.driver.name.charAt(0)}
                         </div>
 
                         {/* Avatar Glow */}
@@ -508,7 +507,7 @@ const MapForm = ({
                               theme === "dark" ? "text-white" : "text-gray-900"
                             }`}
                           >
-                            {tripAccepted.driver.name}
+                            {accepteRide.driver.name}
                           </h3>
                           <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 backdrop-blur-sm">
                             <span className="text-yellow-500 text-sm">★</span>
@@ -563,7 +562,7 @@ const MapForm = ({
                                     : "text-gray-900"
                                 }`}
                               >
-                                {tripAccepted.vehicle.licensePlate}
+                                {accepteRide.vehicle.licensePlate}
                               </p>
                             </div>
                           </div>
@@ -611,7 +610,7 @@ const MapForm = ({
                                     : "text-gray-900"
                                 }`}
                               >
-                                {tripAccepted.vehicle.model}
+                                {accepteRide.vehicle.model}
                               </p>
                             </div>
                           </div>
