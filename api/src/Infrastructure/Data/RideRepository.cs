@@ -121,8 +121,8 @@ public class RideRepository : IRideRepository
             .Include(r => r.Vehicle)
             .Where(r =>
             r.Status == RideStatus.InProgress &&
-            r.DriverId == userId ||
-            r.PassegerId == userId
+            (r.DriverId == userId ||
+            r.PassegerId == userId)
             )            
             .ToListAsync();
     }
