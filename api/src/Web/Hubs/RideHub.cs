@@ -42,12 +42,12 @@ public class RideHub : Hub
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         Console.WriteLine($"Usuario desconectado: {Context.User?.Identity?.Name}");
-        var role = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
-        if (role == UserRole.Driver.ToString())
-        {
-            _connectedDriversCount = Math.Max(0, _connectedDriversCount - 1);
-            await Clients.All.SendAsync("UpdateDriversCount", _connectedDriversCount);
-        }        
+        //var role = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
+        //if (role == UserRole.Driver.ToString())
+        //{
+        //    _connectedDriversCount = Math.Max(0, _connectedDriversCount - 1);
+        //    await Clients.All.SendAsync("UpdateDriversCount", _connectedDriversCount);
+        //}        
         await base.OnDisconnectedAsync(exception);
     }   
 
@@ -77,6 +77,7 @@ public class RideHub : Hub
     public async Task SendMessageToRideGroup(int rideId, string text)
     {
         int userId = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+        Console.WriteLine($"mensaje enviado:{text}");
         var message = await _messageService.Create(userId, rideId, text);
         await Clients.Group($"ride-{rideId}").SendAsync("ReceiveRideMessage", message);
     }

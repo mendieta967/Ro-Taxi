@@ -92,9 +92,16 @@ const ChatDriver = () => {
   // }, [selectedChat?.id]);
 
   useEffect(() => {
-    on("receiveRideMessage", (msg) => {
-      console.log(msg);
-    });
+    const handleOnMessage = (msg) => {
+      console.log("Nuevo mensaje recibido", msg);
+      setMessages((prev) => prev.concat(msg));
+    };
+
+    on("ReceiveRideMessage", handleOnMessage);
+
+    return () => {
+      off("ReceiveRideMessage", handleOnMessage);
+    };
   }, []);
 
   const handleSelectChat = async (chat) => {
