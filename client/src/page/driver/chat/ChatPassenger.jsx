@@ -4,6 +4,8 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { Send, User } from "lucide-react";
 import { getChat } from "@/services/chat";
 import { useConnection } from "@/context/ConnectionContext";
+import { useRide } from "@/context/RideContext";
+import { useAuth } from "@/context/auth";
 
 const ChatPassenger = ({ rideId }) => {
   const { theme } = useContext(ThemeContext);
@@ -11,7 +13,11 @@ const ChatPassenger = ({ rideId }) => {
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const { on, invoke } = useConnection();
+  const { on, invoke, off } = useConnection();
+  const { accepteRide } = useRide();
+  const {
+    user: { userId },
+  } = useAuth();
 
   const getMessages = async (id) => {
     try {
@@ -27,10 +33,19 @@ const ChatPassenger = ({ rideId }) => {
   }, [rideId]);
 
   useEffect(() => {
-    on("receiveRideMessage", (message) => {
-      console.log(message);
-    });
-  });
+    if (!accepteRide) return;
+
+    const handleOnMessage = (msg) => {
+      console.log("Nuevo mensaje recibido", msg);
+      setMessages((prev) => prev.concat(msg));
+    };
+
+    on("ReceiveRideMessage", handleOnMessage);
+
+    return () => {
+      off("ReceiveRideMessage", handleOnMessage);
+    };
+  }, [accepteRide]);
 
   if (!rideId) return;
 
@@ -65,7 +80,7 @@ const ChatPassenger = ({ rideId }) => {
           className={theme === "dark" ? "text-yellow-400" : "text-yellow-600"}
           size={28}
         />
-        <span className="truncate">nombre del conductor</span>
+        <span className="truncate">{accepteRide.driver.name}</span>
       </div>
 
       {/* Messages */}
@@ -74,12 +89,12 @@ const ChatPassenger = ({ rideId }) => {
           <div
             key={msg.id}
             className={`flex ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
+              msg.userId == userId ? "justify-end" : "justify-start"
             }`}
           >
             <div
               className={`rounded-xl px-4 py-2 text-sm max-w-[70%] shadow-md transition-all ${
-                msg.sender === "user"
+                msg.userId == userId
                   ? "bg-yellow-500 text-black"
                   : "bg-zinc-700 text-white"
               }`}
