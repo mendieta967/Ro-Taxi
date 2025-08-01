@@ -17,6 +17,9 @@ public class Vehicle
     public string Year { get; set; }
     public int? DriverId { get; set; }
     public User? Driver {  get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public DateTime? LastLocationAt { get; set; }
     public VehicleStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
 }

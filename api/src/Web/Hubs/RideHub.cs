@@ -12,11 +12,15 @@ namespace Web.Hubs;
 public class RideHub : Hub
 {
     private static int _connectedDriversCount = 0;
+    private static readonly Dictionary<int, DateTime> _lastUpdateTimestamps = new();
+    private static readonly object _lock = new();
     private readonly IMessageService _messageService;
+    private readonly IVehicleService _vehicleService;
 
-    public RideHub(IMessageService messageService)
+    public RideHub(IMessageService messageService, IVehicleService vehicleService)
     {
         _messageService = messageService;
+        _vehicleService = vehicleService;
     }
     public override async Task OnConnectedAsync()
     {
@@ -64,14 +68,58 @@ public class RideHub : Hub
         Console.WriteLine($"Connection {Context.ConnectionId} left ride-{rideId}");
     }
 
-    public async Task UpdateLocation(int rideId, double lat, double lng)
+    public async Task JoinVehicleGroup(int vehicleId)
     {
-        await Clients.OthersInGroup($"ride-{rideId}").SendAsync("DriverLocationUpdated", new
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"vehicle-{vehicleId}");
+    }
+
+    public async Task LeaveVehicleGroup(int vehicleId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"vehicle-{vehicleId}");
+    }
+
+    public async Task UpdateLocation(int vehicleId, int? rideId, double lat, double lng)
+    {
+        int userId = int.Parse(Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception("User ID not found"));
+        var location = new
         {
             RideId = rideId,
             Lat = lat,
             Lng = lng
-        });
+        };
+
+        bool shouldUpdateDb = false;
+
+        lock (_lock)
+        {
+            if (_lastUpdateTimestamps.TryGetValue(vehicleId, out var lastUpdate))
+            {
+                var secondsSinceLastUpdate = (DateTime.UtcNow - lastUpdate).TotalSeconds;
+                if (secondsSinceLastUpdate > 10)
+                {
+                    shouldUpdateDb = true;
+                    _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
+                }
+            }
+            else
+            {
+                shouldUpdateDb = true;
+                _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
+            }
+        }
+
+        if (shouldUpdateDb)
+        {
+            await _vehicleService.UpdateLocation(userId, vehicleId, lat, lng);
+        }
+
+        if (rideId.HasValue)
+        {
+            await Clients.Group($"ride-{rideId}").SendAsync("DriverLocationUpdated", location);
+        }
+
+        await Clients.OthersInGroup($"vehicle-{vehicleId}").SendAsync("DriverLocationUpdated", location);
+
     }
 
     public async Task SendMessageToRideGroup(int rideId, string text)

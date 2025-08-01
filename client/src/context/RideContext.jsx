@@ -7,7 +7,7 @@ export const RideProvider = ({ children }) => {
   const [accepteRide, setAccepteRide] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { connect, invoke } = useConnection();
+  const { invoke, handleConnect } = useConnection();
 
   const getCurrentRides = async () => {
     try {
@@ -15,7 +15,7 @@ export const RideProvider = ({ children }) => {
       const currentRide = inmediate[0];
       if (!currentRide) return;
 
-      await connect();
+      await handleConnect();
       await invoke("JoinRideGroup", currentRide.id);
       setAccepteRide(currentRide);
     } catch (error) {

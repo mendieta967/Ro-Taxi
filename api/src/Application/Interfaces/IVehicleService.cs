@@ -15,5 +15,6 @@ public interface IVehicleService
     Task<PaginatedList<VehicleDto>> GetAll(int userId, PaginationParams pagination, VehicleFilterParams filter);
     Task<Vehicle> Create(int userId, VehicleCreateRequest request);
     Task<VehicleDto> Update(VehicleUpdateRequest request, int userId, int vehicleId);
+    Task UpdateLocation(int userId, int vehicleId, double lat, double lng);
     Task Delete(int userId, int vehicleId);
 }

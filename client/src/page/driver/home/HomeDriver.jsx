@@ -41,9 +41,11 @@ const HomeDriver = () => {
   const [pendingTrip, setPendingTrip] = useState(null);
   const [cancelTrip, setCancelTrip] = useState(false);
   const [tripCancelPassanger, setTripCancelPassanger] = useState(false);
+
   const { lastMessageReceived } = useChat();
   const { isConnected, connect, disconnect, invoke, on } = useConnection();
   const navigate = useNavigate();
+
 
   const handleConnect = async () => {
     if (isConnected) {
@@ -77,6 +79,8 @@ const HomeDriver = () => {
       }
     }
   };
+
+  console.log({ selectVehicle });
   useEffect(() => {
     if (!isConnected || pendingTrip || accepteRide) return; // No hacer nada si está desconectado o ya hay viaje
 
@@ -184,6 +188,36 @@ const HomeDriver = () => {
     };
     on("ridecanceled", handler);
   }, [on]);
+
+  useEffect(() => {
+    if (!isConnected || !selectVehicle) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        console.log("Ubicación actualizada:", latitude, longitude);
+        invoke(
+          "UpdateLocation",
+          selectVehicle,
+          accepteRide?.id,
+          latitude,
+          longitude
+        );
+      },
+      (error) => {
+        console.error("Error al obtener ubicación:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000,
+      }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [isConnected, selectVehicle]);
 
   const handleComplete = async () => {
     try {

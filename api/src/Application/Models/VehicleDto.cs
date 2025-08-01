@@ -22,6 +22,9 @@ public class VehicleDto
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public UserDto? Driver { get; set; }
 
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public DateTime? LastLocationAt { get; set; }
     public string Status { get; set; }
     public DateTime CreatedAt { get; set; }
 
@@ -35,6 +38,9 @@ public class VehicleDto
         Year = vehicle.Year;
         Driver = includeDriver && vehicle.Driver != null ? new UserDto(vehicle.Driver) : null;
         Status = vehicle.Status.ToString();
+        Latitude = vehicle.Latitude;
+        Longitude = vehicle.Longitude;
+        LastLocationAt = vehicle.LastLocationAt;
         CreatedAt = vehicle.CreatedAt;
 
     }
