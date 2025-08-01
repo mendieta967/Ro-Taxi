@@ -17,7 +17,7 @@ const ChatDriver = () => {
   const [loading, setLoading] = useState(true);
 
   const { theme } = useContext(ThemeContext);
-  const { on, invoke, connection, off } = useConnection();
+  const { on, invoke, off } = useConnection();
   const {
     user: { userId },
   } = useAuth();
@@ -208,7 +208,7 @@ const ChatDriver = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto custom-scroll">
                   {chats.map((chat) => {
                     return (
                       <div
@@ -319,7 +319,7 @@ const ChatDriver = () => {
               </div>
               {selectedChat && loading && <p>Cargando...</p>}
               {/* Mensajes */}
-              <div className="flex-1 p-4 overflow-y-auto">
+              <div className="flex-1 p-4 overflow-y-auto custom-scroll">
                 <div className="space-y-4">
                   {messages?.map((msg) => {
                     if (msg.userId == userId) {
@@ -329,16 +329,29 @@ const ChatDriver = () => {
                           className="flex items-end justify-end gap-2"
                         >
                           <div
-                            className={
+                            className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
                               theme === "dark"
-                                ? "max-w-[70%] bg-yellow-500 text-black rounded-t-lg rounded-l-lg p-3"
-                                : "max-w-[70%] bg-yellow-500 border border-white text-gray-900 rounded-t-lg rounded-l-lg p-3"
-                            }
+                                ? "bg-yellow-500 text-black"
+                                : "bg-yellow-500 text-black border border-white"
+                            }`}
                           >
-                            <p className="text-sm font-semibold">{msg.text}</p>
-                            <p className="text-xs text-gray-900 mt-1">
-                              {msg.timestamp}
+                            <p className="text-sm font-semibold leading-relaxed break-words">
+                              {msg.text}
                             </p>
+
+                            <div className="mt-2 flex justify-end">
+                              <span className="text-xs text-black opacity-70">
+                                {new Date(msg.timestamp).toLocaleTimeString(
+                                  "es-AR",
+                                  {
+                                    timeZone: "America/Argentina/Buenos_Aires",
+                                    hour12: false,
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -362,28 +375,35 @@ const ChatDriver = () => {
                             />
                           </div>
                           <div
-                            className={
+                            className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
                               theme === "dark"
-                                ? "max-w-[70%] bg-zinc-800 rounded-t-lg rounded-r-lg p-3"
-                                : "max-w-[70%] bg-white border border-yellow-500 text-gray-900 rounded-t-lg rounded-r-lg p-3"
-                            }
+                                ? "bg-zinc-800 text-white"
+                                : "bg-white border border-yellow-500 text-gray-900"
+                            }`}
                           >
-                            <p
-                              className={
-                                theme === "dark" ? "text-sm" : "text-sm"
-                              }
-                            >
+                            <p className="text-sm leading-relaxed break-words">
                               {msg.text}
                             </p>
-                            <p
-                              className={
-                                theme === "dark"
-                                  ? "text-xs text-gray-400 mt-1"
-                                  : "text-xs text-gray-900 mt-1"
-                              }
-                            >
-                              {msg.timestamp}
-                            </p>
+
+                            <div className="mt-2 flex justify-end">
+                              <span
+                                className={`text-xs ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {new Date(msg.timestamp).toLocaleTimeString(
+                                  "es-AR",
+                                  {
+                                    timeZone: "America/Argentina/Buenos_Aires",
+                                    hour12: false,
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );

@@ -9,6 +9,7 @@ import {
   Polyline,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { User, Car, Palette, Hash } from "lucide-react";
 import L from "leaflet";
 //import { createRide } from "../../../services/ride";
 
@@ -40,6 +41,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import MapForm from "./MapForm";
 import Loader from "../../Loader";
+import { useRide } from "@/context/RideContext";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -75,6 +77,9 @@ const MapOnly = ({ cancel }) => {
   const inputDestinationRef = useRef();
   const [mapLoading, setMapLoading] = useState(true);
   const [estimatedPrice, setEstimatedPrice] = useState(null);
+  const [showInfo, setShowInfo] = useState(false);
+  const { accepteRide } = useRide();
+
   // Get current location
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -294,10 +299,12 @@ const MapOnly = ({ cancel }) => {
     }
   };
 
+  console.log("currentLocation", accepteRide);
+
   return (
     <div className="w-full h-screen flex flex-col md:flex-row">
       {/* Columna/Formulario: arriba en móvil, izquierda en desktop */}
-      <div className="w-full md:w-[35%] h-[45%] md:h-full relative z-[1000] bg-white shadow-lg">
+      <div className="w-full md:w-[35%] h-[45%] md:h-full relative z-[1000]  shadow-lg">
         <MapForm
           handleSelect={handleSelect}
           inputOriginRef={inputOriginRef}
@@ -314,6 +321,8 @@ const MapOnly = ({ cancel }) => {
           showModal={showModal}
           setShowModal={setShowModal}
           currentLocation={currentLocation}
+          setShowInfo={setShowInfo}
+          showInfo={showInfo}
           cancel={cancel}
         />
       </div>
@@ -384,6 +393,35 @@ const MapOnly = ({ cancel }) => {
           <SetViewOnClick coords={position} />
           <MapClickHandler onMapClick={handleMapClick} />
         </MapContainer>
+        {accepteRide && showInfo && (
+          <div className="absolute top-0 left-10 w-full h-[10%] z-[1001] flex items-center px-6 bg-zinc-900  bg-opacity-70 rounded-r-xl shadow-lg">
+            <div className="flex items-center gap-4 w-full">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap gap-2 font-semibold text-xs ">
+                  <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                    <Car className="w-4 h-4 text-zinc-900" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-yellow-500">Modelo:</span>
+                    <span>{accepteRide.vehicle.model}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-yellow-500">Marca: </span>
+                    <span>{accepteRide.vehicle.brand}</span>
+                  </div>
+                  <div className="flex items-center font-semibold gap-1 ">
+                    <span className="text-yellow-500">Color:</span>
+                    <span>{accepteRide.vehicle.color}</span>
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold  ">
+                    <span className="text-yellow-500">Patente:</span>
+                    <span>{accepteRide.vehicle.licensePlate}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

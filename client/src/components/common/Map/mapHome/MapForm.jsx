@@ -26,7 +26,8 @@ const MapForm = ({
   setShowModal,
   estimatedPrice,
   mapLoading,
-  handleConfirm, //para llamar a la api
+  handleConfirm,
+  setShowInfo, //para llamar a la api
 }) => {
   function getDistance(lat1, lon1, lat2, lon2) {
     function toRad(x) {
@@ -148,19 +149,24 @@ const MapForm = ({
 
   useEffect(() => {
     on("RideAccepted", (ride) => {
-      console.log("Tu viaje fue aceptado:", ride);
-      setAccepteRide(ride);
-      setShowRequestModal(false); // ocultar el modal de espera
-      setShowConfirmationModal(true); // mostrar el modal de confirmación
-      invoke("JoinRideGroup", ride.id) // Se une al mismo grupo ride-{rideId}
-        .then(() => console.log("Unido al grupo de ride:", ride.id))
-        .catch((err) => console.error("Error al unirse al grupo:", err));
+      if (ride.status !== "Completed" && ride.status !== "Canceled") {
+        setAccepteRide(ride);
+        setShowRequestModal(false);
+        setShowConfirmationModal(true);
+        invoke("JoinRideGroup", ride.id)
+          .then(() => console.log("Unido al grupo de ride:", ride.id))
+          .catch((err) => console.error("Error al unirse al grupo:", err));
+      } else {
+        // Si el viaje ya está completado o cancelado, no lo seteamos
+        setAccepteRide(null);
+      }
     });
 
     on("ridecanceled", (rideId) => {
       console.log("El viaje fue cancelado :(", rideId);
       invoke("LeaveRideGroup", rideId);
       setCancelId(true);
+      setAccepteRide(null);
     });
 
     // 🚨 Aca manejamos finalización
@@ -172,6 +178,14 @@ const MapForm = ({
       setShowRateDriver(true);
     });
   }, []);
+  // Efecto para reaccionar al cambio de showConfirmationModal
+  useEffect(() => {
+    if (showConfirmationModal === false) {
+      setShowInfo(true);
+    } else {
+      setShowInfo(false);
+    }
+  }, [showConfirmationModal]);
 
   const handleCancel = async () => {
     if (!accepteRide.id) {
@@ -188,9 +202,12 @@ const MapForm = ({
       console.error("Error cancelando viaje:", error);
     }
   };
+  useEffect(() => {
+    console.log("accepteRide cambiado:", accepteRide);
+  }, [accepteRide]);
 
   return (
-    <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg rounded-lg">
+    <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg ">
       {/* Contenedor principal */}
       <div className="flex flex-col h-full">
         {/* Contenedor de Inputs o Chat */}
