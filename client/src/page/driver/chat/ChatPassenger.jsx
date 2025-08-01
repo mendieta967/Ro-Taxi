@@ -14,6 +14,7 @@ const ChatPassenger = ({ rideId }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const { on, invoke, off } = useConnection();
+
   const { accepteRide } = useRide();
   const {
     user: { userId },
@@ -84,7 +85,7 @@ const ChatPassenger = ({ rideId }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scroll-smooth">
+      <div className="flex-1 overflow-y-auto custom-scroll px-4 py-3 space-y-3 ">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -93,13 +94,23 @@ const ChatPassenger = ({ rideId }) => {
             }`}
           >
             <div
-              className={`rounded-xl px-4 py-2 text-sm max-w-[70%] shadow-md transition-all ${
+              className={`rounded-xl px-4 py-2 text-sm max-w-[100%] shadow-md transition-all ${
                 msg.userId == userId
                   ? "bg-yellow-500 text-black"
                   : "bg-zinc-700 text-white"
               }`}
             >
-              {msg.text}
+              <p> {msg.text}</p>
+              <div className="mt-2 flex justify-end">
+                <span className="text-xs text-black opacity-70">
+                  {new Date(msg.timestamp).toLocaleTimeString("es-AR", {
+                    timeZone: "America/Argentina/Buenos_Aires",
+                    hour12: false,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
             </div>
           </div>
         ))}

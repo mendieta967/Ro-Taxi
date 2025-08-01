@@ -5,6 +5,7 @@ import { TranslateProvider } from "./context/TranslateLanguage";
 import ConnectionProvider from "./context/ConnectionContext";
 import VehicleProvider from "./context/VehicleContext";
 import { RideProvider } from "./context/rideContext";
+import { ChatProvider } from "./context/ChatContext";
 import { Toaster } from "sonner";
 
 const App = () => {
@@ -15,7 +16,9 @@ const App = () => {
           <SearchProvider>
             <VehicleProvider>
               <RideProvider>
-                <AppRoute />
+                <ChatProvider>
+                  <AppRoute />
+                </ChatProvider>
               </RideProvider>
             </VehicleProvider>
           </SearchProvider>

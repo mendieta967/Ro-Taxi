@@ -299,7 +299,58 @@ const SettingsApp = () => {
             </div>
           </div>
 
-          {/* Privacidad y Seguridad 
+          {/* Botones de Sesión y Cuenta */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-between mb-10">
+            <button
+              onClick={handleLogaut}
+              className={`group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer ${
+                theme === "dark"
+                  ? "bg-zinc-800 hover:bg-zinc-700"
+                  : "bg-yellow-500 hover:bg-zinc-500"
+              } rounded-xl text-${
+                theme === "dark" ? "white" : "zinc-900"
+              } font-medium transition-all duration-300 ${
+                theme === "dark"
+                  ? "border-zinc-700 hover:border-yellow-500/50"
+                  : "border-yellow-500 hover:border-yellow-500/50"
+              } w-full sm:w-auto`}
+            >
+              <LogOut
+                size={18}
+                className="group-hover:translate-x-1 transition-transform duration-300 "
+              />
+              {translate("Cerrar Sesión")}
+            </button>
+            <button
+              className={`group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer ${
+                theme === "dark"
+                  ? "bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500"
+                  : "bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300"
+              } rounded-xl text-${
+                theme === "dark" ? "white" : "zinc-900"
+              } font-medium transition-all duration-300 ${
+                theme === "dark"
+                  ? "shadow-lg hover:shadow-red-500/20"
+                  : "shadow-red-500/10 hover:shadow-red-500/20"
+              } w-full sm:w-auto`}
+            >
+              <UserX
+                size={18}
+                className="group-hover:rotate-12 transition-transform duration-300 "
+              />
+              Desactivar cuenta
+            </button>
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default SettingsApp;
+
+{
+  /* Privacidad y Seguridad 
           <div
             className={`mb-8 backdrop-blur-md ${
               theme === "dark" ? "bg-zinc-900/70" : "bg-white/70"
@@ -435,8 +486,10 @@ const SettingsApp = () => {
               </div>
             </div>
           </div>
-*/}
-          {/* Información Legal 
+*/
+}
+{
+  /* Información Legal 
           <div
             className={`mb-8 backdrop-blur-md ${
               theme === "dark" ? "bg-zinc-900/70" : "bg-white/70"
@@ -514,53 +567,5 @@ const SettingsApp = () => {
               </div>
             </div>
           </div>
-*/}
-          {/* Botones de Sesión y Cuenta */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between mb-10">
-            <button
-              onClick={handleLogaut}
-              className={`group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer ${
-                theme === "dark"
-                  ? "bg-zinc-800 hover:bg-zinc-700"
-                  : "bg-yellow-500 hover:bg-zinc-500"
-              } rounded-xl text-${
-                theme === "dark" ? "white" : "zinc-900"
-              } font-medium transition-all duration-300 ${
-                theme === "dark"
-                  ? "border-zinc-700 hover:border-yellow-500/50"
-                  : "border-yellow-500 hover:border-yellow-500/50"
-              } w-full sm:w-auto`}
-            >
-              <LogOut
-                size={18}
-                className="group-hover:translate-x-1 transition-transform duration-300 "
-              />
-              {translate("Cerrar Sesión")}
-            </button>
-            <button
-              className={`group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer ${
-                theme === "dark"
-                  ? "bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500"
-                  : "bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300"
-              } rounded-xl text-${
-                theme === "dark" ? "white" : "zinc-900"
-              } font-medium transition-all duration-300 ${
-                theme === "dark"
-                  ? "shadow-lg hover:shadow-red-500/20"
-                  : "shadow-red-500/10 hover:shadow-red-500/20"
-              } w-full sm:w-auto`}
-            >
-              <UserX
-                size={18}
-                className="group-hover:rotate-12 transition-transform duration-300 "
-              />
-              Desactivar cuenta
-            </button>
-          </div>
-        </div>
-      </div>
-    </MainLayout>
-  );
-};
-
-export default SettingsApp;
+*/
+}

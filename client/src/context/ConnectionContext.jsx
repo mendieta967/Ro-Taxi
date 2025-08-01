@@ -1,5 +1,5 @@
 import useSignalR from "@/hooks/useSignalR";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useAuth } from "./auth";
 import Loader from "@/components/common/Loader";
 

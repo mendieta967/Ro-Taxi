@@ -5,7 +5,7 @@ import ScheduledTrips from "./components/ScheduledTrips";
 import { useRide } from "@/context/RideContext";
 import Modal from "@/components/ui/Modal";
 import { deleteRide } from "../../../services/ride";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Power,
   MapPin,
@@ -26,6 +26,8 @@ import {
 } from "../../../services/driver";
 import { useConnection } from "@/context/ConnectionContext";
 import { useVehicle } from "@/context/VehicleContext";
+import { useChat } from "../../../context/ChatContext";
+import { toast } from "sonner";
 
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
@@ -39,8 +41,9 @@ const HomeDriver = () => {
   const [pendingTrip, setPendingTrip] = useState(null);
   const [cancelTrip, setCancelTrip] = useState(false);
   const [tripCancelPassanger, setTripCancelPassanger] = useState(false);
-
+  const { lastMessageReceived } = useChat();
   const { isConnected, connect, disconnect, invoke, on } = useConnection();
+  const navigate = useNavigate();
 
   const handleConnect = async () => {
     if (isConnected) {
@@ -115,6 +118,20 @@ const HomeDriver = () => {
       console.error("Error fetching scheduled trips:", error);
     }
   };
+
+  useEffect(() => {
+    if (lastMessageReceived) {
+      toast(`📩 Nuevo mensaje de ${lastMessageReceived.userName}`, {
+        description: lastMessageReceived.text,
+        action: {
+          label: "Ir al chat",
+          onClick: () => {
+            navigate("/app/chat");
+          },
+        },
+      });
+    }
+  }, [lastMessageReceived]);
 
   // Función para rechazar el viajeconst handleRejectTrip = async (riderId) => {
   const handleRejectTrip = async (riderId) => {
