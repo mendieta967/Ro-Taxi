@@ -30,7 +30,9 @@ public class VehicleRepository: IVehicleRepository
         if (!string.IsNullOrEmpty(licensePlate))
             query = query.Where(v => v.LicensePlate.Contains(licensePlate));
 
-        query = query.OrderByDescending(v => v.CreatedAt);
+        query = driverId != null 
+            ? query.OrderByDescending(v => v.CreatedAt) 
+            : query.OrderByDescending(v => v.LastLocationAt != null ? v.LastLocationAt : DateTime.MinValue);
 
         var totalData = await query.CountAsync();
 
