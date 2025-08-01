@@ -94,6 +94,20 @@ public class VehicleService: IVehicleService
         return new VehicleDto(vehicle);
     }
 
+    public async Task UpdateLocation(int userId, int vehicleId, double lat, double lng)
+    {
+        var vehicle = await _vehicleRepository.GetById(vehicleId) ?? throw new NotFoundException("vehicle not found");
+
+        if (userId != vehicle.DriverId) throw new ForbiddenAccessException("You do not have access to this vehicle.");
+
+        vehicle.Latitude = lat;
+        vehicle.Longitude = lng;
+        vehicle.LastLocationAt = DateTime.UtcNow;        
+
+        _vehicleRepository.Update(vehicle);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
     public async Task Delete(int userId, int vehicleId)
     {
         var vehicle = await _vehicleRepository.GetById(vehicleId) ?? throw new NotFoundException("vehicle not found");
