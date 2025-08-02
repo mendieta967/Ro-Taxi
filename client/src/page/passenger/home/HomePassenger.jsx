@@ -16,7 +16,6 @@ const HomePassenger = () => {
   const [rideProximo, setRideProximo] = useState(null);
   //const [tripAccepted, setTripAccepted] = useState(null);
   const [viajesRecientes, setViajesRecientes] = useState([]);
-  //const { on } = useConnection();
 
   const translate = useTranslate();
 

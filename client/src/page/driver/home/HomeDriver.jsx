@@ -16,6 +16,8 @@ import {
   X,
   MessageCircle,
   CheckCircle,
+  MessageSquare,
+  ArrowRight,
 } from "lucide-react";
 import { useContext, useState, useEffect, useRef } from "react";
 import {
@@ -26,8 +28,6 @@ import {
 } from "../../../services/driver";
 import { useConnection } from "@/context/ConnectionContext";
 import { useVehicle } from "@/context/VehicleContext";
-import { useChat } from "../../../context/ChatContext";
-import { toast } from "sonner";
 
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
@@ -35,6 +35,9 @@ const HomeDriver = () => {
   const { accepteRide, setAccepteRide } = useRide();
   const translate = useTranslate();
   const intervalRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const [ShowConfirm, setShowConfirm] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -42,10 +45,7 @@ const HomeDriver = () => {
   const [cancelTrip, setCancelTrip] = useState(false);
   const [tripCancelPassanger, setTripCancelPassanger] = useState(false);
 
-  const { lastMessageReceived } = useChat();
-  const { isConnected, connect, disconnect, invoke, on } = useConnection();
-  const navigate = useNavigate();
-
+  const { isConnected, connect, disconnect, invoke, on, off } = useConnection();
 
   const handleConnect = async () => {
     if (isConnected) {
@@ -122,20 +122,6 @@ const HomeDriver = () => {
       console.error("Error fetching scheduled trips:", error);
     }
   };
-
-  useEffect(() => {
-    if (lastMessageReceived) {
-      toast(`📩 Nuevo mensaje de ${lastMessageReceived.userName}`, {
-        description: lastMessageReceived.text,
-        action: {
-          label: "Ir al chat",
-          onClick: () => {
-            navigate("/app/chat");
-          },
-        },
-      });
-    }
-  }, [lastMessageReceived]);
 
   // Función para rechazar el viajeconst handleRejectTrip = async (riderId) => {
   const handleRejectTrip = async (riderId) => {
@@ -263,6 +249,18 @@ const HomeDriver = () => {
     }
   };
 
+  useEffect(() => {
+    const handleOnMessage = (msg) => {
+      setMessages((prev) => [...prev, msg]); // agrego mensaje al arreglo
+    };
+
+    on("ReceiveRideMessage", handleOnMessage);
+
+    return () => {
+      off("ReceiveRideMessage", handleOnMessage);
+    };
+  }, []);
+
   return (
     <MainLayout>
       <div
@@ -272,6 +270,133 @@ const HomeDriver = () => {
             : "bg-white text-gray-900 border border-yellow-500"
         }`}
       >
+        <div className="fixed bottom-6 right-6 z-50">
+          {/* Notification Badge */}
+          {!isExpanded && messages.length > 0 && (
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="group relative bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 
+                       text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 
+                       border border-white/10 backdrop-blur-sm"
+            >
+              <MessageSquare className="w-6 h-6" />
+
+              {/* Message count badge */}
+              <div
+                className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold 
+                           w-6 h-6 rounded-full flex items-center justify-center animate-pulse"
+              >
+                {messages.length}
+              </div>
+
+              {/* Pulse animation */}
+              <div
+                className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 
+                           animate-ping opacity-20 group-hover:opacity-30"
+              ></div>
+            </button>
+          )}
+
+          {/* Expanded Messages Panel */}
+          {isExpanded && (
+            <div
+              className="bg-zinc-900/95 backdrop-blur-xl border border-zinc-800/50 rounded-2xl 
+                         shadow-2xl w-80 max-h-96 overflow-hidden transition-all duration-500 ease-out
+                         animate-in slide-in-from-bottom-4"
+            >
+              {/* Header */}
+              <div
+                className="flex items-center justify-between p-4 border-b border-zinc-700/50 
+                           bg-gradient-to-r from-zinc-800 to-zinc-700"
+              >
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="w-5 h-5 text-yellow-500" />
+                  <h3 className="font-semibold text-white">
+                    Mensajes Recientes
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsExpanded(false)}
+                  className="text-zinc-400 hover:text-white transition-colors duration-200 
+                          hover:bg-zinc-700 rounded-lg p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Messages List */}
+              <div
+                className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 
+                           scrollbar-track-transparent"
+              >
+                {messages.map((msg, index) => (
+                  <div
+                    key={msg.id}
+                    className="p-4 border-b border-zinc-700/30 hover:bg-zinc-700/30 
+                            transition-all duration-200 group cursor-pointer"
+                    style={{
+                      animationDelay: `${index * 100}ms`,
+                    }}
+                  >
+                    <div className="flex items-start space-x-3">
+                      {/* Avatar */}
+                      <div
+                        className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 
+                                   flex items-center justify-center flex-shrink-0"
+                      >
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+
+                      {/* Message Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <p className="font-medium text-white text-sm truncate">
+                            {msg.userName}
+                          </p>
+                          <div className="w-1 h-1 bg-zinc-500 rounded-full"></div>
+                          <div className="flex items-center space-x-1 text-xs text-zinc-400">
+                            <Clock className="w-3 h-3" />
+                            <span>
+                              {new Date(msg.timestamp).toLocaleTimeString(
+                                "es-ES",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p
+                          className="text-zinc-300 text-sm leading-relaxed group-hover:text-white 
+                                   transition-colors duration-200"
+                        >
+                          {msg.text}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer Action */}
+              <div className="p-4 border-t border-zinc-700/50 bg-zinc-800/50">
+                <button
+                  onClick={() => navigate("/app/chat")}
+                  className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 
+                          hover:to-yellow-500 text-white font-medium py-3 px-4 rounded-xl 
+                          transition-all duration-300 hover:scale-[1.02] hover:shadow-lg
+                          flex items-center justify-center space-x-2 group"
+                >
+                  <span>Ir al Chat</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Modo normal - Solicitud de viaje */}
         {showScheduleModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
