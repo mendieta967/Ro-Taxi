@@ -9,7 +9,7 @@ import {
   Polyline,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { User, Car, Palette, Hash } from "lucide-react";
+import { Car } from "lucide-react";
 import L from "leaflet";
 //import { createRide } from "../../../services/ride";
 
@@ -298,8 +298,6 @@ const MapOnly = ({ cancel }) => {
       }
     }
   };
-
-  console.log("currentLocation", accepteRide);
 
   return (
     <div className="w-full h-screen flex flex-col md:flex-row">

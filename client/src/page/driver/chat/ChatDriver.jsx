@@ -23,15 +23,6 @@ const ChatDriver = () => {
   } = useAuth();
   const translate = useTranslate();
 
-  const getChats = async () => {
-    try {
-      const list = await getListOfChats();
-      setChats(list.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     setLoading(true);
     getListOfChats()
