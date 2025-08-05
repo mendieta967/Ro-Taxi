@@ -9,7 +9,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useConnection } from "@/context/ConnectionContext";
+//import { useConnection } from "@/context/ConnectionContext";
 
 // Iconos personalizados para origen y destino
 const originIcon = new L.Icon({
@@ -55,7 +55,7 @@ function SetViewOnClick({ coords }) {
   return null;
 }
 
-const MapDriver = () => {
+const MapDriver = ({ driverLocation }) => {
   const defaultPosition = { lat: -32.9442, lng: -60.6505 };
   const [position, setPosition] = useState(defaultPosition);
   const [origin, setOrigin] = useState(null);
@@ -64,16 +64,16 @@ const MapDriver = () => {
     origin: "",
     destination: "",
   });
-  const [driverLocation, setDriverLocation] = useState(null);
-  const { on, off } = useConnection();
+
+  //const { on, off } = useConnection();
 
   const [activeInput, setActiveInput] = useState("origin"); // 'origin' o 'destination'
   const [routeCoords, setRouteCoords] = useState([]); // Coordenadas de la ruta OSRM
-
+  {
+    /*  
   useEffect(() => {
     const handleDriverLocation = (data) => {
       console.log("📍 Nueva ubicación del conductor recibida:", data);
-      setDriverLocation({ lat: data.lat, lng: data.lng });
     };
 
     on("DriverLocationUpdated", handleDriverLocation);
@@ -81,7 +81,8 @@ const MapDriver = () => {
     return () => {
       off("DriverLocationUpdated", handleDriverLocation);
     };
-  }, []);
+  }, []);*/
+  }
 
   // Get current location
   useEffect(() => {
