@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRide, createPrice } from "../../../../services/ride";
+import { useConnection } from "@/context/ConnectionContext";
 import {
   MapContainer,
   TileLayer,
@@ -79,6 +80,10 @@ const MapOnly = ({ cancel }) => {
   const [estimatedPrice, setEstimatedPrice] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
   const { accepteRide } = useRide();
+
+  const { on, off } = useConnection();
+
+  const [driverLocation, setDriverLocation] = useState(null);
 
   // Get current location
   useEffect(() => {
@@ -299,6 +304,19 @@ const MapOnly = ({ cancel }) => {
     }
   };
 
+  useEffect(() => {
+    const handleDriverLocation = (data) => {
+      console.log("📍 Nueva ubicación del conductor recibida:", data);
+      setDriverLocation({ lat: data.lat, lng: data.lng });
+    };
+
+    on("DriverLocationUpdated", handleDriverLocation);
+
+    return () => {
+      off("DriverLocationUpdated", handleDriverLocation);
+    };
+  }, []);
+
   return (
     <div className="w-full h-screen flex flex-col md:flex-row">
       {/* Columna/Formulario: arriba en móvil, izquierda en desktop */}
@@ -386,6 +404,25 @@ const MapOnly = ({ cancel }) => {
               weight={6}
               opacity={0.9}
             />
+          )}
+
+          {driverLocation && (
+            <Marker
+              position={driverLocation}
+              icon={L.icon({
+                iconUrl:
+                  "https://cdn-icons-png.flaticon.com/512/744/744465.png", // ícono de auto
+                iconSize: [35, 35],
+                iconAnchor: [17, 35],
+                popupAnchor: [0, -30],
+              })}
+            >
+              <Popup>
+                <b>Conductor</b>
+                <br />
+                En movimiento...
+              </Popup>
+            </Marker>
           )}
 
           <SetViewOnClick coords={position} />

@@ -8,8 +8,6 @@ import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
 
-//import { useConnection } from "@/context/ConnectionContext";
-
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
