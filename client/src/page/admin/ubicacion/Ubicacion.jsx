@@ -1,14 +1,16 @@
 import { ThemeContext } from "@/context/ThemeContext";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useTranslate } from "../../../hooks/useTranslate";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useConnection } from "@/context/ConnectionContext";
+import MapDriver from "@/components/common/Map/mapHome/MapDriver";
 
 export default function Ubicacion({ selectedVehicle }) {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
   const { on, off } = useConnection();
+  const [driverLocation, setDriverLocation] = useState(null);
 
   var updatedAt = new Date(selectedVehicle.lastLocationAt);
   const humanReadable = formatDistanceToNow(updatedAt, {
@@ -19,6 +21,7 @@ export default function Ubicacion({ selectedVehicle }) {
   useEffect(() => {
     const handleDriverLocation = (data) => {
       console.log("📍 Nueva ubicación del conductor recibida:", data);
+      setDriverLocation({ lat: data.lat, lng: data.lng });
     };
 
     on("DriverLocationUpdated", handleDriverLocation);
@@ -37,36 +40,9 @@ export default function Ubicacion({ selectedVehicle }) {
       }
     >
       {/* Placeholder Mapa */}
-      <section
-        className={
-          theme === "dark"
-            ? "flex flex-col items-center justify-center text-center p-8 border-b border-zinc-700"
-            : "flex flex-col items-center justify-center text-center p-8 border-b border-yellow-500"
-        }
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-60 w-60 text-gray-500 mb-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.105-1.789L9 2m0 0l6 2.618M9 2v18m6-15.382l5.447 2.724A2 2 0 0121 8.618v9.764a2 2 0 01-1.105 1.789L15 22V5.618z"
-          />
-        </svg>
-        <p className="text-base">
-          En una implementación real, aquí se mostraría un mapa interactivo con
-          la ubicación de los vehículos.
-        </p>
-        <p className="text-sm text-gray-400 mt-1">
-          Se necesitaría integrar una API de mapas como Google Maps o Mapbox.
-        </p>
-      </section>
-
+      <div className="w-full h-96">
+        <MapDriver driverLocation={driverLocation} />
+      </div>
       {/* Detalles del vehículo seleccionado */}
 
       <section className="p-6">
@@ -105,16 +81,6 @@ export default function Ubicacion({ selectedVehicle }) {
               {translate("Ultima actualización")}
             </p>
             <p className="font-semibold">{humanReadable}</p>
-          </div>
-          <div className="sm:col-span-2">
-            <p
-              className={
-                theme === "dark" ? "text-gray-400 mb-1" : "text-gray-900 mb-1"
-              }
-            >
-              {translate("Ubicación actual")}
-            </p>
-            <p className="font-semibold">{selectedVehicle.location}</p>
           </div>
         </div>
 
