@@ -28,6 +28,7 @@ import {
 } from "../../../services/driver";
 import { useConnection } from "@/context/ConnectionContext";
 import { useVehicle } from "@/context/VehicleContext";
+import MapDriver from "../../../components/common/Map/mapHome/MapDriver";
 
 const HomeDriver = () => {
   const { theme } = useContext(ThemeContext);
@@ -118,6 +119,7 @@ const HomeDriver = () => {
         .catch((err) => console.error("Error al unirse al grupo:", err));
       setAccepteRide(trip);
       setShowConfirm(true);
+      window.location.reload();
     } catch (error) {
       console.error("Error fetching scheduled trips:", error);
     }
@@ -697,80 +699,49 @@ const HomeDriver = () => {
         )}
         {/* Modo conducción - Interfaz minimalista */}
         {accepteRide && (
-          <div className="h-screen flex flex-col  ">
-            {/* Mapa a pantalla completa */}
-            <div className="flex-1 relative ">
-              {/* Simulación de mapa */}
-              <div
-                className={`absolute inset-0 ${
-                  theme === "dark"
-                    ? "bg-zinc-900/70"
-                    : "bg-white text-yellow-500"
-                }`}
-              >
-                <div className="w-full h-full relative">
-                  {/* Imagen de mapa simulada */}
-                  <div
-                    className={`absolute inset-0 ${
-                      theme === "dark"
-                        ? "bg-zinc-700 opacity-50"
-                        : "bg-white text-yellow-500"
-                    }`}
-                  ></div>
+          <div className="h-screen flex flex-col relative">
+            {/* Mapa al fondo */}
+            <div className="absolute flex justify-center inset-0 z-0 w-full h-full">
+              <MapDriver />
+            </div>
 
-                  {/* Posición actual */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-blue-500 rounded-full"></div>
-
-                  {/* Marcador de destino */}
-                  <div className="absolute top-1/3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center">
-                      <MapPin size={20} className="text-white" />
-                    </div>
-                  </div>
-
-                  {/* Línea de ruta */}
-                  <div className="absolute top-1/2 left-1/2 w-40 h-2 bg-yellow-500 transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+            {/* Información del viaje - Overlay superior */}
+            <div
+              className={`absolute top-4 left-4 right-4 z-10 p-4 rounded-xl ${
+                theme === "dark"
+                  ? "bg-zinc-900/70"
+                  : "bg-white border border-yellow-500 text-yellow-500"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center">
+                  <User className="text-yellow-500" size={24} />
                 </div>
-              </div>
-
-              {/* Información del viaje - Overlay superior */}
-              <div
-                className={`absolute top-4 left-4 right-4  p-4 rounded-xl ${
-                  theme === "dark"
-                    ? "bg-zinc-900/70"
-                    : "bg-white border border-yellow-500 text-yellow-500"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center">
-                    <User className="text-yellow-500" size={24} />
-                  </div>
-                  <div>
-                    <p
-                      className={`font-medium text-lg ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {accepteRide.passeger.name}
-                    </p>
-                  </div>
-                  <div className="ml-auto text-right">
-                    <p
-                      className={`font-medium text-lg ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      $ {accepteRide.payment.amount}
-                    </p>
-                    <p className="text-gray-400">{translate("Efectivo")}</p>
-                  </div>
+                <div>
+                  <p
+                    className={`font-medium text-lg ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {accepteRide.passeger.name}
+                  </p>
+                </div>
+                <div className="ml-auto text-right">
+                  <p
+                    className={`font-medium text-lg ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    $ {accepteRide.payment.amount}
+                  </p>
+                  <p className="text-gray-400">{translate("Efectivo")}</p>
                 </div>
               </div>
             </div>
 
             {/* Barra de acciones - Botones grandes para fácil acceso */}
             <div
-              className={`p-4 ${
+              className={`z-10 mt-auto p-4 ${
                 theme === "dark"
                   ? "bg-zinc-900/70"
                   : "bg-white border border-yellow-500 text-yellow-500"
@@ -834,6 +805,7 @@ const HomeDriver = () => {
             </div>
           </div>
         )}
+
         {/* Viajes programados */}
         {isConnected && !accepteRide && <ScheduledTrips />}
         {cancelTrip && (
