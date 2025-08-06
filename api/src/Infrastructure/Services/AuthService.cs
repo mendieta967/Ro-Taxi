@@ -44,7 +44,7 @@ public class AuthService: IAuthService
     public async Task<AuthDto> RefreshToken(string refreshToken)
     {
         var user = await _userRepository.GetByRefreshToken(refreshToken);
-        if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow || user.AccountStatus != AccountStatus.Active)
         {
             throw new SecurityTokenException("Refresh token is invalid or expired.");
         }
@@ -73,7 +73,8 @@ public class AuthService: IAuthService
         var user = await _userRepository.GetByGithubId(userData.Id);
         if (user is not null)
         {
-            if(user.Email != userData.Email)
+            if(user.AccountStatus != AccountStatus.Active) throw new SecurityTokenException("Banned Account");
+            if (user.Email != userData.Email)
             {
                 user.Email = userData.Email;
                 _userRepository.Update(user);
@@ -94,6 +95,7 @@ public class AuthService: IAuthService
         if (user.AuthProvider != AuthProvider.Local) throw new Exception("Este usuario fue registrado con " + user.AuthProvider + ". Iniciá sesión con ese método.");
         var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, loginRequest.Password);
         if (result != PasswordVerificationResult.Success) throw new NotFoundException("Password or email are invalid");
+        if (user.AccountStatus != AccountStatus.Active) throw new SecurityTokenException("Banned Account");
         return user;
         
         
