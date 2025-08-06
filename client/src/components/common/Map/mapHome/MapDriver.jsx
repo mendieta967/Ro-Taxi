@@ -231,7 +231,7 @@ const MapDriver = ({ driverLocation }) => {
   }, [origin, destination]);
 
   return (
-    <div className="w-full h-full relative ">
+    <div className="w-full h-full ">
       <MapContainer
         center={position}
         zoom={15}
