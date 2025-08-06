@@ -1,7 +1,6 @@
 import MainLayout from "../../../components/layout/MainLayout";
 import { Search } from "lucide-react";
 import { useState, useContext, useEffect } from "react";
-import { vehiclesUbications } from "../../../data/data";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useTranslate } from "../../../hooks/useTranslate";
 import { getVehicles } from "@/services/vehicle";
@@ -18,7 +17,7 @@ const Ubicaciones = () => {
 
   const { theme } = useContext(ThemeContext);
 
-  const get = async (page, search = "") => {
+  const get = async (page, search) => {
     try {
       const list = await getVehicles(page, 10, search);
       setVehicles(list.data);
@@ -29,8 +28,8 @@ const Ubicaciones = () => {
   };
 
   useEffect(() => {
-    get(page);
-  }, [page]);
+    get(page, search);
+  }, [page, search]);
 
   const updatedAt = (date) => {
     if (!date) return;

@@ -37,6 +37,7 @@ const HomeDriver = () => {
   const translate = useTranslate();
   const intervalRef = useRef(null);
   const [messages, setMessages] = useState([]);
+  const [driverLocation, setDriverLocation] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -48,6 +49,18 @@ const HomeDriver = () => {
 
   const { isConnected, connect, disconnect, invoke, on, off } = useConnection();
 
+  useEffect(() => {
+    const handleDriverLocation = (data) => {
+      console.log("📍 Nueva ubicación del conductor recibida:", data);
+      setDriverLocation({ lat: data.lat, lng: data.lng });
+    };
+
+    on("DriverLocationUpdated", handleDriverLocation);
+
+    return () => {
+      off("DriverLocationUpdated", handleDriverLocation);
+    };
+  }, []);
   const handleConnect = async () => {
     if (isConnected) {
       disconnect();
@@ -702,7 +715,7 @@ const HomeDriver = () => {
           <div className="h-screen flex flex-col relative">
             {/* Mapa al fondo */}
             <div className="absolute flex justify-center inset-0 z-0 w-full h-full">
-              <MapDriver />
+              <MapDriver driverLocation={driverLocation} />
             </div>
 
             {/* Información del viaje - Overlay superior */}

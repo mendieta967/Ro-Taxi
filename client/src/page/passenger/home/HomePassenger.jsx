@@ -280,6 +280,33 @@ const HomePassenger = () => {
               {translate("Añadir nuevo destino o preferencia")}
             </p>
           </div>
+
+          <div
+            className={`transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm ${
+              theme === "dark"
+                ? "bg-zinc-900 hover:bg-zinc-800"
+                : "bg-white border border-yellow-500 hover:bg-yellow-50"
+            }`}
+          >
+            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-black text-xl font-bold rounded-full">
+              +
+            </div>
+            <h3
+              className={`font-semibold ${
+                theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {translate("Agregar")}
+            </h3>
+
+            <p
+              className={`text-sm ${
+                theme === "dark" ? "text-zinc-300" : "text-gray-700"
+              }`}
+            >
+              Añadir metodo de pago
+            </p>
+          </div>
         </div>
       </div>
     </MainLayout>

@@ -77,11 +77,6 @@ export default function Ubicacion({ selectedVehicle }) {
           : "flex-1 bg-white border border-yellow-500 rounded-2xl overflow-hidden shadow-lg"
       }
     >
-      {/* Mapa */}
-      <div className="w-full h-96">
-        <MapDriver driverLocation={driverLocation} />
-      </div>
-
       {/* Detalles */}
       <section className="p-6">
         <header className="flex justify-between items-start mb-6">
@@ -130,6 +125,10 @@ export default function Ubicacion({ selectedVehicle }) {
           </div>
         </div>
       </section>
+      {/* Mapa */}
+      <div className="w-full h-150 ">
+        <MapDriver driverLocation={driverLocation} />
+      </div>
     </main>
   );
 }

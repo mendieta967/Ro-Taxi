@@ -15,6 +15,18 @@ export const cardViajes = [
     description: "Gestiona tus métodos de pago",
   },
 ];
+//lista de favoritos
+export const favoriteRides = [
+  {
+    origin: "Casa",
+    destination: "Facultad",
+  },
+  {
+    origin: "Trabajo",
+    destination: "Gimnasio",
+  },
+];
+
 //lista de usuarios
 export const dataAdmin = {
   conductores: [
