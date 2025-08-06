@@ -33,6 +33,7 @@ const Ubicaciones = () => {
   }, [page]);
 
   const updatedAt = (date) => {
+    if (!date) return;
     var formatedDate = new Date(date);
     const humanReadable = formatDistanceToNow(formatedDate, {
       addSuffix: true,
@@ -132,7 +133,7 @@ const Ubicaciones = () => {
                       }
                     >
                       {translate("Actualizado")}:{" "}
-                      {updatedAt(selectedVehicle.lastLocationAt)}
+                      {updatedAt(vehicle.lastLocationAt)}
                     </p>
                   )}
                 </div>

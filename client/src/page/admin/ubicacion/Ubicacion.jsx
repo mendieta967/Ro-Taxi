@@ -9,27 +9,65 @@ import MapDriver from "@/components/common/Map/mapHome/MapDriver";
 export default function Ubicacion({ selectedVehicle }) {
   const { theme } = useContext(ThemeContext);
   const translate = useTranslate();
-  const { on, off } = useConnection();
+  const { on, off, invoke } = useConnection();
   const [driverLocation, setDriverLocation] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  var updatedAt = new Date(selectedVehicle.lastLocationAt);
-  const humanReadable = formatDistanceToNow(updatedAt, {
-    addSuffix: true,
-    locale: es,
-  });
+  const updatedAt = (date) => {
+    if (!date) return;
+    return formatDistanceToNow(new Date(date), {
+      addSuffix: true,
+      locale: es,
+    });
+  };
+
+  console.log({ driverLocation });
 
   useEffect(() => {
+    setLoading(true);
+    if (selectedVehicle.latitude && selectedVehicle.longitude) {
+      setDriverLocation({
+        lat: selectedVehicle.latitude,
+        lng: selectedVehicle.longitude,
+      });
+    }
+    setLastUpdate(selectedVehicle.lastLocationAt);
+
     const handleDriverLocation = (data) => {
       console.log("📍 Nueva ubicación del conductor recibida:", data);
       setDriverLocation({ lat: data.lat, lng: data.lng });
+      setLastUpdate(new Date());
+      setLoading(false);
     };
+
+    invoke("JoinVehicleGroup", selectedVehicle.id).then(() => {
+      console.log("Unido al grupo del vehículo", selectedVehicle.id);
+    });
 
     on("DriverLocationUpdated", handleDriverLocation);
 
+    const timeoutId = setTimeout(() => {
+      console.warn("⚠️ No se recibió la ubicación del conductor a tiempo");
+      setLoading(false);
+    }, 5000);
+
     return () => {
+      setDriverLocation(null);
       off("DriverLocationUpdated", handleDriverLocation);
+      invoke("LeaveVehicleGroup", selectedVehicle.id).then(() => {
+        console.log("Salido del grupo del vehículo", selectedVehicle.id);
+      });
+      clearTimeout(timeoutId);
     };
-  }, []);
+  }, [selectedVehicle]);
+
+  const statusColors =
+    selectedVehicle.status === "Active"
+      ? "bg-green-600 text-white"
+      : selectedVehicle.status === "Inactive"
+      ? "bg-yellow-500 text-white"
+      : "bg-red-600 text-white";
 
   return (
     <main
@@ -39,19 +77,21 @@ export default function Ubicacion({ selectedVehicle }) {
           : "flex-1 bg-white border border-yellow-500 rounded-2xl overflow-hidden shadow-lg"
       }
     >
-      {/* Placeholder Mapa */}
+      {/* Mapa */}
       <div className="w-full h-96">
         <MapDriver driverLocation={driverLocation} />
       </div>
-      {/* Detalles del vehículo seleccionado */}
 
+      {/* Detalles */}
       <section className="p-6">
         <header className="flex justify-between items-start mb-6">
           <h2 className="text-xl font-bold">
             {translate("vehiculo")} {selectedVehicle.plate}
           </h2>
-          <span className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-            {selectedVehicle.status}
+          <span
+            className={`${statusColors} text-xs font-semibold px-3 py-1 rounded-full`}
+          >
+            {selectedVehicle.status ? "Activo" : "Inactivo"}
           </span>
         </header>
 
@@ -80,14 +120,14 @@ export default function Ubicacion({ selectedVehicle }) {
             >
               {translate("Ultima actualización")}
             </p>
-            <p className="font-semibold">{humanReadable}</p>
+            <p className="font-semibold">
+              {loading
+                ? "cargando..."
+                : lastUpdate
+                ? updatedAt(lastUpdate)
+                : "-"}
+            </p>
           </div>
-        </div>
-
-        <div className="flex justify-end gap-4">
-          <button className="bg-yellow-600 hover:bg-yellow-500 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200">
-            {translate("Ver ruta")}
-          </button>
         </div>
       </section>
     </main>

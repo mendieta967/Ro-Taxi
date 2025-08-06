@@ -88,37 +88,44 @@ public class RideHub : Hub
             Lng = lng
         };
 
-        bool shouldUpdateDb = false;
+        //bool shouldUpdateDb = false;
 
-        lock (_lock)
-        {
-            if (_lastUpdateTimestamps.TryGetValue(vehicleId, out var lastUpdate))
-            {
-                var secondsSinceLastUpdate = (DateTime.UtcNow - lastUpdate).TotalSeconds;
-                if (secondsSinceLastUpdate > 10)
-                {
-                    shouldUpdateDb = true;
-                    _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
-                }
-            }
-            else
-            {
-                shouldUpdateDb = true;
-                _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
-            }
-        }
+        //lock (_lock)
+        //{
+        //    if (_lastUpdateTimestamps.TryGetValue(vehicleId, out var lastUpdate))
+        //    {
+        //        var secondsSinceLastUpdate = (DateTime.UtcNow - lastUpdate).TotalSeconds;
+        //        if (secondsSinceLastUpdate > 10)
+        //        {
+        //            shouldUpdateDb = true;
+        //            _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        shouldUpdateDb = true;
+        //        _lastUpdateTimestamps[vehicleId] = DateTime.UtcNow;
+        //    }
+        //}
 
-        if (shouldUpdateDb)
-        {
-            await _vehicleService.UpdateLocation(userId, vehicleId, lat, lng);
-        }
-
+        //if (shouldUpdateDb)
+        //{
+        //    Console.WriteLine($"[DB] Updating location for vehicle {vehicleId}");
+        //    await _vehicleService.UpdateLocation(userId, vehicleId, lat, lng);
+        //}
+        //else
+        //{
+        //    Console.WriteLine($"[SKIP] Not updating DB for vehicle {vehicleId} (less than 10s)");
+        //}
+        
         if (rideId.HasValue)
         {
             await Clients.Group($"ride-{rideId}").SendAsync("DriverLocationUpdated", location);
         }
 
         await Clients.OthersInGroup($"vehicle-{vehicleId}").SendAsync("DriverLocationUpdated", location);
+
+        await _vehicleService.UpdateLocation(userId, vehicleId, lat, lng);
 
     }
 
