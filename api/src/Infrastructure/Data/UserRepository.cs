@@ -89,6 +89,11 @@ public class UserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.GithubId == id);
     }
 
+    public async Task<User?> GetByResetPasswordToken(string token)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+    }
+
     public async Task<int> DeleteAccount(CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
