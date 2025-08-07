@@ -19,6 +19,8 @@ public class UserDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string AccountStatus { get; set; }
+    public int AverageRating { get; set; }
+    public int RatingsCount { get; set; }
     public bool IsDeletionScheduled { get; set; }
     public DateTime? DeletionScheduledAt { get; set; }
 
@@ -33,6 +35,8 @@ public class UserDto
         CreatedAt = user.CreatedAt;
         UpdatedAt = user.UpdatedAt;
         AccountStatus = user.AccountStatus.ToString() ?? "";
+        AverageRating = user.AverageRating;
+        RatingsCount = user.RatingsCount;
         IsDeletionScheduled = user.IsDeletionScheduled;
         DeletionScheduledAt = user.DeletionScheduledAt;
     }
