@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,6 +54,10 @@ public class UserService: IUserService
     {
         var existingUser = await _userRepository.IsEmailOrDniTakenAsync(registerRequest.Email, registerRequest.Dni);
         if (existingUser) throw new AlreadyRegisteredException("Email or Dni are already registered.");
+
+        var randomBytes = RandomNumberGenerator.GetBytes(32);
+        var confirmationToken = Convert.ToHexString(randomBytes);
+
         User user = new();
         user.AuthProvider = AuthProvider.Local;
         user.Email = registerRequest.Email;
@@ -64,6 +69,40 @@ public class UserService: IUserService
         user.CreatedAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
         user.AccountStatus = AccountStatus.Active;
+        user.EmailConfirmationToken = confirmationToken;
+        user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
+        
+        string subject = "Confirmá tu cuenta - Rodaxi";
+        string confirmationUrl = $"https://localhost:5173/confirm-email?token={confirmationToken}";
+        string body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <title>Confirmá tu cuenta</title>
+            </head>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Confirmá tu cuenta en Rodaxi</h2>
+                <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
+                <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
+                <p>
+                    <a href='{confirmationUrl}' style='
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #4CAF50;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;'>Confirmar cuenta</a>
+                </p>
+                <p>O copiá y pegá este enlace en tu navegador:</p>
+                <p><a href='{confirmationUrl}'>{confirmationUrl}</a></p>
+                <hr>
+                <p style='font-size: 12px; color: #666;'>Si no creaste esta cuenta, podés ignorar este mensaje.</p>
+            </body>
+            </html>";
+
+        _mailService.Send(subject, body, user.Email);
+
         await _userRepository.Create(user);
     }
 
@@ -79,6 +118,7 @@ public class UserService: IUserService
         user.CreatedAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
         user.AccountStatus = AccountStatus.Pending;
+        user.IsEmailConfirmed = true;
         await _userRepository.Create(user);
     }
 
@@ -168,7 +208,7 @@ public class UserService: IUserService
 
 
         var randomBytes = RandomNumberGenerator.GetBytes(32);
-        var resetToken = Convert.ToHexString(randomBytes); // .NET 6+
+        var resetToken = Convert.ToHexString(randomBytes); 
 
         string subject = "Restablecé tu contraseña - Rodaxi";
         string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
@@ -216,6 +256,67 @@ public class UserService: IUserService
         user.Password = new PasswordHasher<User>().HashPassword(user, newPassword);
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiresAt = null;
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ResendVerificationEmail(string email)
+    {
+        var user = await _userRepository.GetByEmail(email) ?? throw new NotFoundException("User not found");
+
+        if (user.IsEmailConfirmed)
+            throw new ConflictException("Email is already verified");
+
+        var randomBytes = RandomNumberGenerator.GetBytes(32);
+        var confirmationToken = Convert.ToHexString(randomBytes);
+
+        user.EmailConfirmationToken = confirmationToken;
+        user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
+
+        string subject = "Confirmá tu cuenta - Rodaxi";
+        string confirmationUrl = $"https://localhost:5173/confirm-email?token={confirmationToken}";
+        string body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <title>Confirmá tu cuenta</title>
+            </head>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Confirmá tu cuenta en Rodaxi</h2>
+                <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
+                <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
+                <p>
+                    <a href='{confirmationUrl}' style='
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #4CAF50;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;'>Confirmar cuenta</a>
+                </p>
+                <p>O copiá y pegá este enlace en tu navegador:</p>
+                <p><a href='{confirmationUrl}'>{confirmationUrl}</a></p>
+                <hr>
+                <p style='font-size: 12px; color: #666;'>Si no creaste esta cuenta, podés ignorar este mensaje.</p>
+            </body>
+            </html>";
+
+        _mailService.Send(subject, body, user.Email);
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ConfirmEmail(string token)
+    {
+        var user = await _userRepository.GetByEmailConfirmationToken(token) ?? throw new NotFoundException("The token is invalid or has expired");
+        if (user.EmailConfirmationTokenExpiresAt < DateTime.UtcNow) throw new NotFoundException("The token is invalid or has expired");
+
+        user.IsEmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        user.EmailConfirmationTokenExpiresAt = null;
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();

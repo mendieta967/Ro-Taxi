@@ -2,9 +2,12 @@
 using Application.Models.Parameters;
 using Application.Models.Requests;
 using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,5 +26,7 @@ public interface IUserService
     Task DeleteAccount(int userId, ValidateUserRequest request);
     Task ForgotPassword(string email);
     Task ResetPassword(string token, string newPassword);
+    Task ResendVerificationEmail(string email);
+    Task ConfirmEmail(string token);
 
 }

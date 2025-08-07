@@ -184,4 +184,46 @@ public class UserController : ControllerBase
             return StatusCode(500, new { Error = "Internal Error" });
         }
     }
+
+    [HttpPost("resend-verification-email")]
+    public async Task<IActionResult> ResendVerificationEmail([FromBody] ResendVerificationEmailRequest request)
+    {
+        try
+        {
+            await _userService.ResendVerificationEmail(request.Email);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (ConflictException ex)
+        {
+            return Conflict(new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en ResendVerificationEmail");
+            return StatusCode(500, new { Error = "Internal Error" });
+        }
+    }
+
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+    {
+        try
+        {
+            await _userService.ConfirmEmail(request.Token);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en ResetPassword");
+            return StatusCode(500, new { Error = "Internal Error" });
+        }
+    }
 }

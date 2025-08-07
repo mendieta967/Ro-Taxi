@@ -94,6 +94,11 @@ public class UserRepository : IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == token);
     }
 
+    public async Task<User?> GetByEmailConfirmationToken(string token)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.EmailConfirmationToken == token);
+    }
+
     public async Task<int> DeleteAccount(CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;

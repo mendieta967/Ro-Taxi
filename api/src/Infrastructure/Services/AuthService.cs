@@ -109,6 +109,7 @@ public class AuthService: IAuthService
         var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, loginRequest.Password);
         if (result != PasswordVerificationResult.Success) throw new NotFoundException("Password or email are invalid");
         if (user.AccountStatus != AccountStatus.Active) throw new SecurityTokenException("Banned Account");
+        if (user.IsEmailConfirmed == false) throw new SecurityTokenException("This account has an unverified email address.");
         return user;
         
         

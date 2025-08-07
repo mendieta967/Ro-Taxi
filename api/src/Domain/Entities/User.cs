@@ -29,5 +29,8 @@ public class User
     public DateTime? DeletionScheduledAt { get; set; }
     public string? PasswordResetToken { get; set; }
     public DateTime? PasswordResetTokenExpiresAt { get; set; }
+    public bool IsEmailConfirmed { get; set; } 
+    public string? EmailConfirmationToken { get; set; }
+    public DateTime? EmailConfirmationTokenExpiresAt { get; set; }
 
 }
