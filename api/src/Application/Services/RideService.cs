@@ -243,6 +243,7 @@ public class RideService : IRideService
     {
         var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("user not found");
         var ride = await _rideRepository.GetById(rideId) ?? throw new NotFoundException("Ride not found");
+        var driver = ride.Driver;
 
         if (ride.PassegerId != userId)
             throw new UnauthorizedAccessException("This passenger is not associated with the ride");
@@ -258,6 +259,19 @@ public class RideService : IRideService
         
         ride.Rating = rating;
 
+
+        if (driver.RatingsCount == 0)
+        {
+            driver.AverageRating = rating;
+            driver.RatingsCount = 1;
+        }
+        else
+        {
+            driver.AverageRating = (driver.AverageRating * driver.RatingsCount + rating) / (driver.RatingsCount + 1);
+            driver.RatingsCount += 1;
+        }
+
+        _userRepository.Update(driver);
         _rideRepository.Update(ride);
         await _unitOfWork.SaveChangesAsync();
     }
