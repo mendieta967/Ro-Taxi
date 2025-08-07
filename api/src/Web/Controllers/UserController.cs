@@ -131,7 +131,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [Authorize(Roles = nameof(UserRole.Admin))]
+    [Authorize]
     [HttpDelete("delete-account")]
     public async Task<IActionResult> DeleteAccount([FromBody] ValidateUserRequest validateUserRequest)
     {
