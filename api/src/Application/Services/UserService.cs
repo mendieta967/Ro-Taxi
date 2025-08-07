@@ -1,17 +1,18 @@
 ﻿using Application.Interfaces;
 using Application.Models;
+using Application.Models.Parameters;
+using Application.Models.Requests;
 using Domain.Entities;
+using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Domain.Exceptions;
-using Domain.Enums;
-using Application.Models.Requests;
-using Application.Models.Parameters;
 
 namespace Application.Services;
 
@@ -19,10 +20,12 @@ public class UserService: IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+    private readonly IMailService _mailService;
+    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IMailService mailService)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
+        _mailService = mailService;
     }
 
     public async Task<PaginatedList<UserDto>> GetAll(PaginationParams pagination, UserFilterParams filter)
@@ -152,6 +155,67 @@ public class UserService: IUserService
 
         user.IsDeletionScheduled = true;
         user.DeletionScheduledAt = DateTime.UtcNow.AddMinutes(5);        
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ForgotPassword(string email)
+    {
+        var user = await _userRepository.GetByEmail(email);
+
+        if (user is null) return;
+
+
+        var randomBytes = RandomNumberGenerator.GetBytes(32);
+        var resetToken = Convert.ToHexString(randomBytes); // .NET 6+
+
+        string subject = "Restablecé tu contraseña - Rodaxi";
+        string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
+        string body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <title>Restablecer contraseña</title>
+            </head>
+            <body style='font-family: Arial, sans-serif;'>
+                <h2>Solicitud para restablecer tu contraseña</h2>
+                <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Rodaxi</strong>.</p>
+                <p>Para continuar, hacé clic en el siguiente botón:</p>
+                <p>
+                    <a href='{resetUrl}' style='
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #4CAF50;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 5px;'>Restablecer contraseña</a>
+                </p>
+                <p>O copiá y pegá este enlace en tu navegador:</p>
+                <p><a href='{resetUrl}'>{resetUrl}</a></p>
+                <hr>
+                <p style='font-size: 12px; color: #666;'>Si vos no pediste este cambio, podés ignorar este mensaje.</p>
+            </body>
+            </html>";
+
+        _mailService.Send(subject, body, user.Email);
+        
+        user.PasswordResetToken = resetToken;
+        user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(15);
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ResetPassword(string token, string newPassword)
+    {
+        var user = await _userRepository.GetByResetPasswordToken(token) ?? throw new NotFoundException("The token is invalid or has expired");
+        if (user.PasswordResetTokenExpiresAt < DateTime.UtcNow) throw new NotFoundException("The token is invalid or has expired");
+
+        user.Password = new PasswordHasher<User>().HashPassword(user, newPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiresAt = null;
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();

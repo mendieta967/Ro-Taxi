@@ -105,6 +105,7 @@ builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFavoriteLocationService, FavoriteLocationService>();
+builder.Services.AddScoped<IMailService, MailService>();
 
 #endregion
 

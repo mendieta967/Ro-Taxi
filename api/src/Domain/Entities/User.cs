@@ -27,5 +27,7 @@ public class User
     public int RatingsCount { get; set; }
     public bool IsDeletionScheduled { get; set; }
     public DateTime? DeletionScheduledAt { get; set; }
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetTokenExpiresAt { get; set; }
 
 }

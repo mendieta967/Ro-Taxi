@@ -18,9 +18,11 @@ namespace Web.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    public UserController(IUserService userService)
+    private readonly ILogger<AuthController> _logger;
+    public UserController(IUserService userService, ILogger<AuthController> logger)
     {
         _userService = userService;
+        _logger = logger;
     }
 
     [Authorize(Roles = nameof(UserRole.Admin))]
@@ -146,6 +148,40 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        try
+        {
+            await _userService.ForgotPassword(request.Email);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en ForgotPassword");
+            return StatusCode(500, new { Error = "Internal Error" });
+        }
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        try
+        {
+            await _userService.ResetPassword(request.Token, request.Password);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { Error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en ResetPassword");
+            return StatusCode(500, new { Error = "Internal Error" });
         }
     }
 }

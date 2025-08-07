@@ -48,7 +48,11 @@ namespace Infrastructure.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.AccountStatus)
                 .HasConversion<string>();
- 
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.RefreshToken)
+                .IsUnique();
+
             modelBuilder.Entity<Ride>()
                 .HasOne(r => r.Passeger)
                 .WithMany()

@@ -21,4 +21,7 @@ public interface IUserService
     Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId);
     Task ChangeStatus(int authUserId, int paramUserId);
     Task DeleteAccount(int userId, ValidateUserRequest request);
+    Task ForgotPassword(string email);
+    Task ResetPassword(string token, string newPassword);
+
 }

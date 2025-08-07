@@ -20,6 +20,7 @@ public interface IUserRepository
     public Task<User?> GetByDni(string dni);
     public Task<User?> GetByRefreshToken(string token);
     public Task<User?> GetByGithubId(long id);
+    Task<User?> GetByResetPasswordToken(string token);
     Task<int> DeleteAccount(CancellationToken cancellationToken = default);
 
 
