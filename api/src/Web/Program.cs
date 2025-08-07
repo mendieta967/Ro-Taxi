@@ -104,6 +104,7 @@ builder.Services.AddScoped<IRideService, RideService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFavoriteLocationService, FavoriteLocationService>();
 
 #endregion
 
@@ -115,6 +116,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 builder.Services.AddScoped<IRideRejectionRepository, RideRejectionRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IFavoriteLocationRepository, FavoriteLocationRepository>();
 #endregion
 
 var app = builder.Build();

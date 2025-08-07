@@ -17,6 +17,8 @@ public class RideDto
     public VehicleDto? Vehicle { get; set; }
     public string OriginAddress { get; set; }
     public string DestinationAddress { get; set; }
+    public FavoriteLocationDto? StartFavoriteLocation { get; set; }
+    public FavoriteLocationDto? EndFavoriteLocation { get; set; }
     public Payment Payment { get; set; }
     public int? Rating { get; set; }
     public DateTime RequestedAt { get; set; }
@@ -33,6 +35,8 @@ public class RideDto
         Vehicle = ride.Vehicle != null ? new VehicleDto(ride.Vehicle) : null;
         OriginAddress = ride.OriginAddress;
         DestinationAddress = ride.DestinationAddress;
+        StartFavoriteLocation = ride.StartFavoriteLocation != null ? new FavoriteLocationDto(ride.StartFavoriteLocation) : null;
+        EndFavoriteLocation = ride.EndFavoriteLocation != null ? new FavoriteLocationDto(ride.EndFavoriteLocation) : null;
         Payment = ride.Payment;
         Rating = ride.Rating;
         RequestedAt = ride.RequestedAt;
@@ -40,7 +44,6 @@ public class RideDto
         StartedAt = ride.StartedAt;
         EndedAt = ride.EndedAt;
         Status = ride.Status.ToString();
-
     }
 }
 

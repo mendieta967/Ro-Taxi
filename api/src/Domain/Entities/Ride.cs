@@ -22,6 +22,13 @@ public class Ride
     public string DestinationAddress { get; set; }
     public double DestinationLat { get; set; }
     public double DestinationLng { get; set; }
+
+    public int? StartFavoriteLocationId { get; set; }
+    public FavoriteLocation? StartFavoriteLocation { get; set; }
+
+    public int? EndFavoriteLocationId { get; set; }
+    public FavoriteLocation? EndFavoriteLocation { get; set; }
+
     public Payment? Payment { get; set; }
     public int? Rating { get; set; }
     public DateTime RequestedAt { get; set; }
