@@ -20,6 +20,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddHostedService<RideExpirationService>();
+builder.Services.AddHostedService<AccountDeletionService>();
 
 builder.Services.AddSignalR();
 
