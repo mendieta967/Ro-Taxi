@@ -17,6 +17,7 @@ namespace Infrastructure.Data
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<RideRejection> RideRejections { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<FavoriteLocation> FavoriteLocations { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -60,6 +61,7 @@ namespace Infrastructure.Data
 
             modelBuilder.Entity<Ride>()
                  .HasIndex(r => new { r.Status, r.ScheduledAt });
+
 
             modelBuilder.Entity<RideRejection>()
                  .HasIndex(r => new { r.DriverId, r.RideId })

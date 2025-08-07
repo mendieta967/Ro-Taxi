@@ -114,6 +114,12 @@ public class RideService : IRideService
             if (request.ScheduledAt.HasValue)
                 ride.ScheduledAt = request.ScheduledAt;
 
+            if(request.StartFavoriteLocationId.HasValue)
+                ride.StartFavoriteLocationId = request.StartFavoriteLocationId;
+
+            if (request.EndFavoriteLocationId.HasValue)
+                ride.EndFavoriteLocationId = request.EndFavoriteLocationId;
+
             await _rideRepository.Create(ride);
 
             // payment

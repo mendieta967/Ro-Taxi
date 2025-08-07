@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities;
 
-public class FavoritePlace
+public class FavoriteLocation
 {
     public int Id { get; set; }
     public int UserId { get; set; }

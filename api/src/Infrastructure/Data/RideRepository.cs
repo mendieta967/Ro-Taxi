@@ -26,6 +26,8 @@ public class RideRepository : IRideRepository
             .Include(r => r.Driver)
             .Include(r => r.Payment)
             .Include(r => r.Driver)
+            .Include(r => r.StartFavoriteLocation)
+            .Include(r => r.EndFavoriteLocation)
             .AsQueryable();
 
         if (userId != null)
@@ -70,6 +72,8 @@ public class RideRepository : IRideRepository
         var query = _context.Rides
         .Include(r => r.Passeger)
         .Include(r => r.Payment)
+        .Include(r => r.StartFavoriteLocation)
+        .Include(r => r.EndFavoriteLocation)
         .Where(r => r.Status == RideStatus.Pending && 
         r.ScheduledAt > DateTime.UtcNow && 
         r.DriverId == null && 
@@ -98,6 +102,8 @@ public class RideRepository : IRideRepository
         return await _context.Rides
             .Include(r => r.Passeger)
             .Include(r => r.Payment)
+            .Include(r => r.StartFavoriteLocation)
+            .Include(r => r.EndFavoriteLocation)
             .Where(r => 
             r.Status == RideStatus.Pending && 
             r.ScheduledAt == null && 
@@ -119,6 +125,8 @@ public class RideRepository : IRideRepository
             .Include(r => r.Driver)
             .Include(r => r.Payment)
             .Include(r => r.Vehicle)
+            .Include(r => r.StartFavoriteLocation)
+            .Include(r => r.EndFavoriteLocation)
             .Where(r =>
             r.Status == RideStatus.InProgress &&
             (r.DriverId == userId ||
@@ -134,6 +142,8 @@ public class RideRepository : IRideRepository
             .Include(r => r.Driver)
             .Include(r => r.Payment)
             .Include(r => r.Driver)
+            .Include(r => r.StartFavoriteLocation)
+            .Include(r => r.EndFavoriteLocation)
             .FirstOrDefaultAsync(r => r.Id == rideId);
     }
 

@@ -14,6 +14,8 @@ public class RideCreateRequest
     public string DestinationAddress { get; set; }
     public double DestinationLat { get; set; }
     public double DestinationLng { get; set; }
+    public int? StartFavoriteLocationId { get; set; }
+    public int? EndFavoriteLocationId { get; set; }
     public DateTime? ScheduledAt { get; set; }
     public int? PaymentMethodId { get; set; }
     public decimal CalculatedPrice { get; set; }
