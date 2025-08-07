@@ -34,6 +34,12 @@ public class AuthService: IAuthService
     public async Task<AuthDto> Login(LoginRequest loginRequest)
     {
         var user = await ValidateUser(loginRequest);
+
+        if (user.IsDeletionScheduled)
+        {
+            await CancelDeleteAccount(user);
+        }
+
         return new AuthDto
         {
             AccessToken = GenerateAccessToken(user),
@@ -74,12 +80,19 @@ public class AuthService: IAuthService
         if (user is not null)
         {
             if(user.AccountStatus != AccountStatus.Active) throw new SecurityTokenException("Banned Account");
+
             if (user.Email != userData.Email)
             {
                 user.Email = userData.Email;
                 _userRepository.Update(user);
                 await _unitOfWork.SaveChangesAsync();
             }
+
+            if (user.IsDeletionScheduled)
+            {
+                await CancelDeleteAccount(user);
+            }
+
             return new AuthDto
             {
                 AccessToken = GenerateAccessToken(user),
@@ -134,6 +147,14 @@ public class AuthService: IAuthService
         await _unitOfWork.SaveChangesAsync();
         return token;
     }
+
+    private async Task CancelDeleteAccount(User user)
+    {
+        user.IsDeletionScheduled = false;
+        user.DeletionScheduledAt = null;
+        await _unitOfWork.SaveChangesAsync();
+    }
+
 }
 
 public class AuthServiceOptions

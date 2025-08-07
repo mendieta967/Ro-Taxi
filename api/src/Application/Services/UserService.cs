@@ -150,15 +150,8 @@ public class UserService: IUserService
         var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, request.Password);
         if (result != PasswordVerificationResult.Success) throw new NotFoundException("Password is invalid");
 
-        user.AccountStatus = AccountStatus.Deleted;
-        user.Name = "Deleted User";
-        user.Email = "";
-        user.Dni = null;
-        user.Password = null;
-        user.RefreshToken = null;
-        user.RefreshTokenExpiryTime = null;
-        user.GithubId = null;
-        user.Genre = null;
+        user.IsDeletionScheduled = true;
+        user.DeletionScheduledAt = DateTime.UtcNow.AddMinutes(5);        
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();

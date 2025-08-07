@@ -88,5 +88,25 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.GithubId == id);
     }
+
+    public async Task<int> DeleteAccount(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var accounts = await _context.Users
+            .Where(u => u.DeletionScheduledAt < now && u.IsDeletionScheduled && u.AccountStatus != AccountStatus.Deleted)
+            .ExecuteUpdateAsync(setters => setters 
+                .SetProperty(u => u.AccountStatus, AccountStatus.Deleted)
+                .SetProperty(u => u.Name, "Deleted User")
+                .SetProperty(u => u.Email, "")
+                .SetProperty(u => u.Dni, (string?)null)
+                .SetProperty(u => u.Password, (string?)null)
+                .SetProperty(u => u.RefreshToken, (string?)null)
+                .SetProperty(u => u.RefreshTokenExpiryTime, (DateTime?)null)
+                .SetProperty(u => u.GithubId, (long?)null)
+                .SetProperty(u => u.Genre,(Genre?)null),               
+                cancellationToken
+            );
+        return accounts;
+    }
 }
 
