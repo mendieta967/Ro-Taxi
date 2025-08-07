@@ -50,8 +50,13 @@ namespace Infrastructure.Data
                 .HasConversion<string>();
 
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.RefreshToken)
+                .HasIndex(u => u.PasswordResetToken)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.EmailConfirmationToken)
+                .IsUnique();
+
 
             modelBuilder.Entity<Ride>()
                 .HasOne(r => r.Passeger)
