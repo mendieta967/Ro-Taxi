@@ -1,6 +1,9 @@
 using Application.Interfaces;
 using Application.Services;
+using Application.Validators;
 using Domain.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure.Data;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -93,6 +96,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
+
+builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
+builder.Services.AddFluentValidationAutoValidation();
 
 #region Services
 builder.Services.AddScoped<IUserService, UserService>();
