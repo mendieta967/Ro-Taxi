@@ -71,7 +71,9 @@ public class UserService: IUserService
         user.AccountStatus = AccountStatus.Active;
         user.EmailConfirmationToken = confirmationToken;
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
-        
+
+        await _userRepository.Create(user);
+
         string subject = "Confirmá tu cuenta - Rodaxi";
         string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
         string body = $@"            
@@ -99,9 +101,7 @@ public class UserService: IUserService
             </body>
             </html>";
 
-        _mailService.Send(subject, body, user.Email);
-
-        await _userRepository.Create(user);
+        _mailService.Send(subject, body, user.Email);     
     }
 
     public async Task Create(GithubUserDto userData)
@@ -143,7 +143,26 @@ public class UserService: IUserService
 
         user.Password = new PasswordHasher<User>().HashPassword(user, changePasswordRequest.NewPassword);
         _userRepository.Update(user);
+
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Tu contraseña fue cambiada correctamente - Rodaxi";
+        string body = $@"
+             <html>
+                <body style=""font-family: Arial, sans-serif; color: #333;"">
+                  <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+
+                  <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
+
+                  <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
+
+                  <hr>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                </body>
+               </html>";
+
+        _mailService.Send(subject, body, user.Email);  
     }
     
     public async Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
@@ -194,6 +213,9 @@ public class UserService: IUserService
         user.IsDeletionScheduled = true;
         user.DeletionScheduledAt = DateTime.UtcNow.AddMinutes(5);
 
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
         string subject = "Tu cuenta será eliminada en 14 días - Rodaxi";
         string body = $@"
              <html>
@@ -222,9 +244,6 @@ public class UserService: IUserService
                </html>";
 
         _mailService.Send(subject, body, user.Email);
-
-        _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task ForgotPassword(string email)
@@ -235,7 +254,13 @@ public class UserService: IUserService
 
 
         var randomBytes = RandomNumberGenerator.GetBytes(32);
-        var resetToken = Convert.ToHexString(randomBytes); 
+        var resetToken = Convert.ToHexString(randomBytes);
+
+        user.PasswordResetToken = resetToken;
+        user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(15);
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         string subject = "Restablecé tu contraseña - Rodaxi";
         string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
@@ -265,12 +290,6 @@ public class UserService: IUserService
             </html>";
 
         _mailService.Send(subject, body, user.Email);
-        
-        user.PasswordResetToken = resetToken;
-        user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(15);
-
-        _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task ResetPassword(string token, string newPassword)
@@ -284,6 +303,24 @@ public class UserService: IUserService
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Tu contraseña fue cambiada correctamente - Rodaxi";
+        string body = $@"
+             <html>
+                <body style=""font-family: Arial, sans-serif; color: #333;"">
+                  <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+
+                  <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
+
+                  <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
+
+                  <hr>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                </body>
+               </html>";
+
+        _mailService.Send(subject, body, user.Email);
     }
 
     public async Task ResendVerificationEmail(string email)
@@ -298,6 +335,9 @@ public class UserService: IUserService
 
         user.EmailConfirmationToken = confirmationToken;
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         string subject = "Confirmá tu cuenta - Rodaxi";
         string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
@@ -326,10 +366,7 @@ public class UserService: IUserService
             </body>
             </html>";
 
-        _mailService.Send(subject, body, user.Email);
-
-        _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
+        _mailService.Send(subject, body, user.Email);        
     }
 
     public async Task ConfirmEmail(string token)
