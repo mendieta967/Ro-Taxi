@@ -71,39 +71,37 @@ public class UserService: IUserService
         user.AccountStatus = AccountStatus.Active;
         user.EmailConfirmationToken = confirmationToken;
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
-        
+
+        await _userRepository.Create(user);
+
         string subject = "Confirmá tu cuenta - Rodaxi";
         string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
-        string body = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <title>Confirmá tu cuenta</title>
-            </head>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Confirmá tu cuenta en Rodaxi</h2>
-                <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
-                <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
-                <p>
-                    <a href='{confirmationUrl}' style='
-                        display: inline-block;
-                        padding: 10px 20px;
-                        background-color: #4CAF50;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 5px;'>Confirmar cuenta</a>
-                </p>
-                <p>O copiá y pegá este enlace en tu navegador:</p>
-                <p><a href='{confirmationUrl}'>{confirmationUrl}</a></p>
-                <hr>
-                <p style='font-size: 12px; color: #666;'>Si no creaste esta cuenta, podés ignorar este mensaje.</p>
+        string body = $@"            
+            <html>            
+            <body style=""font-family: Arial, sans-serif; color: #333;"">
+              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Roditaxi</h2>
+              <p>Gracias por registrarte en <strong>Roditaxi</strong>.</p>
+              <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
+              <p>
+                <a href=""{{confirmationUrl}}"" style=""
+                  display: inline-block;
+                  padding: 10px 20px;
+                  background-color: #FFD700;
+                  color: #000;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  font-weight: bold;"">
+                  Confirmar cuenta
+                </a>
+              </p>
+              <p>O copiá y pegá este enlace en tu navegador:</p>
+              <p><a href=""{{confirmationUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{confirmationUrl}}</a></p>
+              <hr>
+              <p style=""font-size: 12px; color: #666;"">Si no creaste esta cuenta, podés ignorar este mensaje.</p>
             </body>
             </html>";
 
-        _mailService.Send(subject, body, user.Email);
-
-        await _userRepository.Create(user);
+        _mailService.Send(subject, body, user.Email);     
     }
 
     public async Task Create(GithubUserDto userData)
@@ -145,7 +143,26 @@ public class UserService: IUserService
 
         user.Password = new PasswordHasher<User>().HashPassword(user, changePasswordRequest.NewPassword);
         _userRepository.Update(user);
+
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Tu contraseña fue cambiada correctamente - Rodaxi";
+        string body = $@"
+             <html>
+                <body style=""font-family: Arial, sans-serif; color: #333;"">
+                  <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+
+                  <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
+
+                  <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
+
+                  <hr>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                </body>
+               </html>";
+
+        _mailService.Send(subject, body, user.Email);  
     }
     
     public async Task<UserDto> Update(UserUpdateRequest request, int authUserId, int paramUserId)
@@ -194,10 +211,39 @@ public class UserService: IUserService
         if (result != PasswordVerificationResult.Success) throw new NotFoundException("Password is invalid");
 
         user.IsDeletionScheduled = true;
-        user.DeletionScheduledAt = DateTime.UtcNow.AddMinutes(5);        
+        user.DeletionScheduledAt = DateTime.UtcNow.AddMinutes(5);
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Tu cuenta será eliminada en 14 días - Rodaxi";
+        string body = $@"
+             <html>
+                <body style=""font-family: Arial, sans-serif; color: #333;"">
+                <h2 style=""color: #FFD700;"">Confirmación de eliminación de cuenta</h2>
+                <p>Hola,</p>
+                <p>Recibimos una solicitud para eliminar tu cuenta en <strong>Roditaxi</strong>.</p>
+                <p>Tu cuenta será eliminada <strong>en 14 días</strong> a partir de hoy, a menos que ingreses antes para cancelar este proceso.</p>
+                <p>Si deseas conservar tu cuenta, por favor haz clic en el siguiente enlace para acceder y cancelar la eliminación:</p>
+                <p>
+                    <a href=""http://localhost:5173/login"" 
+                        style=""
+                        background-color: #FFD700; 
+                        color: #000; 
+                        text-decoration: none; 
+                        padding: 10px 20px; 
+                        border-radius: 4px;
+                        font-weight: bold;
+                        display: inline-block;"">
+                    Cancelar eliminación de cuenta
+                    </a>
+                </p>
+                <p>Si no realizaste esta solicitud, puedes ignorar este correo y tu cuenta será eliminada automáticamente.</p>
+                <p>Saludos,<br/>El equipo de Roditaxi</p>
+                </body>
+               </html>";
+
+        _mailService.Send(subject, body, user.Email);
     }
 
     public async Task ForgotPassword(string email)
@@ -208,44 +254,42 @@ public class UserService: IUserService
 
 
         var randomBytes = RandomNumberGenerator.GetBytes(32);
-        var resetToken = Convert.ToHexString(randomBytes); 
+        var resetToken = Convert.ToHexString(randomBytes);
 
-        string subject = "Restablecé tu contraseña - Rodaxi";
-        string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
-        string body = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <title>Restablecer contraseña</title>
-            </head>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Solicitud para restablecer tu contraseña</h2>
-                <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Rodaxi</strong>.</p>
-                <p>Para continuar, hacé clic en el siguiente botón:</p>
-                <p>
-                    <a href='{resetUrl}' style='
-                        display: inline-block;
-                        padding: 10px 20px;
-                        background-color: #4CAF50;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 5px;'>Restablecer contraseña</a>
-                </p>
-                <p>O copiá y pegá este enlace en tu navegador:</p>
-                <p><a href='{resetUrl}'>{resetUrl}</a></p>
-                <hr>
-                <p style='font-size: 12px; color: #666;'>Si vos no pediste este cambio, podés ignorar este mensaje.</p>
-            </body>
-            </html>";
-
-        _mailService.Send(subject, body, user.Email);
-        
         user.PasswordResetToken = resetToken;
         user.PasswordResetTokenExpiresAt = DateTime.UtcNow.AddMinutes(15);
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Restablecé tu contraseña - Rodaxi";
+        string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
+        string body = $@"            
+            <html>            
+            <body style=""font-family: Arial, sans-serif; color: #333;"">
+              <h2 style=""color: #FFD700;"">Solicitud para restablecer tu contraseña</h2>
+              <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Roditaxi</strong>.</p>
+              <p>Para continuar, hacé clic en el siguiente botón:</p>
+              <p>
+                <a href=""{{resetUrl}}"" style=""
+                  display: inline-block;
+                  padding: 10px 20px;
+                  background-color: #FFD700;
+                  color: #000;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  font-weight: bold;"">
+                  Restablecer contraseña
+                </a>
+              </p>
+              <p>O copiá y pegá este enlace en tu navegador:</p>
+              <p><a href=""{{resetUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{resetUrl}}</a></p>
+              <hr>
+              <p style=""font-size: 12px; color: #666;"">Si vos no pediste este cambio, podés ignorar este mensaje.</p>
+            </body>
+            </html>";
+
+        _mailService.Send(subject, body, user.Email);
     }
 
     public async Task ResetPassword(string token, string newPassword)
@@ -259,6 +303,24 @@ public class UserService: IUserService
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync();
+
+        string subject = "Tu contraseña fue cambiada correctamente - Rodaxi";
+        string body = $@"
+             <html>
+                <body style=""font-family: Arial, sans-serif; color: #333;"">
+                  <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+
+                  <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
+
+                  <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
+
+                  <hr>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                </body>
+               </html>";
+
+        _mailService.Send(subject, body, user.Email);
     }
 
     public async Task ResendVerificationEmail(string email)
@@ -274,39 +336,37 @@ public class UserService: IUserService
         user.EmailConfirmationToken = confirmationToken;
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
 
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+
         string subject = "Confirmá tu cuenta - Rodaxi";
-        string confirmationUrl = $"https://localhost:5173/confirm-email?token={confirmationToken}";
+        string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
         string body = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='UTF-8'>
-                <title>Confirmá tu cuenta</title>
-            </head>
-            <body style='font-family: Arial, sans-serif;'>
-                <h2>Confirmá tu cuenta en Rodaxi</h2>
-                <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
-                <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
-                <p>
-                    <a href='{confirmationUrl}' style='
-                        display: inline-block;
-                        padding: 10px 20px;
-                        background-color: #4CAF50;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 5px;'>Confirmar cuenta</a>
-                </p>
-                <p>O copiá y pegá este enlace en tu navegador:</p>
-                <p><a href='{confirmationUrl}'>{confirmationUrl}</a></p>
-                <hr>
-                <p style='font-size: 12px; color: #666;'>Si no creaste esta cuenta, podés ignorar este mensaje.</p>
+           <html>            
+            <body style=""font-family: Arial, sans-serif; color: #333;"">
+              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Roditaxi</h2>
+              <p>Gracias por registrarte en <strong>Roditaxi</strong>.</p>
+              <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
+              <p>
+                <a href=""{{confirmationUrl}}"" style=""
+                  display: inline-block;
+                  padding: 10px 20px;
+                  background-color: #FFD700;
+                  color: #000;
+                  text-decoration: none;
+                  border-radius: 5px;
+                  font-weight: bold;"">
+                  Confirmar cuenta
+                </a>
+              </p>
+              <p>O copiá y pegá este enlace en tu navegador:</p>
+              <p><a href=""{{confirmationUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{confirmationUrl}}</a></p>
+              <hr>
+              <p style=""font-size: 12px; color: #666;"">Si no creaste esta cuenta, podés ignorar este mensaje.</p>
             </body>
             </html>";
 
-        _mailService.Send(subject, body, user.Email);
-
-        _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync();
+        _mailService.Send(subject, body, user.Email);        
     }
 
     public async Task ConfirmEmail(string token)
