@@ -22,8 +22,9 @@ import {
 const SettingsApp = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const { language, changeLanguage } = useContext(TranslateContext);
-  const [providedPassword, setProvidedPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const translate = useTranslate();
@@ -42,11 +43,18 @@ const SettingsApp = () => {
 
   const handleDeleteUser = async () => {
     try {
-      console.log("Cuenta Previoeliminada", providedPassword);
-      await deleteUser(providedPassword);
-      console.log("Cuenta eliminada", providedPassword);
-      toast("Cuenta eliminada con éxito");
-      navigate("/");
+      console.log("Cuenta Previoeliminada", password);
+      await deleteUser(password);
+      console.log("Cuenta eliminada", password);
+      toast("✅ Cuenta eliminada con éxito");
+
+      setOpenDelete(true); // Muestra el modal
+
+      setTimeout(() => {
+        localStorage.clear();
+        console.log("Cuenta eliminada", password);
+        navigate("/"); // Espera 3 segundos y redirige
+      }, 3000);
     } catch (error) {
       toast("❌ Error al eliminar cuenta");
       console.log(error);
@@ -374,8 +382,8 @@ const SettingsApp = () => {
 
             <input
               type="password"
-              value={providedPassword}
-              onChange={(e) => setProvidedPassword(e.target.value)} // ← esto debe estar
+              value={password}
+              onChange={(e) => setPassword(e.target.value)} // ← esto debe estar
               placeholder="Contraseña"
               className="w-full px-3 py-2 rounded-lg border border-zinc-300"
             />
@@ -393,6 +401,21 @@ const SettingsApp = () => {
               >
                 Eliminar
               </button>
+            </div>
+          </Modal>
+        )}
+
+        {openDelete && (
+          <Modal onClose={() => setOpenDelete(false)}>
+            <div className="flex flex-col items-center justify-center text-center p-6">
+              <h1 className="text-2xl font-semibold text-red-600 mb-4">
+                Cuenta marcada para eliminación
+              </h1>
+              <p className="text-gray-400 text-base">
+                Tu cuenta ha sido marcada para eliminación. Si no vuelves a
+                iniciar sesión dentro de los próximos <strong>14 días</strong>,
+                se eliminará permanentemente.
+              </p>
             </div>
           </Modal>
         )}
