@@ -4,16 +4,16 @@ import { ThemeContext } from "../../context/ThemeContext";
 import { TranslateContext } from "../../context/TranslateLanguage";
 import { useTranslate } from "../../hooks/useTranslate";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import Modal from "@/components/ui/Modal";
+import { deleteUser } from "../../services/user";
+import { toast } from "sonner";
+import { useContext, useState } from "react";
 import {
   Bell,
   Moon,
   Volume2,
   Mail,
   ChevronDown,
-  Shield,
-  MapPin,
-  Clock,
   LogOut,
   UserX,
   Sun,
@@ -22,6 +22,8 @@ import {
 const SettingsApp = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const { language, changeLanguage } = useContext(TranslateContext);
+  const [providedPassword, setProvidedPassword] = useState("");
+  const [open, setOpen] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const translate = useTranslate();
@@ -31,6 +33,22 @@ const SettingsApp = () => {
       await logout();
       navigate("/");
     } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      console.log("Cuenta Previoeliminada", providedPassword);
+      await deleteUser(providedPassword);
+      console.log("Cuenta eliminada", providedPassword);
+      toast("Cuenta eliminada con éxito");
+      navigate("/");
+    } catch (error) {
+      toast("❌ Error al eliminar cuenta");
       console.log(error);
     }
   };
@@ -322,6 +340,7 @@ const SettingsApp = () => {
               {translate("Cerrar Sesión")}
             </button>
             <button
+              onClick={handleOpenModal}
               className={`group flex items-center justify-center gap-2 px-6 py-3 cursor-pointer ${
                 theme === "dark"
                   ? "bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500"
@@ -342,6 +361,41 @@ const SettingsApp = () => {
             </button>
           </div>
         </div>
+
+        {open && (
+          <Modal onClose={() => setOpen(false)}>
+            <h2 className="text-2xl text-center font-semibold text-yellow-500">
+              Confirmar eliminación
+            </h2>
+            <p className="text-sm text-white">
+              Por favor ingresa tu contraseña para confirmar la eliminación de
+              tu cuenta.
+            </p>
+
+            <input
+              type="password"
+              value={providedPassword}
+              onChange={(e) => setProvidedPassword(e.target.value)} // ← esto debe estar
+              placeholder="Contraseña"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-300"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 rounded-lg border border-zinc-300 text-zinc-700 hover:bg-zinc-100 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Eliminar
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     </MainLayout>
   );

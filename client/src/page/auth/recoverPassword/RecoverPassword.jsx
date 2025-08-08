@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { passwordReset } from "../../../services/user";
 
 const RecoverPassword = () => {
   const emailRef = useRef(null);
@@ -9,29 +10,33 @@ const RecoverPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleRecover = async (formData, resetForm) => {
-    const { email } = formData;
+  const handleRecover = async (e) => {
+    e.preventDefault(); // evitar reload
+    const email = emailRef.current.value;
 
     if (!email || !email.includes("@")) {
-      setErrors({ email: true });
+      setErrors({ email: "Correo inválido" });
       setMessage("");
       return;
     }
 
     try {
-      // Aquí iría la lógica para enviar el email al backend
-      console.log("Recuperar contraseña para:", email);
-
       setErrors({});
-      setIsLoading;
-      setIsSuccess;
+      setIsLoading(true);
+
+      await passwordReset(email); // llamar al servicio
+
+      setIsLoading(false);
+      setIsSuccess(true);
       setMessage(
         "✅ Si el correo existe, recibirás un mensaje con instrucciones."
       );
-      resetForm();
+      emailRef.current.value = "";
     } catch (error) {
-      setErrors({ email: true });
-      setMessage("❌ Hubo un error. Intenta nuevamente.", error);
+      console.log(error);
+      setIsLoading(false);
+      setErrors({ email: "Error al enviar, intenta nuevamente." });
+      setMessage("");
     }
   };
 

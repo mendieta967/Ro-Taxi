@@ -19,6 +19,8 @@ import Ubicaciones from "../page/admin/ubicacion/Ubicaciones";
 import NotFound from "../page/notFound/NotFound";
 import RecoverPassword from "../page/auth/recoverPassword/recoverPassword";
 import LandingPage from "../page/landing/LandingPage";
+import ValidateEmail from "@/page/auth/validateEmail/ValidateEmail";
+import PasswordRecover from "@/page/auth/passwordRecover/PasswordRecover";
 import { Historial, Home } from "./CommonRoute";
 
 const router = createBrowserRouter([
@@ -110,10 +112,12 @@ const router = createBrowserRouter([
   },
 
   { path: "/", element: <LandingPage /> },
+  { path: "confirm-email", element: <ValidateEmail /> },
   { path: "complete-account", element: <CompleteAccount /> },
   { path: "login", element: <AuthPage /> },
   { path: "*", element: <NotFound /> },
   { path: "/recoverPassword", element: <RecoverPassword /> },
+  { path: "/reset-password", element: <PasswordRecover /> },
 ]);
 
 const AppRoute = () => {

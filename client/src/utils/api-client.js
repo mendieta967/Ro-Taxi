@@ -35,7 +35,6 @@ const apiClient = {
       },
     }),
 };
-
 const request = async (url, options) => {
   const response = await fetch(`${baseUrl}/${url}`, {
     credentials: "include",
@@ -46,9 +45,19 @@ const request = async (url, options) => {
     if (response.status === 401) {
       const refreshOk = await refresh();
       if (refreshOk) return request(url, options);
-    } else {
-      throw new Error(`Error making the request: ${response.statusText}`);
     }
+
+    // 👇 Intentamos leer el cuerpo como JSON
+    let errorMessage = `Error ${response.statusText}: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorMessage;
+    } catch (e) {
+      console.log("Error al leer el cuerpo de la respuesta:", e);
+    }
+
+    // ❌ Lanzamos error con mensaje personalizado
+    throw new Error(errorMessage);
   }
 
   const contentType = response.headers.get("Content-Type");

@@ -132,7 +132,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("delete-account")]
+    [HttpPost("delete-account")]
     public async Task<IActionResult> DeleteAccount([FromBody] ValidateUserRequest validateUserRequest)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);

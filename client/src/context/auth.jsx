@@ -39,13 +39,21 @@ export default function AuthContextProvider({ children }) {
 
   const login = async (formData) => {
     try {
-      await loginUser(formData);
+      const response = await loginUser(formData);
+      console.log("Response: capturando el error", response.error);
       await fetchUser();
     } catch (error) {
-      toast("❌ Credenciales incorrectas", {
-        description: "Verificá tu correo y contraseña e intentá nuevamente.",
-      });
-      console.log("Error al intentar iniciar sesión:", error);
+      console.log("Error completo:", error); // 👈 Esto es clave para ver la estructura
+
+      if (error.message === "Banned Account") {
+        toast(
+          "❌ Cuenta eliminada o deshabilitada. Contacta al administrador."
+        );
+      } else if (error.message === "Password or email are invalid") {
+        toast("❌ Credenciales incorrectas, ingrese nuevamente.");
+      } else {
+        toast("❌ Error inesperado");
+      }
     } finally {
       setLoading(false);
     }

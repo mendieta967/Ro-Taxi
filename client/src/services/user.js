@@ -8,4 +8,14 @@ export const getAll = (pageNumber, pageSize, search = "") =>
     `user?Page=${pageNumber}&PageSize=${pageSize}&Search=${search}`
   );
 export const editUserStatus = (userId) => apiClient.patch(`user/${userId}`);
-export const deleteUser = () => apiClient.delete("user/delete-account");
+export const passwordReset = (email) =>
+  apiClient.post("user/forgot-password", { email });
+
+export const recoverPassword = (token, password) =>
+  apiClient.post("user/reset-password", { token, password });
+export const deleteUser = (password) =>
+  apiClient.post("user/delete-account", {
+    validateUserRequest: {
+      providedPassword: password,
+    },
+  });
