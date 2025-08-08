@@ -8,5 +8,5 @@ namespace Application.Models.Requests;
 
 public class ValidateUserRequest
 {
-    public string Password;
+    public string Password { get; set; } 
 }
