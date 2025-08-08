@@ -68,7 +68,7 @@ const Register = ({ onSwitch }) => {
     },
   ];
 
-  const handleRegister = async (formData, resetForm) => {
+  const handleRegister = async (formData) => {
     setErrors({
       name: false,
       email: false,
@@ -116,20 +116,19 @@ const Register = ({ onSwitch }) => {
 
     console.log("Registro del usuario:", formData);
 
-    resetForm();
     setUserType("");
-    onSwitch();
 
     try {
       const res = await registerUser(formData);
       console.log("Respuesta del servidor:", res);
 
-      if (res.status === 201) {
-        toast.success("✅ Usuario registrado con éxito", {
-          description: "El usuario fue registrado correctamente.",
-        });
-        resetForm();
-      }
+      toast.success("✅ Usuario registrado con éxito", {
+        description:
+          "Registro exitoso. Revisa tu email para activar tu cuenta.",
+      });
+      setTimeout(() => {
+        onSwitch();
+      }, 3000);
     } catch (error) {
       toast.error("❌ Error al registrar usuario", {
         description:
