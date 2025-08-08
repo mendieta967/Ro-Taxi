@@ -126,7 +126,7 @@ export default function Ubicacion({ selectedVehicle }) {
         </div>
       </section>
       {/* Mapa */}
-      <div className="w-full h-150 ">
+      <div className="w-full h-full ">
         <MapDriver driverLocation={driverLocation} />
       </div>
     </main>

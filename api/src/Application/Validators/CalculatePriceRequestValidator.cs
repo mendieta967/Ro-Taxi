@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Validators;
 
-´public class CalculatePriceRequestValidator: AbstractValidator<CalculatePriceRequest>
+public class CalculatePriceRequestValidator: AbstractValidator<CalculatePriceRequest>
 {
     public CalculatePriceRequestValidator()
     {

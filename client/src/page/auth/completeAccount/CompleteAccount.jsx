@@ -16,8 +16,6 @@ const CompleteAccount = () => {
     genero: false,
   });
 
-  const navigate = useNavigate();
-
   if (user.accountStatus !== "Pending") return <Navigate to="/" replace />;
 
   const completeFields = [
@@ -75,7 +73,7 @@ const CompleteAccount = () => {
       await completeAccount(formData);
       resetForm();
       setRole("");
-      navigate("/", { replace: true });
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }
@@ -109,10 +107,10 @@ const CompleteAccount = () => {
               ].map((type, i) => (
                 <label
                   key={i}
-                  className={`flex bg-yellow-50 items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
+                  className={`flex bg-zinc-700 items-center gap-2 px-4 py-2 rounded-xl border text-sm transition-all duration-200 cursor-pointer shadow-sm ${
                     role === type.value
-                      ? "bg-cyan-50 border-yellow-600 text-yellow-700 font-semibold"
-                      : "border-gray-300 hover:border-yellow-400 hover:bg-cyan-50"
+                      ? "bg-cyan-50 border-yellow-600 text-yellow-500 font-semibold"
+                      : "border-gray-300 hover:border-yellow-400 hover:bg-zinc-500"
                   }`}
                 >
                   <input

@@ -6,6 +6,7 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { getChat, getListOfChats, markAsSeen } from "@/services/chat";
 import { useAuth } from "@/context/auth";
 import { useConnection } from "@/context/ConnectionContext";
+import MiniLoader from "@/components/common/MiniLoader";
 
 const ChatDriver = () => {
   const [selectedChat, setSelectedChat] = useState(null);
@@ -15,6 +16,7 @@ const ChatDriver = () => {
   const [newMessage, setNewMessage] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   const { theme } = useContext(ThemeContext);
   const { on, invoke, off } = useConnection();
@@ -27,6 +29,7 @@ const ChatDriver = () => {
     setLoading(true);
     getListOfChats()
       .then((list) => {
+        console.log(list);
         setChats(list.data);
         if (list.data[0]) {
           handleSelectChat(list.data[0]);
@@ -39,48 +42,6 @@ const ChatDriver = () => {
         setLoading(false);
       });
   }, []);
-
-  // useEffect(() => {
-  //   const handleMessage = (message) => {
-  //     console.log("HOLA");
-  //     console.log(message);
-  //     const isCurrentChat = selectedChat?.id === message.chatId;
-
-  //     // Siempre actualizar lastMessage y mover al tope
-  //     setChats((prevChats) => {
-  //       const updatedChats = prevChats.map((chat) =>
-  //         chat.id === message.chatId
-  //           ? {
-  //               ...chat,
-  //               unreadMessages: isCurrentChat ? 0 : chat.unreadMessages + 1,
-  //               lastMessage: message,
-  //             }
-  //           : chat
-  //       );
-
-  //       // Mover el chat que recibió el mensaje al tope
-  //       const sorted = updatedChats.sort((a, b) => {
-  //         if (a.id === message.chatId) return -1;
-  //         if (b.id === message.chatId) return 1;
-  //         return 0;
-  //       });
-
-  //       return sorted;
-  //     });
-
-  //     // Si es el chat abierto, agregar el mensaje
-  //     if (isCurrentChat) {
-  //       setMessages((prevMessages) => [...prevMessages, message]);
-  //     }
-  //   };
-
-  //   on("receiveRideMessage", handleMessage);
-
-  //   // 🔁 Cleanup para evitar múltiples listeners
-  //   return () => {
-  //     off("receiveRideMessage", handleMessage);
-  //   };
-  // }, [selectedChat?.id]);
 
   useEffect(() => {
     const handleOnMessage = (msg) => {
@@ -98,14 +59,14 @@ const ChatDriver = () => {
   const handleSelectChat = async (chat) => {
     try {
       setSelectedChat(chat);
-      setLoading(true);
+      setLoadingMessages(true);
       handleMarkAsSeen(chat.id);
       const chatMessages = await getChat(chat.id);
       setMessages(chatMessages);
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setLoadingMessages(false);
     }
   };
 
@@ -164,43 +125,44 @@ const ChatDriver = () => {
             }`}
           >
             {/* Lista de chats */}
-            {chats.length === 0 && loading ? (
-              <p>Cargando...</p>
-            ) : (
-              <div
-                className={`${showChatOnMobile ? "hidden" : "flex"} ${
-                  theme === "dark"
-                    ? "border-r border-zinc-800"
-                    : "border-r border-yellow-500"
-                } md:flex w-full md:w-80 flex-col`}
-              >
-                <div className="p-4">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search
-                        className={
-                          theme === "dark"
-                            ? "h-5 w-5 text-gray-500"
-                            : "h-5 w-5 text-gray-900"
-                        }
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className={`block w-full pl-10 pr-3 py-2  transition-all duration-200 ${
+
+            <div
+              className={`${showChatOnMobile ? "hidden" : "flex"} ${
+                theme === "dark"
+                  ? "border-r border-zinc-800"
+                  : "border-r border-yellow-500"
+              } md:flex w-full md:w-80 flex-col`}
+            >
+              <div className="p-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search
+                      className={
                         theme === "dark"
-                          ? "border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
-                          : "border border-gray-900 rounded-lg  text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800/50 focus:border-gray-800"
-                      }`}
-                      placeholder={translate("Buscar")}
+                          ? "h-5 w-5 text-gray-500"
+                          : "h-5 w-5 text-gray-900"
+                      }
                     />
                   </div>
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className={`block w-full pl-10 pr-3 py-2  transition-all duration-200 ${
+                      theme === "dark"
+                        ? "border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500"
+                        : "border border-gray-900 rounded-lg  text-gray-900 placeholder-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800/50 focus:border-gray-800"
+                    }`}
+                    placeholder={translate("Buscar")}
+                  />
                 </div>
+              </div>
 
-                <div className="flex-1 overflow-y-auto custom-scroll">
-                  {chats.map((chat) => {
+              <div className="flex-1 overflow-y-auto custom-scroll">
+                {chats.length === 0 && loading ? (
+                  <MiniLoader />
+                ) : (
+                  chats.map((chat) => {
                     return (
                       <div
                         key={chat.id}
@@ -254,10 +216,10 @@ const ChatDriver = () => {
                         </div>
                       </div>
                     );
-                  })}
-                </div>
+                  })
+                )}
               </div>
-            )}
+            </div>
 
             {/* Área de chat */}
 
@@ -266,178 +228,185 @@ const ChatDriver = () => {
                 showChatOnMobile ? "flex" : "hidden"
               } md:flex flex-1 flex-col`}
             >
-              {/* Cabecera del chat */}
-              <div
-                className={`p-4 flex items-center justify-between ${
-                  theme === "dark"
-                    ? " border-b border-zinc-800 "
-                    : "border-b border-yellow-500"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setShowChatOnMobile(false)}
-                    className="md:hidden p-2 rounded-full hover:bg-zinc-700 transition-colors"
+              {loadingMessages && <MiniLoader />}
+              {!loadingMessages && selectedChat && (
+                <>
+                  {/* Cabecera del chat */}
+                  <div
+                    className={`p-4 flex items-center justify-between ${
+                      theme === "dark"
+                        ? " border-b border-zinc-800 "
+                        : "border-b border-yellow-500"
+                    }`}
                   >
-                    <ArrowLeft
-                      className={
-                        theme === "dark"
-                          ? "h-5 w-5 text-gray-300"
-                          : "h-5 w-5 text-gray-900"
-                      }
-                    />
-                  </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setShowChatOnMobile(false)}
+                        className="md:hidden p-2 rounded-full hover:bg-zinc-700 transition-colors"
+                      >
+                        <ArrowLeft
+                          className={
+                            theme === "dark"
+                              ? "h-5 w-5 text-gray-300"
+                              : "h-5 w-5 text-gray-900"
+                          }
+                        />
+                      </button>
+                      <div
+                        className={
+                          theme === "dark"
+                            ? "w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center"
+                            : "w-10 h-10 rounded-full bg-white flex items-center justify-center"
+                        }
+                      >
+                        <User
+                          className={
+                            theme === "dark" ? "text-gray-300" : "text-gray-900"
+                          }
+                          size={20}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">
+                          {selectedChat?.passengerName}
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mensajes */}
+                  <div className="flex-1 p-4 overflow-y-auto custom-scroll">
+                    <div className="space-y-4">
+                      {messages?.map((msg) => {
+                        if (msg.userId == userId) {
+                          return (
+                            <div
+                              key={msg.id}
+                              className="flex items-end justify-end gap-2"
+                            >
+                              <div
+                                className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
+                                  theme === "dark"
+                                    ? "bg-yellow-500 text-black"
+                                    : "bg-yellow-500 text-black border border-white"
+                                }`}
+                              >
+                                <p className="text-sm font-semibold leading-relaxed break-words">
+                                  {msg.text}
+                                </p>
+
+                                <div className="mt-2 flex justify-end">
+                                  <span className="text-xs text-black opacity-70">
+                                    {new Date(msg.timestamp).toLocaleTimeString(
+                                      "es-AR",
+                                      {
+                                        timeZone:
+                                          "America/Argentina/Buenos_Aires",
+                                        hour12: false,
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={msg.id} className="flex items-end gap-2">
+                              <div
+                                className={
+                                  theme === "dark"
+                                    ? "w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center"
+                                    : "w-8 h-8 rounded-full bg-white flex items-center justify-center"
+                                }
+                              >
+                                <User
+                                  className={
+                                    theme === "dark"
+                                      ? "text-gray-300"
+                                      : "text-gray-900"
+                                  }
+                                  size={16}
+                                />
+                              </div>
+                              <div
+                                className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
+                                  theme === "dark"
+                                    ? "bg-zinc-800 text-white"
+                                    : "bg-white border border-yellow-500 text-gray-900"
+                                }`}
+                              >
+                                <p className="text-sm leading-relaxed break-words">
+                                  {msg.text}
+                                </p>
+
+                                <div className="mt-2 flex justify-end">
+                                  <span
+                                    className={`text-xs ${
+                                      theme === "dark"
+                                        ? "text-gray-400"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {new Date(msg.timestamp).toLocaleTimeString(
+                                      "es-AR",
+                                      {
+                                        timeZone:
+                                          "America/Argentina/Buenos_Aires",
+                                        hour12: false,
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Entrada de mensaje */}
                   <div
                     className={
                       theme === "dark"
-                        ? "w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center"
-                        : "w-10 h-10 rounded-full bg-white flex items-center justify-center"
+                        ? "p-4 border-t border-zinc-800"
+                        : "p-4 border-t border-yellow-500"
                     }
                   >
-                    <User
-                      className={
-                        theme === "dark" ? "text-gray-300" : "text-gray-900"
-                      }
-                      size={20}
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSendMessage();
+                        }}
+                        className={
+                          theme === "dark"
+                            ? "flex-1 py-2 px-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
+                            : "flex-1 py-2 px-3 border border-gray-900 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500 transition-all duration-200"
+                        }
+                        placeholder="Escribe un mensaje..."
+                      />
+                      <button
+                        onClick={handleSendMessage}
+                        className={
+                          theme === "dark"
+                            ? "p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black rounded-full transition-all duration-300 shadow-lg hover:shadow-yellow-500/20 cursor-pointer"
+                            : "p-3 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-yellow-500 rounded-full transition-all duration-300 shadow-lg hover:shadow-gray-500/20 cursor-pointer"
+                        }
+                      >
+                        <Send size={18} />
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium">
-                      {selectedChat?.passengerName}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-              {selectedChat && loading && <p>Cargando...</p>}
-              {/* Mensajes */}
-              <div className="flex-1 p-4 overflow-y-auto custom-scroll">
-                <div className="space-y-4">
-                  {messages?.map((msg) => {
-                    if (msg.userId == userId) {
-                      return (
-                        <div
-                          key={msg.id}
-                          className="flex items-end justify-end gap-2"
-                        >
-                          <div
-                            className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
-                              theme === "dark"
-                                ? "bg-yellow-500 text-black"
-                                : "bg-yellow-500 text-black border border-white"
-                            }`}
-                          >
-                            <p className="text-sm font-semibold leading-relaxed break-words">
-                              {msg.text}
-                            </p>
-
-                            <div className="mt-2 flex justify-end">
-                              <span className="text-xs text-black opacity-70">
-                                {new Date(msg.timestamp).toLocaleTimeString(
-                                  "es-AR",
-                                  {
-                                    timeZone: "America/Argentina/Buenos_Aires",
-                                    hour12: false,
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div key={msg.id} className="flex items-end gap-2">
-                          <div
-                            className={
-                              theme === "dark"
-                                ? "w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center"
-                                : "w-8 h-8 rounded-full bg-white flex items-center justify-center"
-                            }
-                          >
-                            <User
-                              className={
-                                theme === "dark"
-                                  ? "text-gray-300"
-                                  : "text-gray-900"
-                              }
-                              size={16}
-                            />
-                          </div>
-                          <div
-                            className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
-                              theme === "dark"
-                                ? "bg-zinc-800 text-white"
-                                : "bg-white border border-yellow-500 text-gray-900"
-                            }`}
-                          >
-                            <p className="text-sm leading-relaxed break-words">
-                              {msg.text}
-                            </p>
-
-                            <div className="mt-2 flex justify-end">
-                              <span
-                                className={`text-xs ${
-                                  theme === "dark"
-                                    ? "text-gray-400"
-                                    : "text-gray-500"
-                                }`}
-                              >
-                                {new Date(msg.timestamp).toLocaleTimeString(
-                                  "es-AR",
-                                  {
-                                    timeZone: "America/Argentina/Buenos_Aires",
-                                    hour12: false,
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                  })}
-                </div>
-              </div>
-
-              {/* Entrada de mensaje */}
-              <div
-                className={
-                  theme === "dark"
-                    ? "p-4 border-t border-zinc-800"
-                    : "p-4 border-t border-yellow-500"
-                }
-              >
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSendMessage();
-                    }}
-                    className={
-                      theme === "dark"
-                        ? "flex-1 py-2 px-3 border border-zinc-700 rounded-lg bg-zinc-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all duration-200"
-                        : "flex-1 py-2 px-3 border border-gray-900 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500 transition-all duration-200"
-                    }
-                    placeholder="Escribe un mensaje..."
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    className={
-                      theme === "dark"
-                        ? "p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black rounded-full transition-all duration-300 shadow-lg hover:shadow-yellow-500/20 cursor-pointer"
-                        : "p-3 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-yellow-500 rounded-full transition-all duration-300 shadow-lg hover:shadow-gray-500/20 cursor-pointer"
-                    }
-                  >
-                    <Send size={18} />
-                  </button>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
