@@ -19,7 +19,7 @@ public class UserDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string AccountStatus { get; set; }
-    public int AverageRating { get; set; }
+    public double AverageRating { get; set; }
     public int RatingsCount { get; set; }
     public bool IsDeletionScheduled { get; set; }
     public DateTime? DeletionScheduledAt { get; set; }

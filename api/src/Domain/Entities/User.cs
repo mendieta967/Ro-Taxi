@@ -23,7 +23,7 @@ public class User
     public AuthProvider AuthProvider { get; set; }
     public long? GithubId { get; set; }
     public AccountStatus AccountStatus { get; set; }
-    public int AverageRating { get; set; }
+    public double AverageRating { get; set; }
     public int RatingsCount { get; set; }
     public bool IsDeletionScheduled { get; set; }
     public DateTime? DeletionScheduledAt { get; set; }
