@@ -73,7 +73,7 @@ public class UserService: IUserService
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
         
         string subject = "Confirmá tu cuenta - Rodaxi";
-        string confirmationUrl = $"https://localhost:5173/confirm-email?token={confirmationToken}";
+        string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
         string body = $@"
             <!DOCTYPE html>
             <html>
