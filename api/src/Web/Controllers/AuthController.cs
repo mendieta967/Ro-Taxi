@@ -83,73 +83,24 @@ public class AuthController : ControllerBase
             });
             return Redirect("http://localhost:5173");
         }
+        
+        catch (AlreadyRegisteredException ex)
+        {
+            var errorMessage = Uri.EscapeDataString(ex.Message);
+            return Redirect($"http://localhost:5173/oauth/error?message={errorMessage}");
+        }
+        catch (ConflictException ex)
+        {
+            var errorMessage = Uri.EscapeDataString(ex.Message);
+            return Redirect($"http://localhost:5173/oauth/error?message={errorMessage}");
+        }
         catch (Exception ex)
         {
-            return BadRequest($"Error: {ex.Message}");
+            var errorMessage = "Internal Error";
+            return Redirect($"http://localhost:5173/oauth/error?message={errorMessage}");
         }
 
-    }
-
-    private async Task<string> GetGithubToken(string code)
-    {
-        Console.WriteLine(code);
-        var url = "https://github.com/login/oauth/access_token";
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "client_id", _configuration["Github:GITHUB_CLIENT_ID"]! },
-            { "client_secret", _configuration["Github:GITHUB_CLIENT_SECRET"]! },
-            { "redirect_uri", _configuration["Github:REDIRECT_URI"]! },
-            { "code", code }
-        });
-        var client = _httpClientFactory.CreateClient();
-        var response = await client.PostAsync(url, content);
-        if (!response.IsSuccessStatusCode) throw new Exception("OAuth authentication failed with status code " + response.StatusCode);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(responseBody);
-        var parameters = System.Web.HttpUtility.ParseQueryString(responseBody);
-        var accessToken = parameters["access_token"];
-        if (string.IsNullOrEmpty(accessToken)) throw new Exception(responseBody);
-        return accessToken;        
-    }
-
-    private async Task<GithubUserDto> GetGithubUser(string accessToken)
-    {
-        var client = _httpClientFactory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        client.DefaultRequestHeaders.Add("User-Agent", "App");
-        var response = await client.GetAsync("https://api.github.com/user");
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        var userData = JsonSerializer.Deserialize<GithubUserDto>(content, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        }); ;
-
-        var emailResponse = await client.GetAsync("https://api.github.com/user/emails");
-        if (!emailResponse.IsSuccessStatusCode)
-        {
-            Console.WriteLine("Error al obtener los correos electrónicos");
-            return userData;  // Devuelve el objeto sin email si falla
-        }
-
-        var emailContent = await emailResponse.Content.ReadAsStringAsync();
-        var emails = JsonSerializer.Deserialize<List<GithubEmailDto>>(emailContent, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-        Console.WriteLine(emailContent);
-        if (emails != null)
-        {
-            // Buscar el correo principal verificado
-            var primaryEmail = emails.FirstOrDefault(e => e.Primary && e.Verified)?.Email;
-            if (!string.IsNullOrEmpty(primaryEmail))
-            {
-                userData.Email = primaryEmail;
-            }
-        }
-
-        return userData;
-    }
+    }    
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
@@ -305,5 +256,66 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { Error = ex.Message});
         }
+    }
+
+    private async Task<string> GetGithubToken(string code)
+    {
+        Console.WriteLine(code);
+        var url = "https://github.com/login/oauth/access_token";
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "client_id", _configuration["Github:GITHUB_CLIENT_ID"]! },
+            { "client_secret", _configuration["Github:GITHUB_CLIENT_SECRET"]! },
+            { "redirect_uri", _configuration["Github:REDIRECT_URI"]! },
+            { "code", code }
+        });
+        var client = _httpClientFactory.CreateClient();
+        var response = await client.PostAsync(url, content);
+        if (!response.IsSuccessStatusCode) throw new Exception("OAuth authentication failed with status code " + response.StatusCode);
+        var responseBody = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(responseBody);
+        var parameters = System.Web.HttpUtility.ParseQueryString(responseBody);
+        var accessToken = parameters["access_token"];
+        if (string.IsNullOrEmpty(accessToken)) throw new Exception(responseBody);
+        return accessToken;
+    }
+
+    private async Task<GithubUserDto> GetGithubUser(string accessToken)
+    {
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        client.DefaultRequestHeaders.Add("User-Agent", "App");
+        var response = await client.GetAsync("https://api.github.com/user");
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+        var userData = JsonSerializer.Deserialize<GithubUserDto>(content, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        }); ;
+
+        var emailResponse = await client.GetAsync("https://api.github.com/user/emails");
+        if (!emailResponse.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Error al obtener los correos electrónicos");
+            return userData;  // Devuelve el objeto sin email si falla
+        }
+
+        var emailContent = await emailResponse.Content.ReadAsStringAsync();
+        var emails = JsonSerializer.Deserialize<List<GithubEmailDto>>(emailContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        Console.WriteLine(emailContent);
+        if (emails != null)
+        {
+            // Buscar el correo principal verificado
+            var primaryEmail = emails.FirstOrDefault(e => e.Primary && e.Verified)?.Email;
+            if (!string.IsNullOrEmpty(primaryEmail))
+            {
+                userData.Email = primaryEmail;
+            }
+        }
+
+        return userData;
     }
 }

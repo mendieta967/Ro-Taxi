@@ -108,6 +108,9 @@ public class UserService: IUserService
     {
         var existingUser = await _userRepository.GetByEmail(userData.Email);
         if (existingUser is not null) throw new AlreadyRegisteredException("Email already registered.");
+
+        if (userData.Name == null) throw new ConflictException("The GitHub Account doesn't have Name");
+
         User user = new();
         user.AuthProvider = AuthProvider.Github;
         user.GithubId = userData.Id;
