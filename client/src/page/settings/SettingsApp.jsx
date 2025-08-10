@@ -52,7 +52,7 @@ const SettingsApp = () => {
 
       setTimeout(() => {
         localStorage.clear();
-        console.log("Cuenta eliminada", password);
+        handleLogaut();
         navigate("/"); // Espera 3 segundos y redirige
       }, 3000);
     } catch (error) {

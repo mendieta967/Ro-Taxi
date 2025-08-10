@@ -211,7 +211,7 @@ public class UserService: IUserService
         var resetToken = Convert.ToHexString(randomBytes); 
 
         string subject = "Restablecé tu contraseña - Rodaxi";
-        string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
+        string resetUrl = $"http://localhost:5173/reset-password?token={resetToken}";
         string body = $@"
             <!DOCTYPE html>
             <html>
@@ -275,7 +275,7 @@ public class UserService: IUserService
         user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(24);
 
         string subject = "Confirmá tu cuenta - Rodaxi";
-        string confirmationUrl = $"https://localhost:5173/confirm-email?token={confirmationToken}";
+        string confirmationUrl = $"http://localhost:5173/confirm-email?token={confirmationToken}";
         string body = $@"
             <!DOCTYPE html>
             <html>
