@@ -13,9 +13,9 @@ export const passwordReset = (email) =>
 
 export const recoverPassword = (token, password) =>
   apiClient.post("user/reset-password", { token, password });
-export const deleteUser = (password) =>
-  apiClient.post("user/delete-account", {
-    validateUserRequest: {
-      providedPassword: password,
-    },
+
+export const deleteUser = (password) => {
+  return apiClient.post("user/delete-account", {
+    password,
   });
+};

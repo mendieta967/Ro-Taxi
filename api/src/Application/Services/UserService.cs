@@ -266,7 +266,9 @@ public class UserService: IUserService
         await _unitOfWork.SaveChangesAsync();
 
         string subject = "Restablecé tu contraseña - Rodaxi";
-        string resetUrl = $"https://localhost:5173/reset-password?token={resetToken}";
+
+        string resetUrl = $"http://localhost:5173/reset-password?token={resetToken}";
+     
         string body = $@"            
             <html>            
             <body style=""font-family: Arial, sans-serif; color: #333;"">
@@ -289,6 +291,7 @@ public class UserService: IUserService
               <p><a href=""{{resetUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{resetUrl}}</a></p>
               <hr>
               <p style=""font-size: 12px; color: #666;"">Si vos no pediste este cambio, podés ignorar este mensaje.</p>
+
             </body>
             </html>";
 

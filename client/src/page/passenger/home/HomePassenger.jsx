@@ -179,7 +179,7 @@ const HomePassenger = () => {
                     }`}
                   >
                     <Star size={16} className="mr-1" />
-                    5.0
+                    {viaje.driver.averageRating}
                   </div>
                 </div>
               ))}

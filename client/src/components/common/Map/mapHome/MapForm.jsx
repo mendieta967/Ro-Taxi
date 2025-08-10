@@ -529,7 +529,7 @@ const MapForm = ({
                           <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 backdrop-blur-sm">
                             <span className="text-yellow-500 text-sm">★</span>
                             <span className="text-yellow-600 text-sm font-bold">
-                              4.8
+                              {accepteRide.driver.averageRating}
                             </span>
                           </div>
                         </div>
