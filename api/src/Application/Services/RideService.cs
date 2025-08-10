@@ -264,18 +264,9 @@ public class RideService : IRideService
             throw new InvalidOperationException("this ride is already rated");
         
         ride.Rating = rating;
-
-
-        if (driver.RatingsCount == 0)
-        {
-            driver.AverageRating = rating;
-            driver.RatingsCount = 1;
-        }
-        else
-        {
-            driver.AverageRating = (driver.AverageRating * driver.RatingsCount + rating) / (driver.RatingsCount + 1);
-            driver.RatingsCount += 1;
-        }
+        
+        driver.RatingsCount += 1;
+        driver.AverageRating = (driver.AverageRating * (driver.RatingsCount - 1) + rating) / driver.RatingsCount;
 
         _userRepository.Update(driver);
         _rideRepository.Update(ride);

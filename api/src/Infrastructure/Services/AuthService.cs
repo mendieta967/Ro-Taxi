@@ -79,7 +79,7 @@ public class AuthService: IAuthService
         var user = await _userRepository.GetByGithubId(userData.Id);
         if (user is not null)
         {
-            if(user.AccountStatus != AccountStatus.Active) throw new SecurityTokenException("Banned Account");
+            if(user.AccountStatus == AccountStatus.Disabled) throw new SecurityTokenException("Banned Account");
 
             if (user.Email != userData.Email)
             {

@@ -30,10 +30,10 @@ public class MailService : IMailService
         email.To.Add(new MailboxAddress("", mailTo));
         email.Subject = subject;
 
-        email.Body = new TextPart("plain")
+        email.Body = new BodyBuilder
         {
-            Text = message
-        };
+            HtmlBody = message
+        }.ToMessageBody();
 
         try
         {

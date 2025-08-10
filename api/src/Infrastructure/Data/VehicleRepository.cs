@@ -20,15 +20,15 @@ public class VehicleRepository: IVehicleRepository
         _context = context;
     }
 
-    public async Task<PaginatedList<Vehicle>> GetAll(int? driverId, int pageNumber, int pageSize, string? licensePlate)
+    public async Task<PaginatedList<Vehicle>> GetAll(int? driverId, int pageNumber, int pageSize, string? search)
     {
         var query = _context.Vehicles.AsNoTracking().Include(v => v.Driver).AsQueryable();
 
         if (driverId.HasValue)
             query = query.Where(v => v.DriverId == driverId);
 
-        if (!string.IsNullOrEmpty(licensePlate))
-            query = query.Where(v => v.LicensePlate.Contains(licensePlate));
+        if (!string.IsNullOrEmpty(search))
+            query = query.Where(v => v.LicensePlate.Contains(search) || v.Driver.Name.Contains(search));
 
         query = driverId != null 
             ? query.OrderByDescending(v => v.CreatedAt) 
