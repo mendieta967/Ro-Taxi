@@ -8,6 +8,7 @@ import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+
 import Modal from "@/components/ui/Modal";
 import {
   getAllFavorites,
@@ -17,6 +18,7 @@ import {
 const HomePassenger = () => {
   const { user } = useAuth();
   const { theme } = useContext(ThemeContext);
+
   const [rideProximo, setRideProximo] = useState(null);
   //const [tripAccepted, setTripAccepted] = useState(null);
   const [viajesRecientes, setViajesRecientes] = useState([]);
@@ -32,7 +34,7 @@ const HomePassenger = () => {
 
         // ✅ VIAJES PROGRAMADOS (futuros o activos con fecha programada)
         const programados = response.data.filter(
-          (ride) => ride?.startedAt !== null && ride.status !== "Completed"
+          (ride) => ride?.startedAt !== null && ride.status === "InProgress"
         );
 
         // Ordenar por fecha programada (más próximos primero)
@@ -221,7 +223,7 @@ const HomePassenger = () => {
                     }`}
                   >
                     <Star size={16} className="mr-1" />
-                    {viaje.driver.averageRating.toFixed(2)}
+                    {viaje.driver.averageRating.toFixed(1)}
                   </div>
                 </div>
               ))}
