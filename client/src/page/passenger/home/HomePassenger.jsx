@@ -14,6 +14,7 @@ import {
   getAllFavorites,
   deleteFavorite,
 } from "../../../services/locationFavorite";
+import { useRide } from "@/context/RideContext";
 
 const HomePassenger = () => {
   const { user } = useAuth();
@@ -25,7 +26,8 @@ const HomePassenger = () => {
   const [showModal, setShowModal] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const translate = useTranslate();
-
+  const { scheduledRides } = useRide();
+  console.log({ scheduledRides });
   useEffect(() => {
     const fetchRides = async () => {
       try {
@@ -241,61 +243,62 @@ const HomePassenger = () => {
 
         {/* Tarjetas informativas */}
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {rideProximo && (
-            <Link to="/app/mis-viajes" className="block">
-              <div
-                className={`transition p-6 rounded-2xl shadow-lg border-l-8 ${
-                  theme === "dark"
-                    ? "bg-zinc-900 border-yellow-500 hover:bg-zinc-800"
-                    : "bg-white border-yellow-500 hover:bg-yellow-50"
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <svg
-                    className="w-6 h-6 text-yellow-500"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 7V3m8 4V3m-9 4h10M5 11h14M5 19h14M5 15h14M3 7h18"
-                    />
-                  </svg>
-                  <h3
-                    className={`text-lg font-semibold ${
-                      theme === "dark" ? "text-white" : "text-gray-800"
+          {scheduledRides.length > 0 &&
+            scheduledRides.map((ride) => (
+              <Link key={ride.id} to="/app/mis-viajes" className="block">
+                <div
+                  className={`transition p-6 rounded-2xl shadow-lg border-l-8 ${
+                    theme === "dark"
+                      ? "bg-zinc-900 border-yellow-500 hover:bg-zinc-800"
+                      : "bg-white border-yellow-500 hover:bg-yellow-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <svg
+                      className="w-6 h-6 text-yellow-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8 7V3m8 4V3m-9 4h10M5 11h14M5 19h14M5 15h14M3 7h18"
+                      />
+                    </svg>
+                    <h3
+                      className={`text-lg font-semibold ${
+                        theme === "dark" ? "text-white" : "text-gray-800"
+                      }`}
+                    >
+                      Próximo viaje programado
+                    </h3>
+                  </div>
+                  <p
+                    className={`text-base ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-700"
                     }`}
                   >
-                    Próximo viaje programado
-                  </h3>
+                    {new Date(ride.scheduledAt).toLocaleString("es-AR", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p
+                    className={`text-base ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Precio: {ride.payment.amount}
+                  </p>
                 </div>
-                <p
-                  className={`text-base ${
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  {new Date(rideProximo.startedAt).toLocaleString("es-AR", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p
-                  className={`text-base ${
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Precio: {rideProximo.payment.amount}
-                </p>
-              </div>
-            </Link>
-          )}
+              </Link>
+            ))}
 
           {/* Tarjeta para agregar */}
           {/* Mostrar solo el último favorito */}
