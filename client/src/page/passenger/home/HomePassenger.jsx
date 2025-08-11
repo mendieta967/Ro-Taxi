@@ -221,7 +221,7 @@ const HomePassenger = () => {
                     }`}
                   >
                     <Star size={16} className="mr-1" />
-                    {viaje.driver.averageRating}
+                    {viaje.driver.averageRating.toFixed(2)}
                   </div>
                 </div>
               ))}
