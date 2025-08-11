@@ -9,6 +9,10 @@ import { useConnection } from "@/context/ConnectionContext";
 import { Star } from "lucide-react";
 import { ratingDriver, deleteRide } from "../../../../services/ride";
 import { useRide } from "@/context/RideContext";
+import {
+  createFavorite,
+  getAllFavorites,
+} from "../../../../services/locationFavorite";
 
 const MapForm = ({
   handleSelect,
@@ -27,6 +31,7 @@ const MapForm = ({
   estimatedPrice,
   mapLoading,
   handleConfirm,
+  origin,
   setShowInfo, //para llamar a la api
 }) => {
   function getDistance(lat1, lon1, lat2, lon2) {
@@ -102,6 +107,11 @@ const MapForm = ({
   const [hovered, setHovered] = useState(0);
   const [idDriver, setidDriver] = useState(null);
   const [cancelId, setCancelId] = useState(null);
+  const [originFavorite, setOriginFavorite] = useState(false);
+  const [showFavorite, setShowFavorite] = useState(false);
+  const [favoriteName, setFavoriteName] = useState("");
+  const [allFavorites, setAllFavorites] = useState([]);
+  const [canToggleFavorite, setCanToggleFavorite] = useState(true);
 
   const translate = useTranslate();
   const { on, invoke } = useConnection();
@@ -206,6 +216,69 @@ const MapForm = ({
     console.log("accepteRide cambiado:", accepteRide);
   }, [accepteRide]);
 
+  useEffect(() => {
+    if (!origin || allFavorites.length === 0) {
+      setOriginFavorite(false);
+      setCanToggleFavorite(true); // puede cambiar porque no está guardado
+      return;
+    }
+
+    const found = allFavorites.some(
+      (fav) =>
+        Math.abs(fav.latitude - origin.lat) < 0.0001 &&
+        Math.abs(fav.longitude - origin.lng) < 0.0001
+    );
+
+    setOriginFavorite(found);
+    setCanToggleFavorite(!found); // si ya está guardado (found === true), NO puede togglear
+  }, [origin, allFavorites]);
+
+  const handleFavoriteChange = (newFavorite) => {
+    setOriginFavorite(newFavorite);
+    setShowFavorite(true);
+    console.log("El favorito cambió:", newFavorite);
+  };
+
+  const handleSaveFavorite = async () => {
+    // Validar nombre
+    if (!favoriteName.trim()) {
+      alert("Por favor ingresa un nombre para el favorito");
+      return;
+    }
+
+    const dataToSend = {
+      name: favoriteName,
+      address: inputValues.origin,
+      latitude: origin ? origin.lat : null,
+      longitude: origin ? origin.lng : null,
+    };
+
+    try {
+      const response = await createFavorite(dataToSend);
+      console.log("Favorito guardado!", response);
+      setAllFavorites((prev) => [...prev, response]);
+      setShowFavorite(false);
+    } catch (error) {
+      console.error("Error guardando favorito", error);
+      alert("Error guardando favorito");
+    }
+  };
+
+  useEffect(() => {
+    const handleGetFavorites = async () => {
+      try {
+        const response = await getAllFavorites();
+        console.log("Favoritos obtenidos!", response);
+        setAllFavorites(response);
+      } catch (error) {
+        console.error("Error obteniendo favoritos", error);
+        alert("Error obteniendo favoritos");
+      }
+    };
+
+    handleGetFavorites();
+  }, []);
+
   return (
     <div className="w-80 max-w-md mx-auto md:max-w-xl lg:max-w-2xl h-auto max-h-[90vh] md:h-[500px] overflow-hidden p-6 bg-zinc-900 shadow-lg ">
       {/* Contenedor principal */}
@@ -229,6 +302,9 @@ const MapForm = ({
                   handleActiveInput={handleActiveInput}
                   handleInputChange={handleInputChange}
                   value={inputValues.origin}
+                  favorite={originFavorite}
+                  onFavoriteChange={handleFavoriteChange}
+                  canToggleFavorite={canToggleFavorite}
                 />
                 {activeInput === "origin" &&
                   (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
@@ -257,6 +333,7 @@ const MapForm = ({
                   handleActiveInput={handleActiveInput}
                   handleInputChange={handleInputChange}
                   value={inputValues.destination}
+                  allFavorites={allFavorites}
                 />
                 {activeInput === "destination" &&
                   (mapLoading || (searchResults.length > 0 && !mapLoading)) && (
@@ -749,6 +826,45 @@ const MapForm = ({
                 className="px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition"
               >
                 Buscar nuevo viaje
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        {showFavorite && (
+          <Modal onClose={() => setShowFavorite(false)}>
+            <h1 className="text-yellow-400 text-2xl font-semibold mb-6 text-center tracking-wide">
+              Añadir a favorito
+            </h1>
+
+            <input
+              type="text"
+              placeholder="Ingresa un nombre"
+              value={favoriteName}
+              onChange={(e) => setFavoriteName(e.target.value)}
+              className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-900 border border-yellow-500 text-yellow-300 placeholder-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+            />
+
+            <input
+              type="text"
+              value={inputValues.origin}
+              readOnly
+              className="w-full mb-6 px-4 py-3 rounded-lg bg-zinc-900 border border-yellow-500 text-yellow-300 cursor-not-allowed"
+            />
+
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowFavorite(false)}
+                className="px-5 py-2 rounded-lg border border-yellow-400 cursor-pointer text-yellow-400 hover:bg-yellow-400 hover:text-[#1E1E2F] transition font-medium"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleSaveFavorite}
+                className="px-5 py-2 rounded-lg bg-yellow-400 text-[#1E1E2F] cursor-pointer font-semibold hover:bg-yellow-500 transition shadow-md"
+              >
+                Guardar
               </button>
             </div>
           </Modal>

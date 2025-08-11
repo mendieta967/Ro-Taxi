@@ -340,6 +340,7 @@ const MapOnly = ({ cancel }) => {
           setShowInfo={setShowInfo}
           showInfo={showInfo}
           cancel={cancel}
+          origin={origin}
         />
       </div>
 
