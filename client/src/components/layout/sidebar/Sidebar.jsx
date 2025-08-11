@@ -97,7 +97,7 @@ const Sidebar = ({ isMobile, isOpen, toggleSidebar }) => {
                 theme === "dark" ? "text-gray-900 " : "text-yellow-500"
               }`}
             >
-              Ro-Taxi
+              Rodaxi
             </span>
           </h1>
         </div>
