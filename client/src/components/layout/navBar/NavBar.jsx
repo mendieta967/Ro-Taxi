@@ -35,7 +35,7 @@ const Navbar = ({ isMobile }) => {
       {isMobile ? (
         <>
           <div className="flex-1 flex justify-center items-center gap-3">
-            <h1 className="text-xl font-bold text-white">Ro-Taxi</h1>
+            <h1 className="text-xl font-bold text-white">Rodaxi</h1>
           </div>
         </>
       ) : (

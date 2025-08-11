@@ -28,7 +28,7 @@ const LandingPage = () => {
           />
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-yellow-500 mb-4">
-            Bienvenido a RO-TAXI
+            Bienvenido a RODAXI
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-200 max-w-2xl mb-8 px-2">

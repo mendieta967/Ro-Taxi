@@ -29,11 +29,11 @@ const LandingNavbar = () => {
           <div className="flex items-center space-x-3">
             <img
               src="/logo.png"
-              alt="RO-TAXI Logo"
+              alt="RODAXI Logo"
               className="w-20 h-20 object-contain border-2 border-yellow-700 rounded-full transform hover:scale-105 transition duration-300"
             />
             <span className="text-2xl font-bold text-yellow-500 tracking-wider hover:text-yellow-600 font-sans">
-              RO-TAXI
+              RODAXI
             </span>
           </div>
 
