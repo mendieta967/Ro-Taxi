@@ -26,7 +26,7 @@ public class MailService : IMailService
     public void Send(string subject, string message, string mailTo)
     {
         var email = new MimeMessage();
-        email.From.Add(new MailboxAddress("Roditaxi", _mailFrom));
+        email.From.Add(new MailboxAddress("Rodaxi", _mailFrom));
         email.To.Add(new MailboxAddress("", mailTo));
         email.Subject = subject;
 

@@ -79,11 +79,11 @@ public class UserService: IUserService
         string body = $@"            
             <html>            
             <body style=""font-family: Arial, sans-serif; color: #333;"">
-              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Roditaxi</h2>
-              <p>Gracias por registrarte en <strong>Roditaxi</strong>.</p>
+              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Rodaxi</h2>
+              <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
               <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
               <p>
-                <a href=""{{confirmationUrl}}"" style=""
+                <a href=""{confirmationUrl}"" style=""
                   display: inline-block;
                   padding: 10px 20px;
                   background-color: #FFD700;
@@ -95,7 +95,7 @@ public class UserService: IUserService
                 </a>
               </p>
               <p>O copiá y pegá este enlace en tu navegador:</p>
-              <p><a href=""{{confirmationUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{confirmationUrl}}</a></p>
+              <p><a href=""{confirmationUrl}"" style=""color: #0000EE; text-decoration: underline;"">{confirmationUrl}</a></p>
               <hr>
               <p style=""font-size: 12px; color: #666;"">Si no creaste esta cuenta, podés ignorar este mensaje.</p>
             </body>
@@ -154,14 +154,14 @@ public class UserService: IUserService
              <html>
                 <body style=""font-family: Arial, sans-serif; color: #333;"">
                   <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
-                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Rodaxi</strong> fue cambiada exitosamente.</p>
 
                   <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
 
                   <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
 
                   <hr>
-                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Rodaxi.</p>
                 </body>
                </html>";
 
@@ -225,7 +225,7 @@ public class UserService: IUserService
                 <body style=""font-family: Arial, sans-serif; color: #333;"">
                 <h2 style=""color: #FFD700;"">Confirmación de eliminación de cuenta</h2>
                 <p>Hola,</p>
-                <p>Recibimos una solicitud para eliminar tu cuenta en <strong>Roditaxi</strong>.</p>
+                <p>Recibimos una solicitud para eliminar tu cuenta en <strong>Rodaxi</strong>.</p>
                 <p>Tu cuenta será eliminada <strong>en 14 días</strong> a partir de hoy, a menos que ingreses antes para cancelar este proceso.</p>
                 <p>Si deseas conservar tu cuenta, por favor haz clic en el siguiente enlace para acceder y cancelar la eliminación:</p>
                 <p>
@@ -242,7 +242,7 @@ public class UserService: IUserService
                     </a>
                 </p>
                 <p>Si no realizaste esta solicitud, puedes ignorar este correo y tu cuenta será eliminada automáticamente.</p>
-                <p>Saludos,<br/>El equipo de Roditaxi</p>
+                <p>Saludos,<br/>El equipo de Rodaxi</p>
                 </body>
                </html>";
 
@@ -273,10 +273,10 @@ public class UserService: IUserService
             <html>            
             <body style=""font-family: Arial, sans-serif; color: #333;"">
               <h2 style=""color: #FFD700;"">Solicitud para restablecer tu contraseña</h2>
-              <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Roditaxi</strong>.</p>
+              <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Rodaxi</strong>.</p>
               <p>Para continuar, hacé clic en el siguiente botón:</p>
               <p>
-                <a href=""{{resetUrl}}"" style=""
+                <a href=""{resetUrl}"" style=""
                   display: inline-block;
                   padding: 10px 20px;
                   background-color: #FFD700;
@@ -288,7 +288,7 @@ public class UserService: IUserService
                 </a>
               </p>
               <p>O copiá y pegá este enlace en tu navegador:</p>
-              <p><a href=""{{resetUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{resetUrl}}</a></p>
+              <p><a href=""{resetUrl}"" style=""color: #0000EE; text-decoration: underline;"">{resetUrl}</a></p>
               <hr>
               <p style=""font-size: 12px; color: #666;"">Si vos no pediste este cambio, podés ignorar este mensaje.</p>
 
@@ -315,14 +315,14 @@ public class UserService: IUserService
              <html>
                 <body style=""font-family: Arial, sans-serif; color: #333;"">
                   <h2 style=""color: #FFD700;"">Contraseña actualizada</h2>
-                  <p>Te informamos que la contraseña de tu cuenta en <strong>Roditaxi</strong> fue cambiada exitosamente.</p>
+                  <p>Te informamos que la contraseña de tu cuenta en <strong>Rodaxi</strong> fue cambiada exitosamente.</p>
 
                   <p>Si realizaste este cambio, no necesitás hacer nada más.</p>
 
                   <p>Si no reconocés esta actividad, te recomendamos cambiar tu contraseña lo antes posible desde la aplicación.</p>
 
                   <hr>
-                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Roditaxi.</p>
+                  <p style=""font-size: 12px; color: #666;"">Este mensaje se generó automáticamente. Si tenés alguna duda, contactá con el soporte de Rodaxi.</p>
                 </body>
                </html>";
 
@@ -350,11 +350,11 @@ public class UserService: IUserService
         string body = $@"
            <html>            
             <body style=""font-family: Arial, sans-serif; color: #333;"">
-              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Roditaxi</h2>
-              <p>Gracias por registrarte en <strong>Roditaxi</strong>.</p>
+              <h2 style=""color: #FFD700;"">Confirmá tu cuenta en Rodaxi</h2>
+              <p>Gracias por registrarte en <strong>Rodaxi</strong>.</p>
               <p>Para activar tu cuenta, hacé clic en el siguiente botón:</p>
               <p>
-                <a href=""{{confirmationUrl}}"" style=""
+                <a href=""{confirmationUrl}"" style=""
                   display: inline-block;
                   padding: 10px 20px;
                   background-color: #FFD700;
@@ -366,7 +366,7 @@ public class UserService: IUserService
                 </a>
               </p>
               <p>O copiá y pegá este enlace en tu navegador:</p>
-              <p><a href=""{{confirmationUrl}}"" style=""color: #0000EE; text-decoration: underline;"">{{confirmationUrl}}</a></p>
+              <p><a href=""{confirmationUrl}"" style=""color: #0000EE; text-decoration: underline;"">{confirmationUrl}</a></p>
               <hr>
               <p style=""font-size: 12px; color: #666;"">Si no creaste esta cuenta, podés ignorar este mensaje.</p>
             </body>
