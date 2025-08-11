@@ -1,5 +1,5 @@
 import MainLayout from "../../../components/layout/MainLayout";
-import { Star } from "lucide-react";
+import { House, Star, MapPin } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../../../context/auth";
 import { ThemeContext } from "../../../context/ThemeContext";
@@ -7,6 +7,12 @@ import { useTranslate } from "../../../hooks/useTranslate";
 import { getProgramados } from "../../../services/ride";
 import MapOnly from "../../../components/common/Map/mapHome/MapOnly";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import Modal from "@/components/ui/Modal";
+import {
+  getAllFavorites,
+  deleteFavorite,
+} from "../../../services/locationFavorite";
 
 const HomePassenger = () => {
   const { user } = useAuth();
@@ -14,7 +20,8 @@ const HomePassenger = () => {
   const [rideProximo, setRideProximo] = useState(null);
   //const [tripAccepted, setTripAccepted] = useState(null);
   const [viajesRecientes, setViajesRecientes] = useState([]);
-
+  const [showModal, setShowModal] = useState(false);
+  const [favorites, setFavorites] = useState([]);
   const translate = useTranslate();
 
   useEffect(() => {
@@ -57,6 +64,35 @@ const HomePassenger = () => {
 
     fetchRides();
   }, []);
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const response = await getAllFavorites();
+        console.log("Response:", response);
+
+        // Si quieres ordenar por id descendente (último primero)
+        response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setFavorites(response); // Guardar todo el array, no solo response[0]
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+
+  const handleDelete = async (id) => {
+    console.log("Deleting favorite with ID:", id);
+    try {
+      await deleteFavorite(id);
+      console.log("Favorite deleted successfully");
+      setFavorites((prev) => prev.filter((favorite) => favorite.id !== id));
+      toast("✅ Ubicación eliminada con éxito");
+    } catch (error) {
+      console.error("Error deleting favorite:", error);
+    }
+  };
 
   return (
     <MainLayout>
@@ -89,7 +125,13 @@ const HomePassenger = () => {
                 : "bg-white border border-yellow-500"
             }`}
           >
-            <div className="h-113  rounded-lg overflow-hidden">
+            <div
+              className={`h-113 rounded-lg overflow-hidden transition-all duration-300 ${
+                showModal
+                  ? "filter blur-sm pointer-events-none select-none"
+                  : ""
+              }`}
+            >
               <MapOnly />
             </div>
           </div>
@@ -179,7 +221,7 @@ const HomePassenger = () => {
                     }`}
                   >
                     <Star size={16} className="mr-1" />
-                    {viaje.driver.averageRating}
+                    {viaje.driver.averageRating.toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -254,59 +296,124 @@ const HomePassenger = () => {
           )}
 
           {/* Tarjeta para agregar */}
-          <div
-            className={`transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm ${
-              theme === "dark"
-                ? "bg-zinc-900 hover:bg-zinc-800"
-                : "bg-white border border-yellow-500 hover:bg-yellow-50"
-            }`}
-          >
-            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-black text-xl font-bold rounded-full">
-              +
+          {/* Mostrar solo el último favorito */}
+          {/* Tarjeta para agregar - Favorito último */}
+          {favorites.length > 0 && (
+            <div
+              className={`transition p-6 rounded-2xl shadow-lg border-l-8 cursor-pointer ${
+                theme === "dark"
+                  ? "bg-zinc-900 border-yellow-500 hover:bg-zinc-800"
+                  : "bg-white border-yellow-500 hover:bg-yellow-50"
+              }`}
+              onClick={() => setShowModal(true)}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Star size={24} className="text-yellow-500" />
+                <h3
+                  className={`text-lg font-semibold ${
+                    theme === "dark" ? "text-white" : "text-gray-800"
+                  }`}
+                >
+                  Ubicaciones Favoritos
+                </h3>
+              </div>
+              <div className="flex items-center gap-3 mb-4">
+                <House className="text-yellow-500" size={20} />
+                <p
+                  className={`text-base font-medium truncate ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                  title={favorites[0].name} // tooltip al hacer hover
+                >
+                  {favorites[0].name}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 ">
+                <MapPin className="text-yellow-500" size={20} />
+                <p
+                  className={`text-base   ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                  title={favorites[0].name} // tooltip al hacer hover
+                >
+                  {favorites[0].address}
+                </p>
+              </div>
             </div>
-            <h3
-              className={`font-semibold ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {translate("Agregar")}
-            </h3>
+          )}
 
-            <p
-              className={`text-sm ${
-                theme === "dark" ? "text-zinc-300" : "text-gray-700"
-              }`}
+          {showModal && (
+            <Modal
+              onClose={() => setShowModal(false)}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
             >
-              {translate("Añadir nuevo destino o preferencia")}
-            </p>
-          </div>
+              <h2 className="text-yellow-400 text-xl font-semibold mb-4">
+                Todos los favoritos
+              </h2>
+              <div className="max-h-[400px] overflow-y-auto space-y-4 px-2">
+                {favorites.map((fav) => (
+                  <div
+                    key={fav.id}
+                    className={`p-4 rounded-lg border shadow-sm flex flex-col justify-between ${
+                      theme === "dark"
+                        ? "border-zinc-700 bg-zinc-900 hover:bg-zinc-800"
+                        : "border-yellow-400 bg-yellow-50 hover:bg-yellow-100"
+                    } transition`}
+                  >
+                    <div className="mb-3">
+                      <h3
+                        className={`font-semibold text-lg ${
+                          theme === "dark"
+                            ? "text-yellow-400"
+                            : "text-yellow-600"
+                        } truncate`}
+                        title={fav.name}
+                      >
+                        {fav.name}
+                      </h3>
+                      <p
+                        className={`text-sm mt-1 ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        } truncate`}
+                        title={fav.address}
+                      >
+                        {fav.address}
+                      </p>
+                    </div>
 
-          <div
-            className={`transition p-5 rounded-lg flex flex-col items-center justify-center text-center space-y-2 shadow-sm ${
-              theme === "dark"
-                ? "bg-zinc-900 hover:bg-zinc-800"
-                : "bg-white border border-yellow-500 hover:bg-yellow-50"
-            }`}
-          >
-            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-black text-xl font-bold rounded-full">
-              +
-            </div>
-            <h3
-              className={`font-semibold ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {translate("Agregar")}
-            </h3>
+                    <div className="flex space-x-3 justify-end">
+                      <button
+                        className={`px-3 py-1 rounded-md text-sm font-semibold transition ${
+                          theme === "dark"
+                            ? "bg-yellow-600 text-white hover:bg-yellow-500"
+                            : "bg-yellow-400 text-yellow-900 hover:bg-yellow-500"
+                        }`}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(fav.id)}
+                        className={`px-3 py-1 rounded-md text-sm font-semibold transition ${
+                          theme === "dark"
+                            ? "bg-red-600 text-white hover:bg-red-500"
+                            : "bg-red-400 text-red-900 hover:bg-red-500"
+                        }`}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            <p
-              className={`text-sm ${
-                theme === "dark" ? "text-zinc-300" : "text-gray-700"
-              }`}
-            >
-              Añadir metodo de pago
-            </p>
-          </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="mt-4 px-4 py-2 bg-yellow-400 text-[#1E1E2F] rounded hover:bg-yellow-500 transition"
+              >
+                Cerrar
+              </button>
+            </Modal>
+          )}
         </div>
       </div>
     </MainLayout>
