@@ -5,13 +5,15 @@ import Loader from "@/components/common/Loader";
 const RideContext = createContext();
 export const RideProvider = ({ children }) => {
   const [accepteRide, setAccepteRide] = useState(null);
+  const [scheduledRides, setScheduledRides] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { invoke, handleConnect } = useConnection();
 
   const getCurrentRides = async () => {
     try {
-      const { inmediate, _scheduled } = await getInProgress();
+      const { inmediate, scheduled } = await getInProgress();
+      setScheduledRides(scheduled);
       const currentRide = inmediate[0];
       if (!currentRide) return;
 
@@ -32,7 +34,9 @@ export const RideProvider = ({ children }) => {
   if (loading) return <Loader />;
 
   return (
-    <RideContext.Provider value={{ accepteRide, setAccepteRide }}>
+    <RideContext.Provider
+      value={{ accepteRide, setAccepteRide, scheduledRides }}
+    >
       {children}
     </RideContext.Provider>
   );
